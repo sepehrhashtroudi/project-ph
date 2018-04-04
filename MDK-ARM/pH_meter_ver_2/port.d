@@ -1,0 +1,13 @@
+ph_meter_ver_2\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/port.c
+ph_meter_ver_2\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h
+ph_meter_ver_2\port.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+ph_meter_ver_2\port.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+ph_meter_ver_2\port.o: ../Inc/FreeRTOSConfig.h
+ph_meter_ver_2\port.o: ../Inc/main.h
+ph_meter_ver_2\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
+ph_meter_ver_2\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
+ph_meter_ver_2\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
+ph_meter_ver_2\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F/portmacro.h
+ph_meter_ver_2\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
+ph_meter_ver_2\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
+ph_meter_ver_2\port.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
