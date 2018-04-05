@@ -187,7 +187,7 @@ void glcd_set_font(const unsigned char  * font_table, unsigned char width, unsig
 	firstchar = start_char;
 	lastchar  = end_char;
 }
-int glcd_draw_char_xy(unsigned char x, unsigned char y, char c,int fast,int invert)
+int glcd_draw_char_xy(unsigned char x, unsigned char y, char c,int fast,int invert,int overwrite)
 {
 	if (c < firstchar || c > lastchar) 
 		{
@@ -266,9 +266,12 @@ int glcd_draw_char_xy(unsigned char x, unsigned char y, char c,int fast,int inve
 						{
 							if (dat & (1<<bit))
 							{
-								GLCD_SetPixel(x+i,y+j*8+bit,0);
+								if(overwrite == 1)
+								{
+									GLCD_SetPixel(x+i,y+j*8+bit,0);
+								}
 							}
-							else
+							else 
 							{
 								GLCD_SetPixel(x+i,y+j*8+bit,1);
 							}
@@ -279,9 +282,9 @@ int glcd_draw_char_xy(unsigned char x, unsigned char y, char c,int fast,int inve
 							{
 								GLCD_SetPixel(x+i,y+j*8+bit,1);
 							}
-							else
+							else if(overwrite == 1)
 							{
-								//GLCD_SetPixel(x+i,y+j*8+bit,0);
+								GLCD_SetPixel(x+i,y+j*8+bit,0);
 							}
 						}
 					}
@@ -292,7 +295,7 @@ int glcd_draw_char_xy(unsigned char x, unsigned char y, char c,int fast,int inve
 	
 	} 
 
-	void glcd_draw_string_xy(unsigned char x, unsigned char y, char *c,int fast,int invert)
+	void glcd_draw_string_xy(unsigned char x, unsigned char y, char *c,int fast,int invert,int overwrite)
 {
 	unsigned char  width;
 
@@ -302,7 +305,7 @@ int glcd_draw_char_xy(unsigned char x, unsigned char y, char c,int fast,int inve
 	}
 
 	while (*c) {
-		width = glcd_draw_char_xy(x,y,*c,fast,invert);
+		width = glcd_draw_char_xy(x,y,*c,fast,invert,overwrite);
 		x += (width );
 		
 		//x++;

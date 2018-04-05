@@ -114,19 +114,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	GLCD_Initalize();
 	GLCD_ClearScreen();
-	HAL_UART_Transmit(&huart2,"salam",5,100);
-	strcpy(menu_list[0].menu_name , "Main menu:");
-	strcpy(menu_list[0].menu_items[0],  "Calibration ");
-	strcpy(menu_list[0].menu_items[1] , "Temp sensor ");
-	strcpy(menu_list[0].menu_items[2] , "Date&time   ");
-	strcpy(menu_list[0].menu_items[3] , "Controller  ");
-	strcpy(menu_list[0].menu_items[4] , "Thresholds  ");
-	menu_list[0].menu_item_count = 5;
-	menu_list[0].menu_pointer=0;
-	
-	HAL_UART_Transmit(&huart2,"salam",5,100);
+	init_menu();
 	xTaskCreate(lcd_demo,"lcd_demo",128,( void * )1,5,&lcd_demo_handle);
-	HAL_UART_Transmit(&huart2,"salam",5,100);
+
 
   /* USER CODE END 2 */
 
@@ -259,16 +249,16 @@ void lcd_demo(void * pvParameters)
 		GLCD_ClearScreen();
 		glcd_set_font(Terminal6x8 ,6,8,32,127);
 		
-		glcd_draw_string_xy(0,0,menu_list[0].menu_name,0,0);
+		glcd_draw_string_xy(0,0,menu_list[0].menu_name,0,0,0);
 		for(int i=0 ; i < menu_list[0].menu_item_count ; i++)
 		{
 			if(i == menu_list[0].menu_pointer)
 			{
-				glcd_draw_string_xy(20,i*10+10,menu_list[0].menu_items[i],0,1);
+				glcd_draw_string_xy(20,i*10+10,menu_list[0].menu_items[i],0,1,0);
 			}
 			else
 			{
-				glcd_draw_string_xy(20,i*10+10,menu_list[0].menu_items[i],0,0);
+				glcd_draw_string_xy(20,i*10+10,menu_list[0].menu_items[i],0,0,0);
 			}
 		}
 		//GLCD_ClearScreen();
@@ -278,8 +268,8 @@ void lcd_demo(void * pvParameters)
 		//GLCD_SetPixel(0,0,1);
 		//GLCD_SetPixel(0,1,1);
 		//GLCD_SetPixel(1,3,1);
-		GLCD_SetPixel(0,1,1);
-		GLCD_SetPixel(0,0,1);
+		//GLCD_SetPixel(0,1,1);
+		//GLCD_SetPixel(0,0,1);
 		osDelay(1000);
 		//HAL_Delay(1000);
 	}
