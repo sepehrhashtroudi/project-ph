@@ -52,16 +52,6 @@
 #define __MAIN_H__
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_ll_rcc.h"
-#include "stm32f4xx_ll_bus.h"
-#include "stm32f4xx_ll_system.h"
-#include "stm32f4xx_ll_exti.h"
-#include "stm32f4xx_ll_cortex.h"
-#include "stm32f4xx_ll_utils.h"
-#include "stm32f4xx_ll_pwr.h"
-#include "stm32f4xx_ll_dma.h"
-#include "stm32f4xx.h"
-#include "stm32f4xx_ll_gpio.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -69,31 +59,31 @@
 
 /* Private define ------------------------------------------------------------*/
 
-#define LCD_D0_Pin LL_GPIO_PIN_0
+#define LCD_D0_Pin GPIO_PIN_0
 #define LCD_D0_GPIO_Port GPIOD
-#define LCD_D1_Pin LL_GPIO_PIN_1
+#define LCD_D1_Pin GPIO_PIN_1
 #define LCD_D1_GPIO_Port GPIOD
-#define LCD_D2_Pin LL_GPIO_PIN_2
+#define LCD_D2_Pin GPIO_PIN_2
 #define LCD_D2_GPIO_Port GPIOD
-#define LCD_D3_Pin LL_GPIO_PIN_3
+#define LCD_D3_Pin GPIO_PIN_3
 #define LCD_D3_GPIO_Port GPIOD
-#define LCD_D4_Pin LL_GPIO_PIN_4
+#define LCD_D4_Pin GPIO_PIN_4
 #define LCD_D4_GPIO_Port GPIOD
-#define LCD_D5_Pin LL_GPIO_PIN_5
+#define LCD_D5_Pin GPIO_PIN_5
 #define LCD_D5_GPIO_Port GPIOD
-#define LCD_D6_Pin LL_GPIO_PIN_6
+#define LCD_D6_Pin GPIO_PIN_6
 #define LCD_D6_GPIO_Port GPIOD
-#define LCD_D7_Pin LL_GPIO_PIN_7
+#define LCD_D7_Pin GPIO_PIN_7
 #define LCD_D7_GPIO_Port GPIOD
-#define LCD_RS_Pin LL_GPIO_PIN_3
+#define LCD_RS_Pin GPIO_PIN_3
 #define LCD_RS_GPIO_Port GPIOB
-#define LCD_RW_Pin LL_GPIO_PIN_4
+#define LCD_RW_Pin GPIO_PIN_4
 #define LCD_RW_GPIO_Port GPIOB
-#define LCD_EN_Pin LL_GPIO_PIN_5
+#define LCD_EN_Pin GPIO_PIN_5
 #define LCD_EN_GPIO_Port GPIOB
-#define LCD_CS1_Pin LL_GPIO_PIN_6
+#define LCD_CS1_Pin GPIO_PIN_6
 #define LCD_CS1_GPIO_Port GPIOB
-#define LCD_CS2_Pin LL_GPIO_PIN_7
+#define LCD_CS2_Pin GPIO_PIN_7
 #define LCD_CS2_GPIO_Port GPIOB
 
 /* ########################## Assert Selection ############################## */

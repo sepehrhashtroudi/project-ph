@@ -11,10 +11,6 @@
 <filestoremove>
     <file>
     <name>..\Drivers\CMSIS\Device\ST\STM32F4xx\Source\Templates\arm\startup_stm32f407xx.s</name>
-    <name>..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_ll_gpio.c</name>
-    <name>..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_ll_exti.c</name>
-    <name>..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_ll_rcc.c</name>
-    <name>..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_ll_utils.c</name>
     </file>
 </filestoremove>
 

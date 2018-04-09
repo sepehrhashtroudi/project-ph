@@ -22,6 +22,7 @@ void glcd_set_font(const unsigned char  * font_table, unsigned char width, unsig
 int glcd_draw_char_xy(unsigned char x, unsigned char y, char c,int fast,int invert,int overwrite);
 void glcd_draw_string_xy(unsigned char x, unsigned char y, char *c,int fast,int invert, int overwrite);
 void GLCD_WriteString(char *);
+unsigned int CalcTextWidthEN(char *str);
 unsigned char GLCD_ReadStatus(unsigned char controller);
 unsigned char GLCD_ReadByteFromROMMemory(char *);
 unsigned char GLCD_ReadData(void);

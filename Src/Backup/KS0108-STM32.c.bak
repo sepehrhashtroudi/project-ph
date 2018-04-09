@@ -140,8 +140,8 @@ unsigned char GLCD_ReadData(void)
 unsigned char tmp=0;
 while(GLCD_ReadStatus(screen_x / 64)&DISPLAY_STATUS_BUSY);
 Port_in_out_mode(0);
-HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin | LCD_RW_Pin,GPIO_PIN_SET);
 GLCD_EnableController(screen_x / 64);
+HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin | LCD_RW_Pin,GPIO_PIN_SET);
 //GLCD_Delay();
 HAL_GPIO_WritePin(LCD_EN_GPIO_Port, LCD_EN_Pin ,GPIO_PIN_SET);
 GLCD_Delay();
@@ -155,6 +155,7 @@ tmp += 32*HAL_GPIO_ReadPin(GPIOD,LCD_D5_Pin);
 tmp += 64*HAL_GPIO_ReadPin(GPIOD,LCD_D6_Pin);
 tmp += 128*HAL_GPIO_ReadPin(GPIOD,LCD_D7_Pin);
 HAL_GPIO_WritePin(LCD_EN_GPIO_Port, LCD_EN_Pin ,GPIO_PIN_RESET);
+HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin | LCD_RW_Pin,GPIO_PIN_RESET);
 GLCD_DisableController(screen_x / 64);
 //screen_x++;
 return tmp;

@@ -5,6 +5,7 @@
 #include "KS0108.h"
 #include "usart.h"
 #include "stm32f4xx_hal.h"
+#include <string.h>
 //#include "font5x8.h"
   static const char  font5x8[] = {
 
@@ -120,6 +121,8 @@ unsigned char							FontHeight;										// max height of font
 unsigned char 						FontXScale 			= 1;					// X size of font
 unsigned char 						FontYScale 			= 1;					// Y size of font
 unsigned char 						FontSpace 			= 1;					// space between char
+unsigned char 						bytes_high;
+unsigned int 							bytes_per_char;
 #define DISPLAY_WIDTH 128
 #define DISPLAY_HEIGHT 64
 
@@ -186,6 +189,15 @@ void glcd_set_font(const unsigned char  * font_table, unsigned char width, unsig
 	FontHeight = height;
 	firstchar = start_char;
 	lastchar  = end_char;
+	if ((FontHeight % 8) > 0)
+	{
+		bytes_high = (FontHeight / 8) + 1;
+	}
+	else
+	{
+		bytes_high = (FontHeight / 8);
+	}
+		bytes_per_char = FontWidth * bytes_high + 1; /* The +1 is the width byte at the start */
 }
 int glcd_draw_char_xy(unsigned char x, unsigned char y, char c,int fast,int invert,int overwrite)
 {
@@ -202,17 +214,9 @@ int glcd_draw_char_xy(unsigned char x, unsigned char y, char c,int fast,int inve
 		
 		unsigned char i;
 		unsigned char var_width;
-		unsigned char bytes_high;
-		unsigned int bytes_per_char;
 		unsigned int p;
 		
-		if ((FontHeight % 8) > 0){
-			bytes_high = (FontHeight / 8) + 1;
-		}
-		else{
-			bytes_high = (FontHeight / 8);
-		}
-		bytes_per_char = FontWidth * bytes_high + 1; /* The +1 is the width byte at the start */
+
 				
 		 
 
@@ -312,10 +316,43 @@ int glcd_draw_char_xy(unsigned char x, unsigned char y, char c,int fast,int inve
 		c++;
 	}
 	//clear to end of line
-	
-		
-		
 }
+
+unsigned int CalcTextWidthEN(char *str)
+{
+	unsigned int 		strSize = 0;
+	unsigned char 	c;
+	unsigned int 		i = 0;	
+
+	while(str[i])
+	{
+		c = str[i++];
+		
+		if(c == '\n')			continue;
+		
+
+		  if((c < firstchar) || (c > lastchar)) 
+				charwidth = FontWidth;
+			else
+			{
+				charwidth = FontPointer[(c - firstchar) * bytes_per_char];
+
+				//english spesial fonts!
+				if (((c >= 0xd4) && (c <= 0xda)) || 
+		    		((c >= 0xe7) && (c <= 0xec)) ||
+				  	 (c == 0xd1))
+
+					charwidth = 0;
+			}
+			
+			strSize += charwidth;
+		
+		
+		
+	}//while
+	
+	return(strSize);
+}	//*CalcTextWidthEN
 //-------------------------------------------------------------------------------------------------
 //
 //-------------------------------------------------------------------------------------------------
