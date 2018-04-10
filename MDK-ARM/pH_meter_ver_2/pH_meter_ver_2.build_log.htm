@@ -28,18 +28,28 @@ Project File Date:  04/09/2018
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'pH_meter_ver_2'
 compiling glcd_menu.c...
-../Inc/glcd_menu.h(27): warning:  #1-D: last line of file ends without a newline
-  void get_user_input(uint8_t *input,int *active_menu);
-..\Src\glcd_menu.c(103): warning:  #177-D: variable "search_buff"  was declared but never referenced
+../Inc/glcd_menu.h(28): warning:  #1-D: last line of file ends without a newline
+  void update_menu_from_variables();
+../Inc/glcd_menu.h(28): warning:  #1295-D: Deprecated declaration update_menu_from_variables - give arg types
+  void update_menu_from_variables();
+..\Src\glcd_menu.c(157): warning:  #177-D: variable "search_buff"  was declared but never referenced
   		char *search_buff;
-..\Src\glcd_menu.c(194): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+..\Src\glcd_menu.c(243): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
+..\Src\glcd_menu.c(249): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
+..\Src\glcd_menu.c(255): warning:  #1035-D: single-precision operand implicitly converted to double-precision
   		if(menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] > 0.001)
-..\Src\glcd_menu.c(205): warning:  #1-D: last line of file ends without a newline
+..\Src\glcd_menu.c(259): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
+..\Src\glcd_menu.c(265): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
+..\Src\glcd_menu.c(270): warning:  #1-D: last line of file ends without a newline
   }
-..\Src\glcd_menu.c: 4 warnings, 0 errors
+..\Src\glcd_menu.c: 9 warnings, 0 errors
 linking...
-Program Size: Code=15280 RO-data=1152 RW-data=144 ZI-data=18808  
-"pH_meter_ver_2\pH_meter_ver_2.axf" - 0 Error(s), 4 Warning(s).
+Program Size: Code=15768 RO-data=1152 RW-data=144 ZI-data=19480  
+"pH_meter_ver_2\pH_meter_ver_2.axf" - 0 Error(s), 9 Warning(s).
 
 <h2>Software Packages used:</h2>
 

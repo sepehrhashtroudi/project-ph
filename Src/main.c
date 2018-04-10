@@ -65,7 +65,7 @@
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 TaskHandle_t lcd_demo_handle = NULL;
-Menu menu_list[6];
+Menu menu_list[8];
 uint8_t uart_buff[20];
 int active_menu=0;
 /* USER CODE END PV */
@@ -270,6 +270,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	//HAL_UART_Transmit(&huart2,"ok\n",3,100);
 	
 	get_user_input(uart_buff,&active_menu);
+	update_menu_from_variables();
 	print_menu(active_menu);
 	
 	HAL_UART_Transmit(&huart2,uart_buff,1,100);

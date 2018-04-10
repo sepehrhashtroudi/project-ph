@@ -14,7 +14,7 @@
 #include "usart.h"
 #include "font5x8.h"
 #include "graphic.h"
-extern Menu menu_list[6];
+extern Menu menu_list[8];
 
 
 void init_menu(void)
@@ -81,10 +81,10 @@ void init_menu(void)
 	menu_list[4].values[1]=1;
 	menu_list[4].values[2]=7.100;
 	menu_list[4].values[3]=1;
-	menu_list[4].value_resolution[0]=1;
-	menu_list[4].value_resolution[1]=1;
-	menu_list[4].value_resolution[2]=0.1;
-	menu_list[4].value_resolution[3]=1;
+	menu_list[4].value_resolution[0]=1.00000;
+	menu_list[4].value_resolution[1]=1.00000;
+	menu_list[4].value_resolution[2]=0.10000;
+	menu_list[4].value_resolution[3]=0.00000;
 	menu_list[4].value_max[0]=1;
 	menu_list[4].value_max[1]=1;
 	menu_list[4].value_max[2]=14;
@@ -93,9 +93,63 @@ void init_menu(void)
 	menu_list[4].menu_item_count = 4;
 	menu_list[4].menu_pointer=1;
 	
+	
+	strcpy(menu_list[5].menu_name , "Relay Hysteresis");
+	strcpy(menu_list[5].menu_strings[0], "Max: %.1f");
+	strcpy(menu_list[5].menu_strings[1], "Min: %.1f");
+	menu_list[5].next_menu_id[0]=0;
+	menu_list[5].next_menu_id[1]=0;
+	menu_list[5].values[0]=8;
+	menu_list[5].values[1]=6;
+	menu_list[5].value_resolution[0]=0.10000;
+	menu_list[5].value_resolution[1]=0.10000;
+	menu_list[5].value_max[0]=14;
+	menu_list[5].value_max[1]=14;
+	menu_list[5].menu_id=5;
+	menu_list[5].menu_item_count = 2;
+	menu_list[5].menu_pointer=0;
+	
+	strcpy(menu_list[6].menu_name , "coefficients");
+	strcpy(menu_list[6].menu_strings[0], "P: %d");
+	strcpy(menu_list[6].menu_strings[1], "I: %d");
+	strcpy(menu_list[6].menu_strings[2], "D: %d");
+	menu_list[6].next_menu_id[0]=0;
+	menu_list[6].next_menu_id[1]=0;
+	menu_list[6].next_menu_id[2]=0;
+	menu_list[6].values[0]=10;
+	menu_list[6].values[1]=11;
+	menu_list[6].values[2]=12;
+	menu_list[6].value_resolution[0]=1;
+	menu_list[6].value_resolution[1]=1;
+	menu_list[6].value_resolution[2]=1;
+	menu_list[6].value_max[0]=100;
+	menu_list[6].value_max[1]=100;
+	menu_list[6].value_max[2]=100;
+	menu_list[6].menu_id=6;
+	menu_list[6].menu_item_count = 3;
+	menu_list[6].menu_pointer=0;
+	
+	
 }
 void update_menu_from_variables()
 {
+	// pid,relay link to coeff and hysteresis
+	menu_list[4].values[3]=menu_list[4].values[1];
+	if(menu_list[4].values[1] == 1)
+	{
+		menu_list[4].next_menu_id[3]=5;
+	}
+	else
+	{
+		menu_list[4].next_menu_id[3]=6;
+	}
+	//relay max min restriction
+	if(menu_list[5].values[1] > menu_list[5].values[0])
+	{
+		menu_list[5].values[1] = menu_list[5].values[0];
+	}
+
+
 	
 }
 void print_menu(int active_menu)
@@ -127,7 +181,7 @@ void print_menu(int active_menu)
 			else if(strstr(menu_strings_buff, ",") != 0)
 			{			
 				final_menu_strings = strtok(menu_strings_buff , ",");
-				for(int j=0 ; j<menu_list[active_menu].values[i] ; j++)
+				for(int j=0 ; j<(int)(menu_list[active_menu].values[i]) ; j++)
 				{
 					final_menu_strings = strtok(NULL , ",");
 				}
@@ -150,6 +204,7 @@ void print_menu(int active_menu)
 		}
 	
 }
+
 void get_user_input(uint8_t *input,int *active_menu)
 {
 	if(input[0]=='\n')
@@ -180,24 +235,34 @@ void get_user_input(uint8_t *input,int *active_menu)
 	}
 	if(input[0] == 'd')
 	{
+		char sprintf_buff[10];
 		if(menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] < menu_list[*active_menu].value_max[menu_list[*active_menu].menu_pointer])
 		{
 			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] += menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] ;
+			sprintf(sprintf_buff,"value:%f\n",menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer]);
+			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
 		}
-		else
+		else if(menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] != 0)
 		{
 			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] = 0;
+			sprintf(sprintf_buff,"value:%f\n",menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer]);
+			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
 		}
 	}
 	if(input[0] == 'a')
 	{
+		char sprintf_buff[10];
 		if(menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] > 0.001)
 		{
 			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] -= menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] ;
+			sprintf(sprintf_buff,"value:%f\n",menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer]);
+			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
 		}
-		else
+		else if(menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] != 0)
 		{
 			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] = menu_list[*active_menu].value_max[menu_list[*active_menu].menu_pointer];
+			sprintf(sprintf_buff,"value:%f\n",menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer]);
+			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
 		}
 	}
 	
