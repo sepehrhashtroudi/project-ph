@@ -22,6 +22,8 @@ ph_meter_ver_2\stm32f4xx_hal_gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4
 ph_meter_ver_2\stm32f4xx_hal_gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h
 ph_meter_ver_2\stm32f4xx_hal_gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma_ex.h
 ph_meter_ver_2\stm32f4xx_hal_gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h
+ph_meter_ver_2\stm32f4xx_hal_gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc.h
+ph_meter_ver_2\stm32f4xx_hal_gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc_ex.h
 ph_meter_ver_2\stm32f4xx_hal_gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h
 ph_meter_ver_2\stm32f4xx_hal_gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h
 ph_meter_ver_2\stm32f4xx_hal_gpio.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h

@@ -22,6 +22,8 @@ ph_meter_ver_2\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio_ex
 ph_meter_ver_2\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h
 ph_meter_ver_2\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma_ex.h
 ph_meter_ver_2\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h
+ph_meter_ver_2\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc.h
+ph_meter_ver_2\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc_ex.h
 ph_meter_ver_2\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h
 ph_meter_ver_2\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h
 ph_meter_ver_2\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h
@@ -45,7 +47,14 @@ ph_meter_ver_2\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers
 ph_meter_ver_2\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 ph_meter_ver_2\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 ph_meter_ver_2\main.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h
+ph_meter_ver_2\main.o: ../Inc/adc.h
+ph_meter_ver_2\main.o: ../Inc/dma.h
+ph_meter_ver_2\main.o: ../Inc/tim.h
 ph_meter_ver_2\main.o: ../Inc/usart.h
 ph_meter_ver_2\main.o: ../Inc/gpio.h
 ph_meter_ver_2\main.o: ../Inc/KS0108.h
 ph_meter_ver_2\main.o: ../Inc/glcd_menu.h
+ph_meter_ver_2\main.o: ../Inc/Dsp.h
+ph_meter_ver_2\main.o: ../Inc/PID.h
+ph_meter_ver_2\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+ph_meter_ver_2\main.o: ../Inc/defines.h

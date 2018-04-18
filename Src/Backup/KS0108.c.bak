@@ -316,6 +316,13 @@ int glcd_draw_char_xy(unsigned char x, unsigned char y, char c,int fast,int inve
 		c++;
 	}
 	//clear to end of line
+//	for(int j=x;j<DISPLAY_WIDTH-3;j++)
+//		{
+//			for(int i=y;i<y+FontHeight;i++)
+//			{
+//				GLCD_SetPixel(j, i, 0);
+//			}
+//		}
 }
 
 unsigned int CalcTextWidthEN(char *str)

@@ -22,34 +22,24 @@ Dialog DLL:      TCM.DLL V1.32.0.0
  
 <h2>Project:</h2>
 D:\sepehr\arm\stm32_projects\pH_meter_ver_2\MDK-ARM\pH_meter_ver_2.uvprojx
-Project File Date:  04/09/2018
+Project File Date:  04/18/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'pH_meter_ver_2'
-compiling glcd_menu.c...
-../Inc/glcd_menu.h(28): warning:  #1-D: last line of file ends without a newline
+compiling main.c...
+../Inc/glcd_menu.h(33): warning:  #1-D: last line of file ends without a newline
   void update_menu_from_variables();
-../Inc/glcd_menu.h(28): warning:  #1295-D: Deprecated declaration update_menu_from_variables - give arg types
+../Inc/glcd_menu.h(33): warning:  #1295-D: Deprecated declaration update_menu_from_variables - give arg types
   void update_menu_from_variables();
-..\Src\glcd_menu.c(157): warning:  #177-D: variable "search_buff"  was declared but never referenced
-  		char *search_buff;
-..\Src\glcd_menu.c(243): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
-  			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
-..\Src\glcd_menu.c(249): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
-  			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
-..\Src\glcd_menu.c(255): warning:  #1035-D: single-precision operand implicitly converted to double-precision
-  		if(menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] > 0.001)
-..\Src\glcd_menu.c(259): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
-  			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
-..\Src\glcd_menu.c(265): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
-  			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
-..\Src\glcd_menu.c(270): warning:  #1-D: last line of file ends without a newline
-  }
-..\Src\glcd_menu.c: 9 warnings, 0 errors
+../Inc/defines.h(2): warning:  #1-D: last line of file ends without a newline
+  #define filterWindowLength 100// moving average buffer length
+../Src/main.c(322): warning:  #177-D: variable "sprintf_buff"  was declared but never referenced
+  	char sprintf_buff[12];
+../Src/main.c: 4 warnings, 0 errors
 linking...
-Program Size: Code=15768 RO-data=1152 RW-data=144 ZI-data=19480  
-"pH_meter_ver_2\pH_meter_ver_2.axf" - 0 Error(s), 9 Warning(s).
+Program Size: Code=20764 RO-data=10856 RW-data=224 ZI-data=21296  
+"pH_meter_ver_2\pH_meter_ver_2.axf" - 0 Error(s), 4 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -60,14 +50,14 @@ Package Vendor: ARM
    * Component: CORE Version: 5.0.2
 
 Package Vendor: Keil
-                http://www.keil.com/pack/Keil.STM32F4xx_DFP.2.11.0.pack
-                Keil.STM32F4xx_DFP.2.11.0
+                http://www.keil.com/pack/Keil.STM32F4xx_DFP.2.12.0.pack
+                Keil.STM32F4xx_DFP.2.12.0
                 STMicroelectronics STM32F4 Series Device Support, Drivers and Examples
 
 <h2>Collection of Component include folders:</h2>
   .\RTE\_pH_meter_ver_2
   C:\Keil_v5\ARM\PACK\ARM\CMSIS\5.2.0\CMSIS\Include
-  C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.11.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
+  C:\Keil_v5\ARM\PACK\Keil\STM32F4xx_DFP\2.12.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
 
 <h2>Collection of Component Files used:</h2>
 

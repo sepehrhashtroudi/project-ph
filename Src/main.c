@@ -50,12 +50,18 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "cmsis_os.h"
+#include "adc.h"
+#include "dma.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
 #include "KS0108.h"
 #include "glcd_menu.h"
+#include "Dsp.h"
+#include "PID.h"
+#include "defines.h"
 //#include <string.h>
 //#include "font5x8.h"
 /* USER CODE END Includes */
@@ -64,10 +70,48 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+
 TaskHandle_t lcd_demo_handle = NULL;
+TaskHandle_t read_adc_handle = NULL;
 Menu menu_list[8];
 uint8_t uart_buff[20];
 int active_menu=0;
+uint32_t adc_value[2*bufferLength]={0};
+
+uint16_t pH_buffer[bufferLength];
+uint16_t temp_buffer[bufferLength];
+// moving variables
+uint16_t ph_history[filterWindowLength]={0};
+int32_t ph_sum=0;
+uint16_t ph_window_pointer=0;
+uint16_t temp_history[filterWindowLength]={0};
+int32_t temp_sum=0;
+uint16_t temp_window_pointer=0;
+float p1_p =  0.004076;
+float p2_p = -0.8505;
+float p1_t = 0.04082;
+float p2_t = 2.204;
+float *pH = &menu_list[0].values[0];
+float *temp = &menu_list[0].values[2];
+uint8_t message[30];
+uint8_t log_uart[10];
+uint16_t tempDigital = 0;
+uint16_t ph_averaged = 0;
+uint16_t pH_filtered = 0;
+uint16_t temp_filtered = 0;
+
+// Structure to strore PID data and pointer to PID structure
+struct pid_controller ctrldata;
+pid_t pid;
+// Control loop input,output and setpoint variables
+float input = 0;
+float *output = &menu_list[0].values[3];
+float *setpoint = &menu_list[5].values[2];
+// Control loop gains
+float kp = 100, ki =1.2, kd = 0;
+// PID sample time in ms
+uint32_t sample_time = 10;
+//uint32_t last_time_init=0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -77,6 +121,7 @@ void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 void lcd_demo(void *);
+void read_adc(void *);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -112,13 +157,34 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART2_UART_Init();
+  MX_ADC1_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
+
+	
+	// Prepare PID controller for operation
+	pid = pid_create(&ctrldata, &input, output, setpoint, kp, ki, kd);
+	// Set controler output limits from 0 to 200
+	pid_limits(pid, 0, 90);
+	// Allow PID to compute and change output
+	pid_auto(pid);
+	// Set sampling time
+	pid_sample(pid, sample_time);
+	// Set the direction of controller
+	pid_direction(pid, E_PID_REVERSE);
+	
 	GLCD_Initalize();
 	GLCD_ClearScreen();
 	init_menu();
+	
+	
 	HAL_UART_Receive_IT(&huart2,uart_buff,1);
+	HAL_TIM_Base_Start_IT(&htim2);
+	HAL_ADC_Start_DMA(&hadc1, adc_value, 2*bufferLength);
 	xTaskCreate(lcd_demo,"lcd_demo",128,( void * )1,5,&lcd_demo_handle);
+	xTaskCreate(read_adc,"read_adc",256,( void * )1,1,&read_adc_handle);
 
 
   /* USER CODE END 2 */
@@ -213,66 +279,72 @@ void SystemClock_Config(void)
 void lcd_demo(void * pvParameters)
 {
 	while(1)
-	{		//HAL_UART_Transmit(&huart2,"salam\n",6,100);
-//		GLCD_ClearScreen();
-//		GLCD_GoTo(0,0);
-//		GLCD_WriteString("+-------------------+");
-//		GLCD_GoTo(0,1);
-//		GLCD_WriteString("|       salam       |");
-//		GLCD_GoTo(0,2);
-//		GLCD_WriteString("|       khobi       |");
-//		GLCD_GoTo(0,3);
-//		GLCD_WriteString("|                   |");
-//		GLCD_GoTo(0,4);
-//		GLCD_WriteString("|                   |");
-//		GLCD_GoTo(0,5);
-//		GLCD_WriteString("|      chetori      |");
-//		GLCD_GoTo(0,6);
-//		GLCD_WriteString("|                   |");
-//		GLCD_GoTo(0,7);
-//		GLCD_WriteString("+-------------------+");
-//		osDelay(1000);
-//		GLCD_ClearScreen();
-//		GLCD_GoTo(0,0);
-//		GLCD_WriteString("+-------------------+");
-//		GLCD_GoTo(0,1);
-//		GLCD_WriteString("|*************      |");
-//		GLCD_GoTo(0,2);
-//		GLCD_WriteString("| *************     |");
-//		GLCD_GoTo(0,3);
-//		GLCD_WriteString("|   *************   |");
-//		GLCD_GoTo(0,4);
-//		GLCD_WriteString("|    *************  |");
-//		GLCD_GoTo(0,5);
-//		GLCD_WriteString("|     ************* |");
-//		GLCD_GoTo(0,6);
-//		GLCD_WriteString("|      *************|");
-//		GLCD_GoTo(0,7);
-//		GLCD_WriteString("+-------------------+");
-		
-		//GLCD_ClearScreen();
-		
+	{		
+		if(active_menu == 0)
+		{
+			print_main_page(active_menu);
+			if(active_menu != 0)
+			{
+				print_menu(active_menu);
+			}
+		}
+		osDelay(1000);
+		//HAL_Delay(1000);
+	}
+}
+void read_adc(void * pvParameters)
+{
+	while(1)
+	{		
 
-
-		//GLCD_SetPixel(0,0,1);
-		//GLCD_SetPixel(0,1,1);
-		//GLCD_SetPixel(1,3,1);
-		//GLCD_SetPixel(0,1,1);
-		//GLCD_SetPixel(0,0,1);
 		
-		osDelay(100);
+		osDelay(200);
 		//HAL_Delay(1000);
 	}
 }
 
+
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+{
+	HAL_ADC_Stop_DMA(&hadc1);
+	data_spliter(adc_value, bufferLength, temp_buffer, pH_buffer);
+	ph_averaged = average(pH_buffer, bufferLength);
+	pH_filtered = best_moving_average(ph_averaged, ph_history, &ph_sum, &ph_window_pointer);
+	*pH = p1_p * pH_filtered + p2_p;
+	tempDigital = average(temp_buffer, bufferLength);
+	temp_filtered = best_moving_average(tempDigital, temp_history, &temp_sum, &temp_window_pointer);
+	*temp = p1_t * temp_filtered + p2_t;
+	/* Updating PID input*/
+	input = *pH;
+	/* Compute new PID output*/
+	pid_compute(pid);
+	char sprintf_buff[12];
+	//sprintf(sprintf_buff,"%.3f,%.1f\n",*pH,*output);
+	//HAL_UART_Transmit(&huart2,sprintf_buff,12,100);
+//	for(int i=0;i<bufferLength;i++)
+//	{
+//		sprintf(sprintf_buff,"%d,",pH_buffer[i]);
+//		HAL_UART_Transmit(&huart2,sprintf_buff,6,100);
+//	}
+//	HAL_UART_Transmit(&huart2,"\n",1,100);
+//	for(int i=0;i<bufferLength;i++)
+//	{
+//		sprintf(sprintf_buff,"%d,",temp_buffer[i]);
+//		HAL_UART_Transmit(&huart2,sprintf_buff,6,100);
+//	}
+//	HAL_UART_Transmit(&huart2,"\n",1,100);
+}
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	//HAL_UART_Transmit(&huart2,"ok\n",3,100);
 	
 	get_user_input(uart_buff,&active_menu);
+	if(active_menu != 0)
+	{
 	update_menu_from_variables();
 	print_menu(active_menu);
-	
+	}
 	HAL_UART_Transmit(&huart2,uart_buff,1,100);
 	HAL_UART_Receive_IT(&huart2,uart_buff,1);
 }
@@ -295,7 +367,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
-
+	if (htim->Instance == TIM2) {
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_value,2*bufferLength);
+  }
   /* USER CODE END Callback 1 */
 }
 
