@@ -11,6 +11,9 @@
 <filestoremove>
     <file>
     <name>..\Drivers\CMSIS\Device\ST\STM32F4xx\Source\Templates\arm\startup_stm32f407xx.s</name>
+    <name>..\Src\rtc.c</name>
+    <name>..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rtc.c</name>
+    <name>..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rtc_ex.c</name>
     </file>
 </filestoremove>
 
@@ -116,6 +119,12 @@
 							<name>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c</name>
 						</file>
 						<file>
+							<name>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dac.c</name>
+						</file>
+						<file>
+							<name>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dac_ex.c</name>
+						</file>
+						<file>
 							<name>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c</name>
 						</file>
 						<file>
@@ -182,6 +191,10 @@
 
                                 <file>
                                  <name>..\Src\adc.c</name>
+                                </file>
+
+                                <file>
+                                 <name>..\Src\dac.c</name>
                                 </file>
 
                                 <file>

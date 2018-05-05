@@ -55,7 +55,7 @@
 /* #define HAL_CAN_MODULE_ENABLED   */
 /* #define HAL_CRC_MODULE_ENABLED   */
 /* #define HAL_CRYP_MODULE_ENABLED   */
-/* #define HAL_DAC_MODULE_ENABLED   */
+#define HAL_DAC_MODULE_ENABLED
 /* #define HAL_DCMI_MODULE_ENABLED   */
 /* #define HAL_DMA2D_MODULE_ENABLED   */
 /* #define HAL_ETH_MODULE_ENABLED   */
@@ -133,7 +133,7 @@
   * @brief External Low Speed oscillator (LSE) value.
   */
 #if !defined  (LSE_VALUE)
- #define LSE_VALUE  ((uint32_t)32768U)    /*!< Value of the External Low Speed oscillator in Hz */
+ #define LSE_VALUE  ((uint32_t)32U)    /*!< Value of the External Low Speed oscillator in Hz */
 #endif /* LSE_VALUE */
 
 #if !defined  (LSE_STARTUP_TIMEOUT)

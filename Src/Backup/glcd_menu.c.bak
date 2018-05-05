@@ -15,7 +15,7 @@
 #include "font5x8.h"
 #include "graphic.h"
 extern Menu menu_list[9];
-
+extern void calculate_calibration_coefficients(void);
 
 void init_menu(void)
 {
@@ -48,15 +48,15 @@ void init_menu(void)
 	strcpy(menu_list[1].menu_name , "Main menu");
 	strcpy(menu_list[1].menu_strings[0],  " Calibration ");
 	strcpy(menu_list[1].menu_strings[1] , " Controller ");
-	strcpy(menu_list[1].menu_strings[2] , " Temp sensor ");
-	strcpy(menu_list[1].menu_strings[3] , " Date&time ");
-	strcpy(menu_list[1].menu_strings[4] , " Exit ");
+	//strcpy(menu_list[1].menu_strings[2] , " Temp sensor ");
+	strcpy(menu_list[1].menu_strings[2] , " Date&time ");
+	strcpy(menu_list[1].menu_strings[3] , " Exit ");
 	menu_list[1].menu_id=1;
-	menu_list[1].menu_item_count = 5;
+	menu_list[1].menu_item_count = 4;
 	menu_list[1].next_menu_id[0]=2;
 	menu_list[1].next_menu_id[1]=5;
 	menu_list[1].next_menu_id[2]=8;
-	menu_list[1].next_menu_id[2]=0;
+	menu_list[1].next_menu_id[3]=0;
 	menu_list[1].menu_pointer=0;
 	
 	strcpy(menu_list[2].menu_name , "Calibration wizard");
@@ -97,11 +97,12 @@ void init_menu(void)
 	strcpy(menu_list[4].menu_name , "Calibration wizard");
 	strcpy(menu_list[4].menu_strings[0],  " Step 3 ");
 	strcpy(menu_list[4].menu_strings[1] , " Done ");
-	menu_list[4].next_menu_id[0]=1;
-	menu_list[4].next_menu_id[1]=1;
+	menu_list[4].next_menu_id[0]=100;
+	menu_list[4].next_menu_id[1]=100;
 	menu_list[4].menu_id=4;
 	menu_list[4].menu_item_count = 2;
 	menu_list[4].menu_pointer=1;
+//	menu_list[4].fun_ptr = &calculate_calibration_coefficients;
 	
 	strcpy(menu_list[5].menu_name , " Controller ");
 	strcpy(menu_list[5].menu_strings[0], " ON , OFF ");
@@ -163,6 +164,38 @@ void init_menu(void)
 	menu_list[7].menu_id=7;
 	menu_list[7].menu_item_count = 3;
 	menu_list[7].menu_pointer=0;
+	
+	strcpy(menu_list[8].menu_name , "Date&time");
+	strcpy(menu_list[8].menu_strings[0], " Minute: %d ");
+	strcpy(menu_list[8].menu_strings[1], " Hour: %d ");
+	strcpy(menu_list[8].menu_strings[2], " Day: %d ");
+	strcpy(menu_list[8].menu_strings[3], " Month: %d ");
+	strcpy(menu_list[8].menu_strings[4], " Year: %d ");
+	strcpy(menu_list[8].menu_strings[5], " ok ");
+	menu_list[8].next_menu_id[0]=8;
+	menu_list[8].next_menu_id[1]=8;
+	menu_list[8].next_menu_id[2]=8;
+	menu_list[8].next_menu_id[3]=8;
+	menu_list[8].next_menu_id[4]=8;
+	menu_list[8].next_menu_id[5]=0;
+	menu_list[8].values[0]=1;
+	menu_list[8].values[1]=1;
+	menu_list[8].values[2]=1;
+	menu_list[8].values[3]=1;
+	menu_list[8].values[4]=1;
+	menu_list[8].value_resolution[0]=1;
+	menu_list[8].value_resolution[1]=1;
+	menu_list[8].value_resolution[2]=1;
+	menu_list[8].value_resolution[3]=1;
+	menu_list[8].value_resolution[4]=1;
+	menu_list[8].value_max[0]=60;
+	menu_list[8].value_max[1]=12;
+	menu_list[8].value_max[2]=30;
+	menu_list[8].value_max[3]=12;
+	menu_list[8].value_max[4]=3000;
+	menu_list[8].menu_id=8;
+	menu_list[8].menu_item_count = 5;
+	menu_list[8].menu_pointer=0;
 }
 void update_menu_from_variables()
 {
@@ -183,6 +216,8 @@ void update_menu_from_variables()
 	}
 
 }
+
+
 void print_main_page(int active_menu)
 {
 		char *search_buff;
@@ -296,6 +331,11 @@ void get_user_input(uint8_t *input,int *active_menu)
 		}
 		else
 		{
+			if(menu_list[*active_menu].next_menu_id[menu_list[*active_menu].menu_pointer] == 100)
+			{
+				//menu_list[*active_menu].fun_ptr();
+				*active_menu =1;
+			}
 			*active_menu = menu_list[*active_menu].next_menu_id[menu_list[*active_menu].menu_pointer];
 			GLCD_ClearScreen();
 		}

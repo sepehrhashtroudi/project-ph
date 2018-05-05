@@ -51,6 +51,7 @@
 #include "stm32f4xx_hal.h"
 #include "cmsis_os.h"
 #include "adc.h"
+#include "dac.h"
 #include "dma.h"
 #include "tim.h"
 #include "usart.h"
@@ -62,6 +63,8 @@
 #include "Dsp.h"
 #include "PID.h"
 #include "defines.h"
+//#include <math.h>
+#include <stdlib.h>
 //#include <string.h>
 //#include "font5x8.h"
 /* USER CODE END Includes */
@@ -73,11 +76,10 @@
 
 TaskHandle_t lcd_demo_handle = NULL;
 TaskHandle_t read_adc_handle = NULL;
-Menu menu_list[8];
+Menu menu_list[15];
 uint8_t uart_buff[20];
 int active_menu=0;
 uint32_t adc_value[2*bufferLength]={0};
-
 uint16_t pH_buffer[bufferLength];
 uint16_t temp_buffer[bufferLength];
 // moving variables
@@ -97,8 +99,21 @@ uint8_t message[30];
 uint8_t log_uart[10];
 uint16_t tempDigital = 0;
 uint16_t ph_averaged = 0;
-uint16_t pH_filtered = 0;
+float *pH_filtered = &menu_list[2].values[3];
 uint16_t temp_filtered = 0;
+float *calibration_point_1_ph = &menu_list[2].values[1];
+float *calibration_point_2_ph = &menu_list[3].values[1];
+float *calibration_point_1 = &menu_list[2].values[3];
+float *calibration_point_2 = &menu_list[3].values[2];
+
+
+// rtc 
+//RTC_TimeTypeDef rtc_time;
+float *rtc_minute_p = &menu_list[8].values[0];
+float *rtc_hour_p = &menu_list[8].values[1];
+float *rtc_day_p = &menu_list[8].values[2];
+float *rtc_month_p = &menu_list[8].values[3];
+float *rtc_year_p = &menu_list[8].values[4];
 
 // Structure to strore PID data and pointer to PID structure
 struct pid_controller ctrldata;
@@ -111,7 +126,7 @@ float *setpoint = &menu_list[5].values[2];
 float kp = 100, ki =1.2, kd = 0;
 // PID sample time in ms
 uint32_t sample_time = 10;
-//uint32_t last_time_init=0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -122,6 +137,9 @@ void MX_FREERTOS_Init(void);
 /* Private function prototypes -----------------------------------------------*/
 void lcd_demo(void *);
 void read_adc(void *);
+void pump_set_stroke(uint16_t stroke);
+//extern void calculate_calibration_coefficients(void);
+
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -161,12 +179,11 @@ int main(void)
   MX_USART2_UART_Init();
   MX_ADC1_Init();
   MX_TIM2_Init();
+  MX_DAC_Init();
   /* USER CODE BEGIN 2 */
-
-	
 	// Prepare PID controller for operation
 	pid = pid_create(&ctrldata, &input, output, setpoint, kp, ki, kd);
-	// Set controler output limits from 0 to 200
+	// Set controler output limits from 0 to 90
 	pid_limits(pid, 0, 90);
 	// Allow PID to compute and change output
 	pid_auto(pid);
@@ -177,14 +194,18 @@ int main(void)
 	
 	GLCD_Initalize();
 	GLCD_ClearScreen();
+	HAL_UART_Transmit(&huart2,"init2\n",6,100);
 	init_menu();
-	
-	
+	HAL_UART_Transmit(&huart2,"init3\n",6,100);
 	HAL_UART_Receive_IT(&huart2,uart_buff,1);
+	HAL_UART_Transmit(&huart2,"init4\n",6,100);
+
 	HAL_TIM_Base_Start_IT(&htim2);
+	HAL_UART_Transmit(&huart2,"init5\n",6,100);
 	HAL_ADC_Start_DMA(&hadc1, adc_value, 2*bufferLength);
-	xTaskCreate(lcd_demo,"lcd_demo",128,( void * )1,5,&lcd_demo_handle);
-	xTaskCreate(read_adc,"read_adc",256,( void * )1,1,&read_adc_handle);
+	
+	xTaskCreate(lcd_demo,"lcd_demo",128,( void * )1,1,&lcd_demo_handle);
+	xTaskCreate(read_adc,"read_adc",256,( void * )1,5,&read_adc_handle);
 
 
   /* USER CODE END 2 */
@@ -201,18 +222,10 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	//lcd_demo((void *)1);
+
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-	GLCD_ClearScreen();
-	//glcd_set_font(Tahoma11x13 ,11,13,32,127);
-	//glcd_draw_char_xy(1,1,'y');
-	GLCD_SetPixel(1,2,1);
-	GLCD_SetPixel(1,3,1);
-	GLCD_SetPixel(1,4,1);
-	//osDelay(1000);
-	//HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 
@@ -243,7 +256,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLM = 4;
   RCC_OscInitStruct.PLL.PLLN = 168;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 4;
+  RCC_OscInitStruct.PLL.PLLQ = 3;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -296,11 +309,28 @@ void read_adc(void * pvParameters)
 {
 	while(1)
 	{		
-
 		
-		osDelay(200);
+		osDelay(1000);
 		//HAL_Delay(1000);
 	}
+}
+/**
+  * @brief  This function sets pump stroke.
+	* @param  stroke: stroke value from 0 to 100.
+  * @retval None
+  */ 
+void pump_set_stroke(uint16_t stroke)
+{
+	uint16_t dac_value = (4095 * ((4 + stroke * 0.16) * 0.1) / 3.3);
+	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, dac_value);
+}
+
+void calculate_calibration_coefficients(void)
+{
+	p1_p = abs((int)(*calibration_point_1_ph - *calibration_point_2_ph)) / abs((int)(*calibration_point_1 - *calibration_point_2 )) ;
+	p2_p = *calibration_point_1_ph - (*calibration_point_1)*(p1_p);
+	//sprintf(sprintf_buff,"value:%f\n",menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer]);
+			HAL_UART_Transmit(&huart2,"calibration\n",10,100);
 }
 
 
@@ -310,8 +340,8 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	HAL_ADC_Stop_DMA(&hadc1);
 	data_spliter(adc_value, bufferLength, temp_buffer, pH_buffer);
 	ph_averaged = average(pH_buffer, bufferLength);
-	pH_filtered = best_moving_average(ph_averaged, ph_history, &ph_sum, &ph_window_pointer);
-	*pH = p1_p * pH_filtered + p2_p;
+	*pH_filtered = best_moving_average(ph_averaged, ph_history, &ph_sum, &ph_window_pointer);
+	*pH = p1_p * *pH_filtered + p2_p;
 	tempDigital = average(temp_buffer, bufferLength);
 	temp_filtered = best_moving_average(tempDigital, temp_history, &temp_sum, &temp_window_pointer);
 	*temp = p1_t * temp_filtered + p2_t;
