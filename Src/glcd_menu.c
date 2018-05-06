@@ -16,6 +16,12 @@
 #include "graphic.h"
 extern Menu menu_list[9];
 extern void calculate_calibration_coefficients(void);
+extern void calculate_calibration_coefficients_step1(void);
+extern void calculate_calibration_coefficients_step2(void);
+extern uint16_t pH_filtered;
+extern float output;
+
+extern float pH;
 
 void init_menu(void)
 {
@@ -70,16 +76,17 @@ void init_menu(void)
 	menu_list[2].next_menu_id[2]=2;
 	menu_list[2].next_menu_id[3]=2;
 	menu_list[2].next_menu_id[4]=3;
-	menu_list[2].values[1]=7.200;
-	menu_list[2].values[3]=200;
+	menu_list[2].values[1]=7.000;
+	menu_list[2].values[3]= 200 ;
 	menu_list[2].value_resolution[0]=0;
-	menu_list[2].value_resolution[1]=0.1000;
+	menu_list[2].value_resolution[1]=1.0000;
 	menu_list[2].value_resolution[2]=0;
 	menu_list[2].value_max[0]=0;
 	menu_list[2].value_max[1]=14;
 	menu_list[2].menu_id=2;
 	menu_list[2].menu_item_count = 5;
 	menu_list[2].menu_pointer=3;
+	menu_list[2].fun_ptr =&calculate_calibration_coefficients_step1;
 	
 	strcpy(menu_list[3].menu_name , "Calibration wizard");
 	strcpy(menu_list[3].menu_strings[0],  " Step 2 ");
@@ -94,18 +101,19 @@ void init_menu(void)
 	menu_list[3].values[1]=7.000;
 	menu_list[3].values[2]=200;
 	menu_list[3].value_resolution[0]=0;
-	menu_list[3].value_resolution[1]=0.1000;
+	menu_list[3].value_resolution[1]=1.0000;
 	menu_list[3].value_resolution[2]=0;
 	menu_list[3].value_max[0]=0;
 	menu_list[3].value_max[1]=14;
 	menu_list[3].menu_item_count = 4;
 	menu_list[3].menu_pointer=3;
+	menu_list[3].fun_ptr =&calculate_calibration_coefficients_step2;
 	
 	strcpy(menu_list[4].menu_name , "Calibration wizard");
 	strcpy(menu_list[4].menu_strings[0],  " Step 3 ");
-	strcpy(menu_list[4].menu_strings[1] , " Done ");
-	menu_list[4].next_menu_id[0]=100;
-	menu_list[4].next_menu_id[1]=100;
+	strcpy(menu_list[4].menu_strings[1] , " Ok ");
+	menu_list[4].next_menu_id[0]=1;
+	menu_list[4].next_menu_id[1]=1;
 	menu_list[4].menu_id=4;
 	menu_list[4].menu_item_count = 2;
 	menu_list[4].menu_pointer=1;
@@ -221,6 +229,10 @@ void update_menu_from_variables()
 	{
 		menu_list[6].values[1] = menu_list[6].values[0];
 	}
+	menu_list[2].values[3] = pH_filtered; //ADC value for calibration 
+	menu_list[3].values[2] = pH_filtered;	//ADC value for calibration 
+	menu_list[0].values[3] = output; 
+	menu_list[0].values[0] = pH;
 
 }
 
@@ -338,16 +350,13 @@ void get_user_input(uint8_t *input,int *active_menu)
 		}
 		else
 		{
-			if(menu_list[*active_menu].next_menu_id[menu_list[*active_menu].menu_pointer] == 100)
+			if(menu_list[*active_menu].menu_strings[menu_list[*active_menu].menu_pointer][1] == 'O' && menu_list[*active_menu].menu_strings[menu_list[*active_menu].menu_pointer][2] == 'k')
 			{
 				menu_list[*active_menu].fun_ptr();
-				*active_menu =1;
 			}
-			else
-				{
-					*active_menu = menu_list[*active_menu].next_menu_id[menu_list[*active_menu].menu_pointer];
-					GLCD_ClearScreen();
-				}
+			*active_menu = menu_list[*active_menu].next_menu_id[menu_list[*active_menu].menu_pointer];
+			GLCD_ClearScreen();
+				
 		}
 	}
 	if(input[0] == 'w')

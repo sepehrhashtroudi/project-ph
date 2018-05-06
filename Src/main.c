@@ -93,18 +93,18 @@ float p1_p =  0.004076;
 float p2_p = -0.8505;
 float p1_t = 0.04082;
 float p2_t = 2.204;
-float *pH = &menu_list[0].values[0];
+float pH =0;
 float *temp = &menu_list[0].values[2];
 uint8_t message[30];
 uint8_t log_uart[10];
 uint16_t tempDigital = 0;
 uint16_t ph_averaged = 0;
-float *pH_filtered = &menu_list[2].values[3];
+uint16_t pH_filtered ;
 uint16_t temp_filtered = 0;
 float *calibration_point_1_ph = &menu_list[2].values[1];
 float *calibration_point_2_ph = &menu_list[3].values[1];
-float *calibration_point_1 = &menu_list[2].values[3];
-float *calibration_point_2 = &menu_list[3].values[2];
+uint16_t calibration_point_1 = 0;
+uint16_t calibration_point_2 = 0;
 
 
 // rtc 
@@ -120,7 +120,7 @@ struct pid_controller ctrldata;
 pid_t pid;
 // Control loop input,output and setpoint variables
 float input = 0;
-float *output = &menu_list[0].values[3];
+float output ;
 float *setpoint = &menu_list[5].values[2];
 // Control loop gains
 float kp = 100, ki =1.2, kd = 0;
@@ -135,7 +135,7 @@ void MX_FREERTOS_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-void lcd_demo(void *);
+void lcd_print(void *);
 void read_adc(void *);
 void pump_set_stroke(uint16_t stroke);
 //extern void calculate_calibration_coefficients(void);
@@ -182,7 +182,7 @@ int main(void)
   MX_DAC_Init();
   /* USER CODE BEGIN 2 */
 	// Prepare PID controller for operation
-	pid = pid_create(&ctrldata, &input, output, setpoint, kp, ki, kd);
+	pid = pid_create(&ctrldata, &input, &output, setpoint, kp, ki, kd);
 	// Set controler output limits from 0 to 90
 	pid_limits(pid, 0, 90);
 	// Allow PID to compute and change output
@@ -194,18 +194,13 @@ int main(void)
 	
 	GLCD_Initalize();
 	GLCD_ClearScreen();
-	HAL_UART_Transmit(&huart2,"init2\n",6,100);
 	init_menu();
-	HAL_UART_Transmit(&huart2,"init3\n",6,100);
 	HAL_UART_Receive_IT(&huart2,uart_buff,1);
-	HAL_UART_Transmit(&huart2,"init4\n",6,100);
 
 	HAL_TIM_Base_Start_IT(&htim2);
-	HAL_UART_Transmit(&huart2,"init5\n",6,100);
 	HAL_ADC_Start_DMA(&hadc1, adc_value, 2*bufferLength);
+	xTaskCreate(lcd_print,"lcd_print",256,( void * )1,2,&lcd_demo_handle);
 	
-	xTaskCreate(lcd_demo,"lcd_demo",128,( void * )1,1,&lcd_demo_handle);
-	xTaskCreate(read_adc,"read_adc",256,( void * )1,5,&read_adc_handle);
 
 
   /* USER CODE END 2 */
@@ -289,11 +284,12 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-void lcd_demo(void * pvParameters)
+void lcd_print(void * pvParameters)
 {
 	while(1)
 	{		
-		if(active_menu == 0)
+		update_menu_from_variables();
+		if(active_menu == 0 )
 		{
 			print_main_page(active_menu);
 			if(active_menu != 0)
@@ -301,19 +297,20 @@ void lcd_demo(void * pvParameters)
 				print_menu(active_menu);
 			}
 		}
+		else if (active_menu == 3 || active_menu == 2)
+		{
+			print_menu(active_menu);
+			if(active_menu != 3 && active_menu != 2)
+			{
+				print_menu(active_menu);
+			}
+		}
+			
 		osDelay(1000);
 		//HAL_Delay(1000);
 	}
 }
-void read_adc(void * pvParameters)
-{
-	while(1)
-	{		
-		
-		osDelay(1000);
-		//HAL_Delay(1000);
-	}
-}
+
 /**
   * @brief  This function sets pump stroke.
 	* @param  stroke: stroke value from 0 to 100.
@@ -324,13 +321,36 @@ void pump_set_stroke(uint16_t stroke)
 	uint16_t dac_value = (4095 * ((4 + stroke * 0.16) * 0.1) / 3.3);
 	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, dac_value);
 }
+void pump_turn_on_off(uint16_t state)
+{
+	if(state == 1)
+	{
+		//HAL_GPIO_WritePin(...
+	}
+	if(state == 0)
+	{
+		//HAL_GPIO_WritePin(...
+	}
+	
+}
 
 void calculate_calibration_coefficients(void)
 {
-	p1_p = abs((int)(*calibration_point_1_ph - *calibration_point_2_ph)) / abs((int)(*calibration_point_1 - *calibration_point_2 )) ;
-	p2_p = *calibration_point_1_ph - (*calibration_point_1)*(p1_p);
-	//sprintf(sprintf_buff,"value:%f\n",menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer]);
-			HAL_UART_Transmit(&huart2,"calibration\n",10,100);
+	char sprintf_buff[20];
+	p1_p = (*calibration_point_1_ph - *calibration_point_2_ph) / (float)(calibration_point_1 - calibration_point_2 ) ;
+	p2_p = *calibration_point_1_ph - (calibration_point_1)*(p1_p);
+	sprintf(sprintf_buff,"%d,%.1f\n",calibration_point_1,*calibration_point_1_ph);
+}
+void calculate_calibration_coefficients_step1(void)
+{
+	char sprintf_buff[10];
+	calibration_point_1 = pH_filtered;
+}
+void calculate_calibration_coefficients_step2(void)
+{
+	char sprintf_buff[10];
+	calibration_point_2 = pH_filtered;
+	
 }
 
 
@@ -340,15 +360,36 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	HAL_ADC_Stop_DMA(&hadc1);
 	data_spliter(adc_value, bufferLength, temp_buffer, pH_buffer);
 	ph_averaged = average(pH_buffer, bufferLength);
-	*pH_filtered = best_moving_average(ph_averaged, ph_history, &ph_sum, &ph_window_pointer);
-	*pH = p1_p * *pH_filtered + p2_p;
+	pH_filtered = best_moving_average(ph_averaged, ph_history, &ph_sum, &ph_window_pointer);
+	pH = p1_p * pH_filtered + p2_p;
 	tempDigital = average(temp_buffer, bufferLength);
 	temp_filtered = best_moving_average(tempDigital, temp_history, &temp_sum, &temp_window_pointer);
 	*temp = p1_t * temp_filtered + p2_t;
-	/* Updating PID input*/
-	input = *pH;
-	/* Compute new PID output*/
-	pid_compute(pid);
+	if(menu_list[5].values[0]==0) // controller is ON
+	{
+		if(menu_list[5].values[1]==0) // controller type is pid
+		{
+			/* Updating PID input*/
+			input = pH;
+			/* Compute new PID output*/
+			pid_compute(pid);
+			pump_set_stroke(output);
+		}
+		else if(menu_list[5].values[1]==1)// controller type is relay
+		{
+			
+			uint16_t threshold = (menu_list[6].values[0] - menu_list[6].values[1])/4;
+			uint16_t mean = (menu_list[6].values[0] + menu_list[6].values[1])/2;
+			if (pH > mean + threshold ) // pH is bigger than maximum value
+			{
+				pump_turn_on_off(1);
+			}
+			else if (pH < mean - threshold )
+			{
+				pump_turn_on_off(0);
+			}
+		}
+	}
 	char sprintf_buff[12];
 	//sprintf(sprintf_buff,"%.3f,%.1f\n",*pH,*output);
 	//HAL_UART_Transmit(&huart2,sprintf_buff,12,100);
@@ -372,8 +413,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	get_user_input(uart_buff,&active_menu);
 	if(active_menu != 0)
 	{
-	update_menu_from_variables();
-	print_menu(active_menu);
+		update_menu_from_variables();
+		print_menu(active_menu);
 	}
 	HAL_UART_Transmit(&huart2,uart_buff,1,100);
 	HAL_UART_Receive_IT(&huart2,uart_buff,1);

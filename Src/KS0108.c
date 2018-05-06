@@ -215,10 +215,7 @@ int glcd_draw_char_xy(unsigned char x, unsigned char y, char c,int fast,int inve
 		unsigned char i;
 		unsigned char var_width;
 		unsigned int p;
-		
 
-				
-		 
 
 		/* The first byte per character is always the width of the character */
 
