@@ -53,6 +53,7 @@
 #include "adc.h"
 #include "dac.h"
 #include "dma.h"
+#include "rtc.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -108,12 +109,13 @@ uint16_t calibration_point_2 = 0;
 
 
 // rtc 
-//RTC_TimeTypeDef rtc_time;
-float *rtc_minute_p = &menu_list[8].values[0];
-float *rtc_hour_p = &menu_list[8].values[1];
-float *rtc_day_p = &menu_list[8].values[2];
-float *rtc_month_p = &menu_list[8].values[3];
-float *rtc_year_p = &menu_list[8].values[4];
+RTC_TimeTypeDef rtc_time;
+RTC_DateTypeDef rtc_date;
+float *rtc_hour_p = &menu_list[0].values[3];
+float *rtc_minute_p = &menu_list[0].values[4];
+//float *rtc_day_p = &menu_list[8].values[2];
+//float *rtc_month_p = &menu_list[8].values[3];
+//float *rtc_year_p = &menu_list[8].values[4];
 
 // Structure to strore PID data and pointer to PID structure
 struct pid_controller ctrldata;
@@ -123,7 +125,9 @@ float input = 0;
 float output ;
 float *setpoint = &menu_list[5].values[2];
 // Control loop gains
-float kp = 100, ki =1.2, kd = 0;
+float *kp = &menu_list[7].values[0];
+float *ki = &menu_list[7].values[1];
+float *kd = &menu_list[7].values[2];
 // PID sample time in ms
 uint32_t sample_time = 10;
 
@@ -180,9 +184,10 @@ int main(void)
   MX_ADC1_Init();
   MX_TIM2_Init();
   MX_DAC_Init();
+  MX_RTC_Init();
   /* USER CODE BEGIN 2 */
 	// Prepare PID controller for operation
-	pid = pid_create(&ctrldata, &input, &output, setpoint, kp, ki, kd);
+	pid = pid_create(&ctrldata, &input, &output, setpoint, *kp, *ki, *kd);
 	// Set controler output limits from 0 to 90
 	pid_limits(pid, 0, 90);
 	// Allow PID to compute and change output
@@ -197,6 +202,12 @@ int main(void)
 	init_menu();
 	HAL_UART_Receive_IT(&huart2,uart_buff,1);
 
+//	rtc_time.Hours =0x05 ;
+//	rtc_time.Minutes = 0x03;
+//	rtc_time.Seconds=0x50;
+//	HAL_RTC_SetTime(&hrtc,&rtc_time,FORMAT_BCD );
+
+	
 	HAL_TIM_Base_Start_IT(&htim2);
 	HAL_ADC_Start_DMA(&hadc1, adc_value, 2*bufferLength);
 	xTaskCreate(lcd_print,"lcd_print",256,( void * )1,2,&lcd_demo_handle);
@@ -235,6 +246,7 @@ void SystemClock_Config(void)
 
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
+  RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
 
     /**Configure the main internal regulator output voltage 
     */
@@ -244,8 +256,9 @@ void SystemClock_Config(void)
 
     /**Initializes the CPU, AHB and APB busses clocks 
     */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE|RCC_OSCILLATORTYPE_LSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 4;
@@ -271,6 +284,13 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
+  PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+  PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
+  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
     /**Configure the Systick interrupt time 
     */
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
@@ -288,7 +308,13 @@ void lcd_print(void * pvParameters)
 {
 	while(1)
 	{		
+		char sprintf_buff[10];
 		update_menu_from_variables();
+		HAL_RTC_GetTime(&hrtc,&rtc_time,FORMAT_BIN);
+		HAL_RTC_GetDate(&hrtc,&rtc_date,FORMAT_BIN);
+		*rtc_minute_p = rtc_time.Minutes;
+		*rtc_hour_p = rtc_time.Hours;
+		HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
 		if(active_menu == 0 )
 		{
 			print_main_page(active_menu);
@@ -305,7 +331,7 @@ void lcd_print(void * pvParameters)
 				print_menu(active_menu);
 			}
 		}
-			
+
 		osDelay(1000);
 		//HAL_Delay(1000);
 	}
@@ -339,7 +365,7 @@ void calculate_calibration_coefficients(void)
 	char sprintf_buff[20];
 	p1_p = (*calibration_point_1_ph - *calibration_point_2_ph) / (float)(calibration_point_1 - calibration_point_2 ) ;
 	p2_p = *calibration_point_1_ph - (calibration_point_1)*(p1_p);
-	sprintf(sprintf_buff,"%d,%.1f\n",calibration_point_1,*calibration_point_1_ph);
+	//sprintf(sprintf_buff,"%d,%.1f\n",calibration_point_1,*calibration_point_1_ph);
 }
 void calculate_calibration_coefficients_step1(void)
 {
@@ -350,9 +376,26 @@ void calculate_calibration_coefficients_step2(void)
 {
 	char sprintf_buff[10];
 	calibration_point_2 = pH_filtered;
-	
 }
-
+void set_date_time(void)
+{
+	rtc_time.Hours = menu_list[8].values[0];
+	rtc_time.Minutes = menu_list[8].values[1];
+	rtc_time.Seconds=1;
+	HAL_RTC_SetTime(&hrtc,&rtc_time,FORMAT_BIN );
+}
+void set_pid_coefficients(void)
+{
+	pid = pid_create(&ctrldata, &input, &output, setpoint, *kp, *ki, *kd);
+	// Set controler output limits from 0 to 90
+	pid_limits(pid, 0, 100);
+	// Allow PID to compute and change output
+	pid_auto(pid);
+	// Set sampling time
+	pid_sample(pid, sample_time);
+	// Set the direction of controller
+	pid_direction(pid, E_PID_REVERSE);
+}
 
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)

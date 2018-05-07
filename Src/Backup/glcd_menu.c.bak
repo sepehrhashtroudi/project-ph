@@ -16,6 +16,13 @@
 #include "graphic.h"
 extern Menu menu_list[9];
 extern void calculate_calibration_coefficients(void);
+extern void calculate_calibration_coefficients_step1(void);
+extern void calculate_calibration_coefficients_step2(void);
+extern void set_date_time(void);
+extern uint16_t pH_filtered;
+extern float output;
+
+extern float pH;
 
 void init_menu(void)
 {
@@ -24,26 +31,31 @@ void init_menu(void)
 	strcpy(menu_list[0].menu_strings[1] , "ph");
 	strcpy(menu_list[0].menu_strings[2] , "%.1f `c");
 	strcpy(menu_list[0].menu_strings[3] , "%d s/m");
+	strcpy(menu_list[0].menu_strings[4] , "%d:");//hour
+	strcpy(menu_list[0].menu_strings[5] , "%d"); //minute
 	menu_list[0].menu_id=0;
-	menu_list[0].menu_item_count = 4;
-	menu_list[0].next_menu_id[0]=2;
-	menu_list[0].next_menu_id[1]=5;
-	menu_list[0].next_menu_id[2]=8;
+	menu_list[0].menu_item_count = 6;
 	menu_list[0].menu_pointer=0;
 	menu_list[0].values[0]=7;
 	menu_list[0].values[3]=10;
 	menu_list[0].x_position[0]=45;
 	menu_list[0].x_position[1]=80;
 	menu_list[0].x_position[2]=40;
-	menu_list[0].x_position[3]=80;
+	menu_list[0].x_position[3]=40;
+	menu_list[0].x_position[4]=80;
+	menu_list[0].x_position[5]=90;
 	menu_list[0].y_position[0]=4;
 	menu_list[0].y_position[1]=20;
 	menu_list[0].y_position[2]=50;
-	menu_list[0].y_position[3]=50;
+	menu_list[0].y_position[3]=30;
+	menu_list[0].y_position[4]=50;
+	menu_list[0].y_position[5]=50;
 	menu_list[0].font[0]=1;
 	menu_list[0].font[1]=0;
 	menu_list[0].font[2]=0;
 	menu_list[0].font[3]=0;
+	menu_list[0].font[4]=0;
+	menu_list[0].font[5]=0;
 	
 	strcpy(menu_list[1].menu_name , "Main menu");
 	strcpy(menu_list[1].menu_strings[0],  " Calibration ");
@@ -70,16 +82,17 @@ void init_menu(void)
 	menu_list[2].next_menu_id[2]=2;
 	menu_list[2].next_menu_id[3]=2;
 	menu_list[2].next_menu_id[4]=3;
-	menu_list[2].values[1]=7.200;
-	menu_list[2].values[3]=200;
+	menu_list[2].values[1]=7.000;
+	menu_list[2].values[3]= 200 ;
 	menu_list[2].value_resolution[0]=0;
-	menu_list[2].value_resolution[1]=0.1000;
+	menu_list[2].value_resolution[1]=1.0000;
 	menu_list[2].value_resolution[2]=0;
 	menu_list[2].value_max[0]=0;
 	menu_list[2].value_max[1]=14;
 	menu_list[2].menu_id=2;
 	menu_list[2].menu_item_count = 5;
 	menu_list[2].menu_pointer=3;
+	menu_list[2].fun_ptr =&calculate_calibration_coefficients_step1;
 	
 	strcpy(menu_list[3].menu_name , "Calibration wizard");
 	strcpy(menu_list[3].menu_strings[0],  " Step 2 ");
@@ -91,18 +104,26 @@ void init_menu(void)
 	menu_list[3].next_menu_id[2]=3;
 	menu_list[3].next_menu_id[3]=4;
 	menu_list[3].menu_id=3;
+	menu_list[3].values[1]=7.000;
+	menu_list[3].values[2]=200;
+	menu_list[3].value_resolution[0]=0;
+	menu_list[3].value_resolution[1]=1.0000;
+	menu_list[3].value_resolution[2]=0;
+	menu_list[3].value_max[0]=0;
+	menu_list[3].value_max[1]=14;
 	menu_list[3].menu_item_count = 4;
 	menu_list[3].menu_pointer=3;
+	menu_list[3].fun_ptr =&calculate_calibration_coefficients_step2;
 	
 	strcpy(menu_list[4].menu_name , "Calibration wizard");
 	strcpy(menu_list[4].menu_strings[0],  " Step 3 ");
-	strcpy(menu_list[4].menu_strings[1] , " Done ");
-	menu_list[4].next_menu_id[0]=100;
-	menu_list[4].next_menu_id[1]=100;
+	strcpy(menu_list[4].menu_strings[1] , " Ok ");
+	menu_list[4].next_menu_id[0]=1;
+	menu_list[4].next_menu_id[1]=1;
 	menu_list[4].menu_id=4;
 	menu_list[4].menu_item_count = 2;
 	menu_list[4].menu_pointer=1;
-//	menu_list[4].fun_ptr = &calculate_calibration_coefficients;
+	menu_list[4].fun_ptr = &calculate_calibration_coefficients;
 	
 	strcpy(menu_list[5].menu_name , " Controller ");
 	strcpy(menu_list[5].menu_strings[0], " ON , OFF ");
@@ -168,16 +189,16 @@ void init_menu(void)
 	strcpy(menu_list[8].menu_name , "Date&time");
 	strcpy(menu_list[8].menu_strings[0], " Minute: %d ");
 	strcpy(menu_list[8].menu_strings[1], " Hour: %d ");
-	strcpy(menu_list[8].menu_strings[2], " Day: %d ");
-	strcpy(menu_list[8].menu_strings[3], " Month: %d ");
-	strcpy(menu_list[8].menu_strings[4], " Year: %d ");
-	strcpy(menu_list[8].menu_strings[5], " ok ");
+//	strcpy(menu_list[8].menu_strings[2], " Day: %d ");
+//	strcpy(menu_list[8].menu_strings[3], " Month: %d ");
+//	strcpy(menu_list[8].menu_strings[4], " Year: %d ");
+	strcpy(menu_list[8].menu_strings[2], " Ok ");
 	menu_list[8].next_menu_id[0]=8;
 	menu_list[8].next_menu_id[1]=8;
-	menu_list[8].next_menu_id[2]=8;
-	menu_list[8].next_menu_id[3]=8;
-	menu_list[8].next_menu_id[4]=8;
-	menu_list[8].next_menu_id[5]=0;
+//	menu_list[8].next_menu_id[2]=8;
+//	menu_list[8].next_menu_id[3]=8;
+//	menu_list[8].next_menu_id[4]=8;
+	menu_list[8].next_menu_id[2]=0;
 	menu_list[8].values[0]=1;
 	menu_list[8].values[1]=1;
 	menu_list[8].values[2]=1;
@@ -194,8 +215,9 @@ void init_menu(void)
 	menu_list[8].value_max[3]=12;
 	menu_list[8].value_max[4]=3000;
 	menu_list[8].menu_id=8;
-	menu_list[8].menu_item_count = 5;
+	menu_list[8].menu_item_count = 3;
 	menu_list[8].menu_pointer=0;
+	menu_list[8].fun_ptr = &set_date_time;
 }
 void update_menu_from_variables()
 {
@@ -214,6 +236,10 @@ void update_menu_from_variables()
 	{
 		menu_list[6].values[1] = menu_list[6].values[0];
 	}
+	menu_list[2].values[3] = pH_filtered; //ADC value for calibration 
+	menu_list[3].values[2] = pH_filtered;	//ADC value for calibration 
+	menu_list[0].values[3] = output; 
+	menu_list[0].values[0] = pH;
 
 }
 
@@ -331,13 +357,13 @@ void get_user_input(uint8_t *input,int *active_menu)
 		}
 		else
 		{
-			if(menu_list[*active_menu].next_menu_id[menu_list[*active_menu].menu_pointer] == 100)
+			if(menu_list[*active_menu].menu_strings[menu_list[*active_menu].menu_pointer][1] == 'O' && menu_list[*active_menu].menu_strings[menu_list[*active_menu].menu_pointer][2] == 'k')
 			{
-				//menu_list[*active_menu].fun_ptr();
-				*active_menu =1;
+				menu_list[*active_menu].fun_ptr();
 			}
 			*active_menu = menu_list[*active_menu].next_menu_id[menu_list[*active_menu].menu_pointer];
 			GLCD_ClearScreen();
+				
 		}
 	}
 	if(input[0] == 'w')

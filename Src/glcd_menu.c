@@ -18,7 +18,9 @@ extern Menu menu_list[9];
 extern void calculate_calibration_coefficients(void);
 extern void calculate_calibration_coefficients_step1(void);
 extern void calculate_calibration_coefficients_step2(void);
+extern void set_date_time(void);
 extern uint16_t pH_filtered;
+extern void set_pid_coefficients(void);
 extern float output;
 
 extern float pH;
@@ -29,27 +31,32 @@ void init_menu(void)
 	strcpy(menu_list[0].menu_strings[0],  "%.1f");
 	strcpy(menu_list[0].menu_strings[1] , "ph");
 	strcpy(menu_list[0].menu_strings[2] , "%.1f `c");
-	strcpy(menu_list[0].menu_strings[3] , "%d s/m");
+	strcpy(menu_list[0].menu_strings[3] , "%d:%d");//hour & minute
+	strcpy(menu_list[0].menu_strings[5] , "%d s/m");
+	//strcpy(menu_list[0].menu_strings[5] , "%d"); //minute
 	menu_list[0].menu_id=0;
-	menu_list[0].menu_item_count = 4;
-	menu_list[0].next_menu_id[0]=2;
-	menu_list[0].next_menu_id[1]=5;
-	menu_list[0].next_menu_id[2]=8;
+	menu_list[0].menu_item_count = 6;
 	menu_list[0].menu_pointer=0;
 	menu_list[0].values[0]=7;
 	menu_list[0].values[3]=10;
 	menu_list[0].x_position[0]=45;
 	menu_list[0].x_position[1]=80;
-	menu_list[0].x_position[2]=40;
+	menu_list[0].x_position[2]=15;
 	menu_list[0].x_position[3]=80;
+	menu_list[0].x_position[4]=90;
+	menu_list[0].x_position[5]=80;
 	menu_list[0].y_position[0]=4;
 	menu_list[0].y_position[1]=20;
-	menu_list[0].y_position[2]=50;
+	menu_list[0].y_position[2]=35;
 	menu_list[0].y_position[3]=50;
+	menu_list[0].y_position[4]=50;
+	menu_list[0].y_position[5]=35;
 	menu_list[0].font[0]=1;
 	menu_list[0].font[1]=0;
 	menu_list[0].font[2]=0;
 	menu_list[0].font[3]=0;
+	menu_list[0].font[4]=0;
+	menu_list[0].font[5]=0;
 	
 	strcpy(menu_list[1].menu_name , "Main menu");
 	strcpy(menu_list[1].menu_strings[0],  " Calibration ");
@@ -164,35 +171,38 @@ void init_menu(void)
 	strcpy(menu_list[7].menu_strings[0], " P: %d ");
 	strcpy(menu_list[7].menu_strings[1], " I: %.1f ");
 	strcpy(menu_list[7].menu_strings[2], " D: %.1f ");
-	menu_list[7].next_menu_id[0]=1;
-	menu_list[7].next_menu_id[1]=1;
-	menu_list[7].next_menu_id[2]=1;
-	menu_list[7].values[0]=10;
-	menu_list[7].values[1]=11;
-	menu_list[7].values[2]=12;
+	strcpy(menu_list[7].menu_strings[3], " Ok ");
+	menu_list[7].next_menu_id[0]=7;
+	menu_list[7].next_menu_id[1]=7;
+	menu_list[7].next_menu_id[2]=7;
+	menu_list[7].next_menu_id[3]=0;
+	menu_list[7].values[0]=100;
+	menu_list[7].values[1]=1;
+	menu_list[7].values[2]=0;
 	menu_list[7].value_resolution[0]=1;
 	menu_list[7].value_resolution[1]=0.1000;
 	menu_list[7].value_resolution[2]=0.1000;
-	menu_list[7].value_max[0]=100;
-	menu_list[7].value_max[1]=100;
-	menu_list[7].value_max[2]=100;
+	menu_list[7].value_max[0]=400;
+	menu_list[7].value_max[1]=20;
+	menu_list[7].value_max[2]=10;
 	menu_list[7].menu_id=7;
-	menu_list[7].menu_item_count = 3;
+	menu_list[7].menu_item_count = 4;
 	menu_list[7].menu_pointer=0;
+	menu_list[7].fun_ptr = &set_pid_coefficients;
 	
 	strcpy(menu_list[8].menu_name , "Date&time");
-	strcpy(menu_list[8].menu_strings[0], " Minute: %d ");
-	strcpy(menu_list[8].menu_strings[1], " Hour: %d ");
-	strcpy(menu_list[8].menu_strings[2], " Day: %d ");
-	strcpy(menu_list[8].menu_strings[3], " Month: %d ");
-	strcpy(menu_list[8].menu_strings[4], " Year: %d ");
-	strcpy(menu_list[8].menu_strings[5], " ok ");
+	strcpy(menu_list[8].menu_strings[0], " Hour: %d ");
+	strcpy(menu_list[8].menu_strings[1], " Minute: %d ");
+//	strcpy(menu_list[8].menu_strings[2], " Day: %d ");
+//	strcpy(menu_list[8].menu_strings[3], " Month: %d ");
+//	strcpy(menu_list[8].menu_strings[4], " Year: %d ");
+	strcpy(menu_list[8].menu_strings[2], " Ok ");
 	menu_list[8].next_menu_id[0]=8;
 	menu_list[8].next_menu_id[1]=8;
-	menu_list[8].next_menu_id[2]=8;
-	menu_list[8].next_menu_id[3]=8;
-	menu_list[8].next_menu_id[4]=8;
-	menu_list[8].next_menu_id[5]=0;
+//	menu_list[8].next_menu_id[2]=8;
+//	menu_list[8].next_menu_id[3]=8;
+//	menu_list[8].next_menu_id[4]=8;
+	menu_list[8].next_menu_id[2]=0;
 	menu_list[8].values[0]=1;
 	menu_list[8].values[1]=1;
 	menu_list[8].values[2]=1;
@@ -203,14 +213,15 @@ void init_menu(void)
 	menu_list[8].value_resolution[2]=1;
 	menu_list[8].value_resolution[3]=1;
 	menu_list[8].value_resolution[4]=1;
-	menu_list[8].value_max[0]=60;
-	menu_list[8].value_max[1]=12;
+	menu_list[8].value_max[0]=12;
+	menu_list[8].value_max[1]=60;
 	menu_list[8].value_max[2]=30;
 	menu_list[8].value_max[3]=12;
 	menu_list[8].value_max[4]=3000;
 	menu_list[8].menu_id=8;
-	menu_list[8].menu_item_count = 5;
+	menu_list[8].menu_item_count = 3;
 	menu_list[8].menu_pointer=0;
+	menu_list[8].fun_ptr = &set_date_time;
 }
 void update_menu_from_variables()
 {
@@ -231,7 +242,7 @@ void update_menu_from_variables()
 	}
 	menu_list[2].values[3] = pH_filtered; //ADC value for calibration 
 	menu_list[3].values[2] = pH_filtered;	//ADC value for calibration 
-	menu_list[0].values[3] = output; 
+	menu_list[0].values[5] = output; 
 	menu_list[0].values[0] = pH;
 
 }
@@ -261,9 +272,30 @@ void print_main_page(int active_menu)
 			char *final_menu_strings = Final_menu_strings;
 			
 			strcpy(menu_strings_buff , menu_list[active_menu].menu_strings[i]);
+			
+
 			if (strstr(menu_strings_buff, "%d") != 0)
 			{
-				sprintf(final_menu_strings, menu_strings_buff , (int)(menu_list[active_menu].values[i]));
+				int count =0;
+				const char *tmp = menu_strings_buff;
+				char sprintf_buff[10];
+				while(strstr(tmp,"%d")!= 0) // fined number of %d in string
+				{
+					 tmp = strstr(tmp,"%d");
+					 count++;
+					 tmp++;
+				}
+				
+				if(count == 1)
+				{
+					sprintf(final_menu_strings, menu_strings_buff , (int)(menu_list[active_menu].values[i]));
+				}
+				if(count == 2)
+				{
+					sprintf(final_menu_strings, menu_strings_buff , (int)(menu_list[active_menu].values[i]),(int)(menu_list[active_menu].values[i+1]));
+					i++;
+				}
+				
 			}
 			else if (strstr(menu_strings_buff, "%.1f") != 0)
 			{
