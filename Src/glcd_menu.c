@@ -14,14 +14,19 @@
 #include "usart.h"
 #include "font5x8.h"
 #include "graphic.h"
+#include <stdlib.h>
 extern Menu menu_list[9];
 extern void calculate_calibration_coefficients(void);
-extern void calculate_calibration_coefficients_step1(void);
-extern void calculate_calibration_coefficients_step2(void);
+extern void calibration_step1(void);
+extern void calibration_step2(void);
+extern void calibration_waiting_2(void);
+extern void calibration_waiting_1(void);
 extern void set_date_time(void);
 extern uint16_t pH_filtered;
 extern void set_pid_coefficients(void);
 extern float output;
+extern int16_t progress;
+
 
 extern float pH;
 
@@ -67,16 +72,16 @@ void init_menu(void)
 	menu_list[1].menu_id=1;
 	menu_list[1].menu_item_count = 4;
 	menu_list[1].next_menu_id[0]=2;
-	menu_list[1].next_menu_id[1]=5;
-	menu_list[1].next_menu_id[2]=8;
+	menu_list[1].next_menu_id[1]=8;
+	menu_list[1].next_menu_id[2]=11;
 	menu_list[1].next_menu_id[3]=0;
 	menu_list[1].menu_pointer=0;
 	
 	strcpy(menu_list[2].menu_name , "Calibration wizard");
 	strcpy(menu_list[2].menu_strings[0],  " Step 1 ");
 	strcpy(menu_list[2].menu_strings[1] , " Enter Buffer ph:%.1f ");
-	strcpy(menu_list[2].menu_strings[2] , " wait until this number ");
-	strcpy(menu_list[2].menu_strings[3] , " stops changing: %d ");
+	strcpy(menu_list[2].menu_strings[2] , " put sensor in buffer ");
+	strcpy(menu_list[2].menu_strings[3] , " and then press Ok ");
 	strcpy(menu_list[2].menu_strings[4] , " Ok ");
 	menu_list[2].next_menu_id[0]=2;
 	menu_list[2].next_menu_id[1]=2;
@@ -84,21 +89,19 @@ void init_menu(void)
 	menu_list[2].next_menu_id[3]=2;
 	menu_list[2].next_menu_id[4]=3;
 	menu_list[2].values[1]=7.000;
-	menu_list[2].values[3]= 200 ;
 	menu_list[2].value_resolution[0]=0;
 	menu_list[2].value_resolution[1]=1.0000;
-	menu_list[2].value_resolution[2]=0;
 	menu_list[2].value_max[0]=0;
 	menu_list[2].value_max[1]=14;
 	menu_list[2].menu_id=2;
 	menu_list[2].menu_item_count = 5;
-	menu_list[2].menu_pointer=3;
-	menu_list[2].fun_ptr =&calculate_calibration_coefficients_step1;
+	menu_list[2].menu_pointer=4;
+	menu_list[2].fun_ptr = &calibration_step1;
 	
 	strcpy(menu_list[3].menu_name , "Calibration wizard");
-	strcpy(menu_list[3].menu_strings[0],  " Step 2 ");
-	strcpy(menu_list[3].menu_strings[1] , " Second buffer pH:%.1f ");
-	strcpy(menu_list[3].menu_strings[2] , " %d ");
+	strcpy(menu_list[3].menu_strings[0],  " Please wait ");
+	strcpy(menu_list[3].menu_strings[1] , " Progress: ");
+	strcpy(menu_list[3].menu_strings[2] , "  ");
 	strcpy(menu_list[3].menu_strings[3] , " Ok ");
 	menu_list[3].next_menu_id[0]=3;
 	menu_list[3].next_menu_id[1]=3;
@@ -113,135 +116,203 @@ void init_menu(void)
 	menu_list[3].value_max[0]=0;
 	menu_list[3].value_max[1]=14;
 	menu_list[3].menu_item_count = 4;
-	menu_list[3].menu_pointer=3;
-	menu_list[3].fun_ptr =&calculate_calibration_coefficients_step2;
+	menu_list[3].menu_pointer=1;
+	menu_list[3].fun_ptr = &calibration_waiting_1;
+	
 	
 	strcpy(menu_list[4].menu_name , "Calibration wizard");
-	strcpy(menu_list[4].menu_strings[0],  " Step 3 ");
-	strcpy(menu_list[4].menu_strings[1] , " Ok ");
-	menu_list[4].next_menu_id[0]=1;
-	menu_list[4].next_menu_id[1]=1;
+	strcpy(menu_list[4].menu_strings[0],  " Step 2 ");
+	strcpy(menu_list[4].menu_strings[1] , " Enter Buffer ph:%.1f ");
+	strcpy(menu_list[4].menu_strings[2] , " put sensor in buffer ");
+	strcpy(menu_list[4].menu_strings[3] , " and then press Ok ");
+	strcpy(menu_list[4].menu_strings[4] , " Ok ");
+	menu_list[4].next_menu_id[0]=4;
+	menu_list[4].next_menu_id[1]=4;
+	menu_list[4].next_menu_id[2]=4;
+	menu_list[4].next_menu_id[3]=4;
+	menu_list[4].next_menu_id[4]=5;
 	menu_list[4].menu_id=4;
-	menu_list[4].menu_item_count = 2;
-	menu_list[4].menu_pointer=1;
-	menu_list[4].fun_ptr = &calculate_calibration_coefficients;
+	menu_list[4].values[1]=7.000;
+	menu_list[4].values[2]=200;
+	menu_list[4].value_resolution[0]=0;
+	menu_list[4].value_resolution[1]=1.0000;
+	menu_list[4].value_resolution[2]=0;
+	menu_list[4].value_max[0]=0;
+	menu_list[4].value_max[1]=14;
+	menu_list[4].menu_item_count = 5;
+	menu_list[4].menu_pointer=4;
+	menu_list[4].fun_ptr = &calibration_step1;
 	
-	strcpy(menu_list[5].menu_name , " Controller ");
-	strcpy(menu_list[5].menu_strings[0], " ON , OFF ");
-	strcpy(menu_list[5].menu_strings[1], " PID , RELAY ");
-	strcpy(menu_list[5].menu_strings[2], " Setpoint:%.1f ");
-	strcpy(menu_list[5].menu_strings[3], " Coefficients , Hysteresis ");
+	strcpy(menu_list[5].menu_name , "Calibration wizard");
+	strcpy(menu_list[5].menu_strings[0],  " Please wait ");
+	strcpy(menu_list[5].menu_strings[1] , " Progress: ");
+	strcpy(menu_list[3].menu_strings[2] , "  ");
+	strcpy(menu_list[5].menu_strings[3] , " Ok ");
 	menu_list[5].next_menu_id[0]=5;
 	menu_list[5].next_menu_id[1]=5;
-	menu_list[5].next_menu_id[2]=5;
+	menu_list[5].next_menu_id[2]=6;
 	menu_list[5].next_menu_id[3]=6;
-	menu_list[5].values[0]=1;
-	menu_list[5].values[1]=1;
-	menu_list[5].values[2]=7.100;
-	menu_list[5].values[3]=1;
-	menu_list[5].value_resolution[0]=1.00000;
-	menu_list[5].value_resolution[1]=1.00000;
-	menu_list[5].value_resolution[2]=0.10000;
-	menu_list[5].value_resolution[3]=0.00000;
-	menu_list[5].value_max[0]=1;
-	menu_list[5].value_max[1]=1;
-	menu_list[5].value_max[2]=14;
-	menu_list[5].value_max[3]=1;
 	menu_list[5].menu_id=5;
+	menu_list[5].values[1]=7.000;
+	menu_list[5].values[2]=200;
+	menu_list[5].value_resolution[0]=0;
+	menu_list[5].value_resolution[1]=1.0000;
+	menu_list[5].value_resolution[2]=0;
+	menu_list[5].value_max[0]=0;
+	menu_list[5].value_max[1]=14;
 	menu_list[5].menu_item_count = 4;
-	menu_list[5].menu_pointer=0;
+	menu_list[5].menu_pointer=3;
+	menu_list[5].fun_ptr = &calibration_waiting_2;
 	
-	
-	strcpy(menu_list[6].menu_name , "Relay Hysteresis");
-	strcpy(menu_list[6].menu_strings[0], " Max: %.1f ");
-	strcpy(menu_list[6].menu_strings[1], " Min: %.1f ");
+	strcpy(menu_list[6].menu_name , "Calibration wizard");
+	strcpy(menu_list[6].menu_strings[0],  " Step 3 ");
+	strcpy(menu_list[6].menu_strings[1] , " Ok ");
 	menu_list[6].next_menu_id[0]=1;
 	menu_list[6].next_menu_id[1]=1;
-	menu_list[6].values[0]=8;
-	menu_list[6].values[1]=6;
-	menu_list[6].value_resolution[0]=0.10000;
-	menu_list[6].value_resolution[1]=0.10000;
-	menu_list[6].value_max[0]=14;
-	menu_list[6].value_max[1]=14;
+	menu_list[6].next_menu_id[2]=1;
 	menu_list[6].menu_id=6;
 	menu_list[6].menu_item_count = 2;
-	menu_list[6].menu_pointer=0;
+	menu_list[6].menu_pointer=1;
+	menu_list[6].fun_ptr = &calculate_calibration_coefficients;
 	
-	strcpy(menu_list[7].menu_name , "PID Coefficients");
-	strcpy(menu_list[7].menu_strings[0], " P: %d ");
-	strcpy(menu_list[7].menu_strings[1], " I: %.1f ");
-	strcpy(menu_list[7].menu_strings[2], " D: %.1f ");
-	strcpy(menu_list[7].menu_strings[3], " Ok ");
-	menu_list[7].next_menu_id[0]=7;
-	menu_list[7].next_menu_id[1]=7;
-	menu_list[7].next_menu_id[2]=7;
-	menu_list[7].next_menu_id[3]=0;
-	menu_list[7].values[0]=100;
-	menu_list[7].values[1]=1;
-	menu_list[7].values[2]=0;
-	menu_list[7].value_resolution[0]=1;
-	menu_list[7].value_resolution[1]=0.1000;
-	menu_list[7].value_resolution[2]=0.1000;
-	menu_list[7].value_max[0]=400;
-	menu_list[7].value_max[1]=20;
-	menu_list[7].value_max[2]=10;
-	menu_list[7].menu_id=7;
-	menu_list[7].menu_item_count = 4;
-	menu_list[7].menu_pointer=0;
-	menu_list[7].fun_ptr = &set_pid_coefficients;
-	
-	strcpy(menu_list[8].menu_name , "Date&time");
-	strcpy(menu_list[8].menu_strings[0], " Hour: %d ");
-	strcpy(menu_list[8].menu_strings[1], " Minute: %d ");
-//	strcpy(menu_list[8].menu_strings[2], " Day: %d ");
-//	strcpy(menu_list[8].menu_strings[3], " Month: %d ");
-//	strcpy(menu_list[8].menu_strings[4], " Year: %d ");
-	strcpy(menu_list[8].menu_strings[2], " Ok ");
+	strcpy(menu_list[8].menu_name , " Controller ");
+	strcpy(menu_list[8].menu_strings[0], " ON , OFF ");
+	strcpy(menu_list[8].menu_strings[1], " PID , RELAY ");
+	strcpy(menu_list[8].menu_strings[2], " Setpoint:%.1f ");
+	strcpy(menu_list[8].menu_strings[3], " Coefficients , Hysteresis ");
 	menu_list[8].next_menu_id[0]=8;
 	menu_list[8].next_menu_id[1]=8;
-//	menu_list[8].next_menu_id[2]=8;
-//	menu_list[8].next_menu_id[3]=8;
-//	menu_list[8].next_menu_id[4]=8;
-	menu_list[8].next_menu_id[2]=0;
+	menu_list[8].next_menu_id[2]=8;
+	menu_list[8].next_menu_id[3]=9;
 	menu_list[8].values[0]=1;
 	menu_list[8].values[1]=1;
-	menu_list[8].values[2]=1;
+	menu_list[8].values[2]=7.100;
 	menu_list[8].values[3]=1;
-	menu_list[8].values[4]=1;
-	menu_list[8].value_resolution[0]=1;
-	menu_list[8].value_resolution[1]=1;
-	menu_list[8].value_resolution[2]=1;
-	menu_list[8].value_resolution[3]=1;
-	menu_list[8].value_resolution[4]=1;
-	menu_list[8].value_max[0]=12;
-	menu_list[8].value_max[1]=60;
-	menu_list[8].value_max[2]=30;
-	menu_list[8].value_max[3]=12;
-	menu_list[8].value_max[4]=3000;
-	menu_list[8].menu_id=8;
-	menu_list[8].menu_item_count = 3;
+	menu_list[8].value_resolution[0]=1.00000;
+	menu_list[8].value_resolution[1]=1.00000;
+	menu_list[8].value_resolution[2]=0.10000;
+	menu_list[8].value_resolution[3]=0.00000;
+	menu_list[8].value_max[0]=1;
+	menu_list[8].value_max[1]=1;
+	menu_list[8].value_max[2]=14;
+	menu_list[8].value_max[3]=1;
+	menu_list[8].menu_id=5;
+	menu_list[8].menu_item_count = 4;
 	menu_list[8].menu_pointer=0;
-	menu_list[8].fun_ptr = &set_date_time;
+	
+	
+	strcpy(menu_list[9].menu_name , "Relay Hysteresis");
+	strcpy(menu_list[9].menu_strings[0], " Max: %.1f ");
+	strcpy(menu_list[9].menu_strings[1], " Min: %.1f ");
+	menu_list[9].next_menu_id[0]=1;
+	menu_list[9].next_menu_id[1]=1;
+	menu_list[9].values[0]=8;
+	menu_list[9].values[1]=6;
+	menu_list[9].value_resolution[0]=0.10000;
+	menu_list[9].value_resolution[1]=0.10000;
+	menu_list[9].value_max[0]=14;
+	menu_list[9].value_max[1]=14;
+	menu_list[9].menu_id=6;
+	menu_list[9].menu_item_count = 2;
+	menu_list[9].menu_pointer=0;
+	
+	strcpy(menu_list[10].menu_name , "PID Coefficients");
+	strcpy(menu_list[10].menu_strings[0], " P: %d ");
+	strcpy(menu_list[10].menu_strings[1], " I: %.1f ");
+	strcpy(menu_list[10].menu_strings[2], " D: %.1f ");
+	strcpy(menu_list[10].menu_strings[3], " Ok ");
+	menu_list[10].next_menu_id[0]=10;
+	menu_list[10].next_menu_id[1]=10;
+	menu_list[10].next_menu_id[2]=10;
+	menu_list[10].next_menu_id[3]=0;
+	menu_list[10].values[0]=100;
+	menu_list[10].values[1]=1;
+	menu_list[10].values[2]=0;
+	menu_list[10].value_resolution[0]=1;
+	menu_list[10].value_resolution[1]=0.1000;
+	menu_list[10].value_resolution[2]=0.1000;
+	menu_list[10].value_max[0]=400;
+	menu_list[10].value_max[1]=20;
+	menu_list[10].value_max[2]=10;
+	menu_list[10].menu_id=7;
+	menu_list[10].menu_item_count = 4;
+	menu_list[10].menu_pointer=0;
+	menu_list[10].fun_ptr = &set_pid_coefficients;
+	
+	strcpy(menu_list[11].menu_name , "Date&time");
+	strcpy(menu_list[11].menu_strings[0], " Hour: %d ");
+	strcpy(menu_list[11].menu_strings[1], " Minute: %d ");
+//	strcpy(menu_list[11].menu_strings[2], " Day: %d ");
+//	strcpy(menu_list[11].menu_strings[3], " Month: %d ");
+//	strcpy(menu_list[11].menu_strings[4], " Year: %d ");
+	strcpy(menu_list[11].menu_strings[2], " Ok ");
+	menu_list[11].next_menu_id[0]=11;
+	menu_list[11].next_menu_id[1]=11;
+//	menu_list[11].next_menu_id[2]=8;
+//	menu_list[11].next_menu_id[3]=8;
+//	menu_list[11].next_menu_id[4]=8;
+	menu_list[11].next_menu_id[2]=0;
+	menu_list[11].values[0]=1;
+	menu_list[11].values[1]=1;
+	menu_list[11].values[2]=1;
+	menu_list[11].values[3]=1;
+	menu_list[11].values[4]=1;
+	menu_list[11].value_resolution[0]=1;
+	menu_list[11].value_resolution[1]=1;
+	menu_list[11].value_resolution[2]=1;
+	menu_list[11].value_resolution[3]=1;
+	menu_list[11].value_resolution[4]=1;
+	menu_list[11].value_max[0]=12;
+	menu_list[11].value_max[1]=60;
+	menu_list[11].value_max[2]=30;
+	menu_list[11].value_max[3]=12;
+	menu_list[11].value_max[4]=3000;
+	menu_list[11].menu_id=8;
+	menu_list[11].menu_item_count = 3;
+	menu_list[11].menu_pointer=0;
+	menu_list[11].fun_ptr = &set_date_time;
 }
 void update_menu_from_variables()
 {
 	// pid,relay link to coeff and hysteresis
-	menu_list[5].values[3]=menu_list[5].values[1];
-	if(menu_list[5].values[1] == 1)
+	menu_list[8].values[3]=menu_list[8].values[1];
+	if(menu_list[8].values[1] == 1)
 	{
-		menu_list[5].next_menu_id[3]=6;
+		menu_list[8].next_menu_id[3]=9;
 	}
 	else
 	{
-		menu_list[5].next_menu_id[3]=7;
+		menu_list[8].next_menu_id[3]=10;
 	}
 	//relay max min restriction
-	if(menu_list[6].values[1] > menu_list[6].values[0])
+	if(menu_list[9].values[1] > menu_list[9].values[0])
 	{
-		menu_list[6].values[1] = menu_list[6].values[0];
+		menu_list[9].values[1] = menu_list[9].values[0];
 	}
-	menu_list[2].values[3] = pH_filtered; //ADC value for calibration 
-	menu_list[3].values[2] = pH_filtered;	//ADC value for calibration 
+	menu_list[3].values[1] = progress;//ADC value for calibration 
+	menu_list[5].values[1] = progress;	
+	
+	if(progress < 25)
+	{
+		strcpy(menu_list[3].menu_strings[2] , " #### ");
+		strcpy(menu_list[5].menu_strings[2] , " #### ");
+	}
+	if(progress >= 25 && progress < 50)
+	{
+		strcpy(menu_list[3].menu_strings[2] , " ######## ");
+		strcpy(menu_list[5].menu_strings[2] , " ######## ");
+	}
+	if(progress > 50 && progress < 75)
+	{
+		strcpy(menu_list[3].menu_strings[2] , " ############ ");
+		strcpy(menu_list[5].menu_strings[2] , " ############ ");
+	}
+	if(progress > 75 && progress < 100)
+	{
+		strcpy(menu_list[3].menu_strings[2] , " ################ ");
+		strcpy(menu_list[5].menu_strings[2] , " ################ ");
+	}
+		
 	menu_list[0].values[5] = output; 
 	menu_list[0].values[0] = pH;
 

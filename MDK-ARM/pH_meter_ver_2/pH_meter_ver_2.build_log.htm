@@ -27,27 +27,167 @@ Project File Date:  05/07/2018
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'pH_meter_ver_2'
-compiling main.c...
+compiling glcd_menu.c...
 ../Inc/glcd_menu.h(34): warning:  #1-D: last line of file ends without a newline
   void update_menu_from_variables();
 ../Inc/glcd_menu.h(34): warning:  #1295-D: Deprecated declaration update_menu_from_variables - give arg types
   void update_menu_from_variables();
-../Inc/defines.h(2): warning:  #1-D: last line of file ends without a newline
-  #define filterWindowLength 100// moving average buffer length
-../Src/main.c(317): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
-  		HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
-../Src/main.c(365): warning:  #177-D: variable "sprintf_buff"  was declared but never referenced
-  	char sprintf_buff[20];
-../Src/main.c(372): warning:  #177-D: variable "sprintf_buff"  was declared but never referenced
-  	char sprintf_buff[10];
-../Src/main.c(377): warning:  #177-D: variable "sprintf_buff"  was declared but never referenced
-  	char sprintf_buff[10];
-../Src/main.c(436): warning:  #177-D: variable "sprintf_buff"  was declared but never referenced
-  	char sprintf_buff[12];
-../Src/main.c: 8 warnings, 0 errors
+..\Src\glcd_menu.c(204): warning:  #175-D: subscript out of range
+  	strcpy(menu_list[9].menu_name , "Relay Hysteresis");
+..\Src\glcd_menu.c(205): warning:  #175-D: subscript out of range
+  	strcpy(menu_list[9].menu_strings[0], " Max: %.1f ");
+..\Src\glcd_menu.c(206): warning:  #175-D: subscript out of range
+  	strcpy(menu_list[9].menu_strings[1], " Min: %.1f ");
+..\Src\glcd_menu.c(207): warning:  #175-D: subscript out of range
+  	menu_list[9].next_menu_id[0]=1;
+..\Src\glcd_menu.c(208): warning:  #175-D: subscript out of range
+  	menu_list[9].next_menu_id[1]=1;
+..\Src\glcd_menu.c(209): warning:  #175-D: subscript out of range
+  	menu_list[9].values[0]=8;
+..\Src\glcd_menu.c(210): warning:  #175-D: subscript out of range
+  	menu_list[9].values[1]=6;
+..\Src\glcd_menu.c(211): warning:  #175-D: subscript out of range
+  	menu_list[9].value_resolution[0]=0.10000;
+..\Src\glcd_menu.c(212): warning:  #175-D: subscript out of range
+  	menu_list[9].value_resolution[1]=0.10000;
+..\Src\glcd_menu.c(213): warning:  #175-D: subscript out of range
+  	menu_list[9].value_max[0]=14;
+..\Src\glcd_menu.c(214): warning:  #175-D: subscript out of range
+  	menu_list[9].value_max[1]=14;
+..\Src\glcd_menu.c(215): warning:  #175-D: subscript out of range
+  	menu_list[9].menu_id=6;
+..\Src\glcd_menu.c(216): warning:  #175-D: subscript out of range
+  	menu_list[9].menu_item_count = 2;
+..\Src\glcd_menu.c(217): warning:  #175-D: subscript out of range
+  	menu_list[9].menu_pointer=0;
+..\Src\glcd_menu.c(219): warning:  #175-D: subscript out of range
+  	strcpy(menu_list[10].menu_name , "PID Coefficients");
+..\Src\glcd_menu.c(220): warning:  #175-D: subscript out of range
+  	strcpy(menu_list[10].menu_strings[0], " P: %d ");
+..\Src\glcd_menu.c(221): warning:  #175-D: subscript out of range
+  	strcpy(menu_list[10].menu_strings[1], " I: %.1f ");
+..\Src\glcd_menu.c(222): warning:  #175-D: subscript out of range
+  	strcpy(menu_list[10].menu_strings[2], " D: %.1f ");
+..\Src\glcd_menu.c(223): warning:  #175-D: subscript out of range
+  	strcpy(menu_list[10].menu_strings[3], " Ok ");
+..\Src\glcd_menu.c(224): warning:  #175-D: subscript out of range
+  	menu_list[10].next_menu_id[0]=10;
+..\Src\glcd_menu.c(225): warning:  #175-D: subscript out of range
+  	menu_list[10].next_menu_id[1]=10;
+..\Src\glcd_menu.c(226): warning:  #175-D: subscript out of range
+  	menu_list[10].next_menu_id[2]=10;
+..\Src\glcd_menu.c(227): warning:  #175-D: subscript out of range
+  	menu_list[10].next_menu_id[3]=0;
+..\Src\glcd_menu.c(228): warning:  #175-D: subscript out of range
+  	menu_list[10].values[0]=100;
+..\Src\glcd_menu.c(229): warning:  #175-D: subscript out of range
+  	menu_list[10].values[1]=1;
+..\Src\glcd_menu.c(230): warning:  #175-D: subscript out of range
+  	menu_list[10].values[2]=0;
+..\Src\glcd_menu.c(231): warning:  #175-D: subscript out of range
+  	menu_list[10].value_resolution[0]=1;
+..\Src\glcd_menu.c(232): warning:  #175-D: subscript out of range
+  	menu_list[10].value_resolution[1]=0.1000;
+..\Src\glcd_menu.c(233): warning:  #175-D: subscript out of range
+  	menu_list[10].value_resolution[2]=0.1000;
+..\Src\glcd_menu.c(234): warning:  #175-D: subscript out of range
+  	menu_list[10].value_max[0]=400;
+..\Src\glcd_menu.c(235): warning:  #175-D: subscript out of range
+  	menu_list[10].value_max[1]=20;
+..\Src\glcd_menu.c(236): warning:  #175-D: subscript out of range
+  	menu_list[10].value_max[2]=10;
+..\Src\glcd_menu.c(237): warning:  #175-D: subscript out of range
+  	menu_list[10].menu_id=7;
+..\Src\glcd_menu.c(238): warning:  #175-D: subscript out of range
+  	menu_list[10].menu_item_count = 4;
+..\Src\glcd_menu.c(239): warning:  #175-D: subscript out of range
+  	menu_list[10].menu_pointer=0;
+..\Src\glcd_menu.c(240): warning:  #175-D: subscript out of range
+  	menu_list[10].fun_ptr = &set_pid_coefficients;
+..\Src\glcd_menu.c(242): warning:  #175-D: subscript out of range
+  	strcpy(menu_list[11].menu_name , "Date&time");
+..\Src\glcd_menu.c(243): warning:  #175-D: subscript out of range
+  	strcpy(menu_list[11].menu_strings[0], " Hour: %d ");
+..\Src\glcd_menu.c(244): warning:  #175-D: subscript out of range
+  	strcpy(menu_list[11].menu_strings[1], " Minute: %d ");
+..\Src\glcd_menu.c(248): warning:  #175-D: subscript out of range
+  	strcpy(menu_list[11].menu_strings[2], " Ok ");
+..\Src\glcd_menu.c(249): warning:  #175-D: subscript out of range
+  	menu_list[11].next_menu_id[0]=11;
+..\Src\glcd_menu.c(250): warning:  #175-D: subscript out of range
+  	menu_list[11].next_menu_id[1]=11;
+..\Src\glcd_menu.c(254): warning:  #175-D: subscript out of range
+  	menu_list[11].next_menu_id[2]=0;
+..\Src\glcd_menu.c(255): warning:  #175-D: subscript out of range
+  	menu_list[11].values[0]=1;
+..\Src\glcd_menu.c(256): warning:  #175-D: subscript out of range
+  	menu_list[11].values[1]=1;
+..\Src\glcd_menu.c(257): warning:  #175-D: subscript out of range
+  	menu_list[11].values[2]=1;
+..\Src\glcd_menu.c(258): warning:  #175-D: subscript out of range
+  	menu_list[11].values[3]=1;
+..\Src\glcd_menu.c(259): warning:  #175-D: subscript out of range
+  	menu_list[11].values[4]=1;
+..\Src\glcd_menu.c(260): warning:  #175-D: subscript out of range
+  	menu_list[11].value_resolution[0]=1;
+..\Src\glcd_menu.c(261): warning:  #175-D: subscript out of range
+  	menu_list[11].value_resolution[1]=1;
+..\Src\glcd_menu.c(262): warning:  #175-D: subscript out of range
+  	menu_list[11].value_resolution[2]=1;
+..\Src\glcd_menu.c(263): warning:  #175-D: subscript out of range
+  	menu_list[11].value_resolution[3]=1;
+..\Src\glcd_menu.c(264): warning:  #175-D: subscript out of range
+  	menu_list[11].value_resolution[4]=1;
+..\Src\glcd_menu.c(265): warning:  #175-D: subscript out of range
+  	menu_list[11].value_max[0]=12;
+..\Src\glcd_menu.c(266): warning:  #175-D: subscript out of range
+  	menu_list[11].value_max[1]=60;
+..\Src\glcd_menu.c(267): warning:  #175-D: subscript out of range
+  	menu_list[11].value_max[2]=30;
+..\Src\glcd_menu.c(268): warning:  #175-D: subscript out of range
+  	menu_list[11].value_max[3]=12;
+..\Src\glcd_menu.c(269): warning:  #175-D: subscript out of range
+  	menu_list[11].value_max[4]=3000;
+..\Src\glcd_menu.c(270): warning:  #175-D: subscript out of range
+  	menu_list[11].menu_id=8;
+..\Src\glcd_menu.c(271): warning:  #175-D: subscript out of range
+  	menu_list[11].menu_item_count = 3;
+..\Src\glcd_menu.c(272): warning:  #175-D: subscript out of range
+  	menu_list[11].menu_pointer=0;
+..\Src\glcd_menu.c(273): warning:  #175-D: subscript out of range
+  	menu_list[11].fun_ptr = &set_date_time;
+..\Src\glcd_menu.c(288): warning:  #175-D: subscript out of range
+  	if(menu_list[9].values[1] > menu_list[9].values[0])
+..\Src\glcd_menu.c(288): warning:  #175-D: subscript out of range
+  	if(menu_list[9].values[1] > menu_list[9].values[0])
+..\Src\glcd_menu.c(290): warning:  #175-D: subscript out of range
+  		menu_list[9].values[1] = menu_list[9].values[0];
+..\Src\glcd_menu.c(290): warning:  #175-D: subscript out of range
+  		menu_list[9].values[1] = menu_list[9].values[0];
+..\Src\glcd_menu.c(352): warning:  #177-D: variable "sprintf_buff"  was declared but never referenced
+  				char sprintf_buff[10];
+..\Src\glcd_menu.c(324): warning:  #177-D: variable "search_buff"  was declared but never referenced
+  		char *search_buff;
+..\Src\glcd_menu.c(325): warning:  #177-D: variable "print_offset"  was declared but never referenced
+  		int print_offset=0;
+..\Src\glcd_menu.c(394): warning:  #177-D: variable "search_buff"  was declared but never referenced
+  		char *search_buff;
+..\Src\glcd_menu.c(494): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
+..\Src\glcd_menu.c(500): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
+..\Src\glcd_menu.c(506): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  		if(menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] > 0.001)
+..\Src\glcd_menu.c(510): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
+..\Src\glcd_menu.c(516): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
+..\Src\glcd_menu.c(519): warning:  #1-D: last line of file ends without a newline
+  }
+..\Src\glcd_menu.c: 78 warnings, 0 errors
 linking...
-Program Size: Code=23368 RO-data=10856 RW-data=244 ZI-data=24676  
-"pH_meter_ver_2\pH_meter_ver_2.axf" - 0 Error(s), 8 Warning(s).
+Program Size: Code=26732 RO-data=10856 RW-data=268 ZI-data=24676  
+"pH_meter_ver_2\pH_meter_ver_2.axf" - 0 Error(s), 78 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -70,7 +210,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.0.2
-Build Time Elapsed:  00:00:05
+Build Time Elapsed:  00:00:03
 </pre>
 </body>
 </html>
