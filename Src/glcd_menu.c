@@ -100,22 +100,13 @@ void init_menu(void)
 	
 	strcpy(menu_list[3].menu_name , "Calibration wizard");
 	strcpy(menu_list[3].menu_strings[0],  " Please wait ");
-	strcpy(menu_list[3].menu_strings[1] , " Progress: ");
-	strcpy(menu_list[3].menu_strings[2] , "  ");
-	strcpy(menu_list[3].menu_strings[3] , " Ok ");
+	strcpy(menu_list[3].menu_strings[1] , "  ");
+	strcpy(menu_list[3].menu_strings[2] , " calibrating ... ");
 	menu_list[3].next_menu_id[0]=3;
 	menu_list[3].next_menu_id[1]=3;
 	menu_list[3].next_menu_id[2]=3;
-	menu_list[3].next_menu_id[3]=4;
 	menu_list[3].menu_id=3;
-	menu_list[3].values[1]=7.000;
-	menu_list[3].values[2]=200;
-	menu_list[3].value_resolution[0]=0;
-	menu_list[3].value_resolution[1]=1.0000;
-	menu_list[3].value_resolution[2]=0;
-	menu_list[3].value_max[0]=0;
-	menu_list[3].value_max[1]=14;
-	menu_list[3].menu_item_count = 4;
+	menu_list[3].menu_item_count = 3;
 	menu_list[3].menu_pointer=1;
 	menu_list[3].fun_ptr = &calibration_waiting_1;
 	
@@ -145,23 +136,14 @@ void init_menu(void)
 	
 	strcpy(menu_list[5].menu_name , "Calibration wizard");
 	strcpy(menu_list[5].menu_strings[0],  " Please wait ");
-	strcpy(menu_list[5].menu_strings[1] , " Progress: ");
-	strcpy(menu_list[3].menu_strings[2] , "  ");
-	strcpy(menu_list[5].menu_strings[3] , " Ok ");
+	strcpy(menu_list[3].menu_strings[1] , "  ");
+	strcpy(menu_list[5].menu_strings[2] , " calibrating ... ");
 	menu_list[5].next_menu_id[0]=5;
 	menu_list[5].next_menu_id[1]=5;
-	menu_list[5].next_menu_id[2]=6;
-	menu_list[5].next_menu_id[3]=6;
+	menu_list[5].next_menu_id[2]=5;
 	menu_list[5].menu_id=5;
-	menu_list[5].values[1]=7.000;
-	menu_list[5].values[2]=200;
-	menu_list[5].value_resolution[0]=0;
-	menu_list[5].value_resolution[1]=1.0000;
-	menu_list[5].value_resolution[2]=0;
-	menu_list[5].value_max[0]=0;
-	menu_list[5].value_max[1]=14;
-	menu_list[5].menu_item_count = 4;
-	menu_list[5].menu_pointer=3;
+	menu_list[5].menu_item_count = 3;
+	menu_list[5].menu_pointer=1;
 	menu_list[5].fun_ptr = &calibration_waiting_2;
 	
 	strcpy(menu_list[6].menu_name , "Calibration wizard");
@@ -262,17 +244,17 @@ void init_menu(void)
 	menu_list[11].value_resolution[2]=1;
 	menu_list[11].value_resolution[3]=1;
 	menu_list[11].value_resolution[4]=1;
-	menu_list[11].value_max[0]=12;
-	menu_list[11].value_max[1]=60;
+	menu_list[11].value_max[0]=23;
+	menu_list[11].value_max[1]=59;
 	menu_list[11].value_max[2]=30;
 	menu_list[11].value_max[3]=12;
 	menu_list[11].value_max[4]=3000;
-	menu_list[11].menu_id=8;
+	menu_list[11].menu_id=11;
 	menu_list[11].menu_item_count = 3;
 	menu_list[11].menu_pointer=0;
 	menu_list[11].fun_ptr = &set_date_time;
 }
-void update_menu_from_variables()
+void update_menu_from_variables(void)
 {
 	// pid,relay link to coeff and hysteresis
 	menu_list[8].values[3]=menu_list[8].values[1];
@@ -294,24 +276,41 @@ void update_menu_from_variables()
 	
 	if(progress < 25)
 	{
-		strcpy(menu_list[3].menu_strings[2] , " #### ");
-		strcpy(menu_list[5].menu_strings[2] , " #### ");
+		strcpy(menu_list[3].menu_strings[1] , " #### ");
+		strcpy(menu_list[5].menu_strings[1] , " #### ");
 	}
 	if(progress >= 25 && progress < 50)
 	{
-		strcpy(menu_list[3].menu_strings[2] , " ######## ");
-		strcpy(menu_list[5].menu_strings[2] , " ######## ");
+		strcpy(menu_list[3].menu_strings[1] , " ######## ");
+		strcpy(menu_list[5].menu_strings[1] , " ######## ");
 	}
 	if(progress > 50 && progress < 75)
 	{
-		strcpy(menu_list[3].menu_strings[2] , " ############ ");
-		strcpy(menu_list[5].menu_strings[2] , " ############ ");
+		strcpy(menu_list[3].menu_strings[1] , " ############ ");
+		strcpy(menu_list[5].menu_strings[1] , " ############ ");
 	}
 	if(progress > 75 && progress < 100)
 	{
-		strcpy(menu_list[3].menu_strings[2] , " ################ ");
-		strcpy(menu_list[5].menu_strings[2] , " ################ ");
+		strcpy(menu_list[3].menu_strings[1] , " ################ ");
+		strcpy(menu_list[5].menu_strings[1] , " ################ ");
 	}
+	
+	if( progress == 100 )
+	{
+		menu_list[5].next_menu_id[2]=6;
+		menu_list[3].next_menu_id[2]=4;
+		strcpy(menu_list[3].menu_strings[2] , " Ok ");
+		strcpy(menu_list[5].menu_strings[2] , " Ok ");
+
+	}
+	else
+	{
+		menu_list[5].next_menu_id[2]=5;
+		menu_list[3].next_menu_id[2]=3;
+		strcpy(menu_list[3].menu_strings[2] , " calibrating ... ");
+		strcpy(menu_list[5].menu_strings[2] , " calibrating ... ");
+	}
+		
 		
 	menu_list[0].values[5] = output; 
 	menu_list[0].values[0] = pH;
@@ -321,8 +320,7 @@ void update_menu_from_variables()
 
 void print_main_page(int active_menu)
 {
-		char *search_buff;
-		int print_offset=0;
+
 		GLCD_ClearScreen();
 
 		for(int i=0 ; i < menu_list[active_menu].menu_item_count ; i++)
@@ -349,7 +347,6 @@ void print_main_page(int active_menu)
 			{
 				int count =0;
 				const char *tmp = menu_strings_buff;
-				char sprintf_buff[10];
 				while(strstr(tmp,"%d")!= 0) // fined number of %d in string
 				{
 					 tmp = strstr(tmp,"%d");
@@ -391,7 +388,7 @@ void print_main_page(int active_menu)
 
 void print_menu(int active_menu)
 {
-		char *search_buff;
+
 		int print_offset=0;
 		GLCD_ClearScreen();
 		glcd_set_font(Terminal6x8 ,6,8,32,127);
@@ -491,29 +488,29 @@ void get_user_input(uint8_t *input,int *active_menu)
 		{
 			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] += menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] ;
 			sprintf(sprintf_buff,"value:%f\n",menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer]);
-			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
+			HAL_UART_Transmit(&huart2,(uint8_t *)sprintf_buff,10,100);
 		}
 		else if(menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] != 0)
 		{
 			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] = 0;
 			sprintf(sprintf_buff,"value:%f\n",menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer]);
-			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
+			HAL_UART_Transmit(&huart2,(uint8_t *)sprintf_buff,10,100);
 		}
 	}
 	if(input[0] == 'a')
 	{
 		char sprintf_buff[10];
-		if(menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] > 0.001)
+		if(menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] > 0.1)
 		{
 			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] -= menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] ;
 			sprintf(sprintf_buff,"value:%f\n",menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer]);
-			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
+			HAL_UART_Transmit(&huart2,(uint8_t *)sprintf_buff,10,100);
 		}
 		else if(menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] != 0)
 		{
 			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] = menu_list[*active_menu].value_max[menu_list[*active_menu].menu_pointer];
 			sprintf(sprintf_buff,"value:%f\n",menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer]);
-			HAL_UART_Transmit(&huart2,sprintf_buff,10,100);
+			HAL_UART_Transmit(&huart2,(uint8_t *)sprintf_buff,10,100);
 		}
 	}	
 }

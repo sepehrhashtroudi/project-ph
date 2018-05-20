@@ -3,7 +3,7 @@
 <title>Static Call Graph - [pH_meter_ver_2\pH_meter_ver_2.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image pH_meter_ver_2\pH_meter_ver_2.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Tue May 08 20:12:10 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Sun May 20 15:16:25 2018
 <BR><P>
 <H3>Maximum Stack Usage =        352 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -450,7 +450,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[101]"></a>strcpy</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, strcpy.o(.text))
-<BR><BR>[Called By]<UL><LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_menu_from_variables
+<BR><BR>[Called By]<UL><LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_menu_from_variables
 <LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_menu
 <LI><a href="#[10e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_main_page
 <LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;init_menu
@@ -523,8 +523,6 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_menu
 <LI><a href="#[10e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_main_page
 <LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_user_input
-<LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;calibration_waiting_2
-<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;calibration_waiting_1
 <LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;calculate_calibration_coefficients
 </UL>
 
@@ -1241,9 +1239,6 @@ Global Symbols
 <LI><a href="#[e1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_WaitOnFlagUntilTimeout
 </UL>
 <BR>[Called By]<UL><LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_user_input
-<LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main_thread
-<LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;calibration_waiting_2
-<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;calibration_waiting_1
 <LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;calibration_thread
 <LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;calibration_step1
 <LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;calculate_calibration_coefficients
@@ -1471,8 +1466,6 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_menu
 <LI><a href="#[10e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_main_page
 <LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_user_input
-<LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;calibration_waiting_2
-<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;calibration_waiting_1
 <LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;calculate_calibration_coefficients
 </UL>
 
@@ -1514,7 +1507,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> glcd_menu.o(i.init_menu)
 </UL>
-<P><STRONG><a name="[6b]"></a>calibration_thread</STRONG> (Thumb, 90 bytes, Stack size 0 bytes, main.o(i.calibration_thread))
+<P><STRONG><a name="[6b]"></a>calibration_thread</STRONG> (Thumb, 104 bytes, Stack size 0 bytes, main.o(i.calibration_thread))
 <BR><BR>[Stack]<UL><LI>Max Depth = 72<LI>Call Chain = calibration_thread &rArr; osDelay &rArr; vTaskDelay &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
@@ -1523,22 +1516,10 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(i.main_thread)
 </UL>
-<P><STRONG><a name="[64]"></a>calibration_waiting_1</STRONG> (Thumb, 52 bytes, Stack size 40 bytes, main.o(i.calibration_waiting_1))
-<BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = calibration_waiting_1 &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
-</UL>
-<BR>[Calls]<UL><LI><a href="#[df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Transmit
-<LI><a href="#[fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
-<LI><a href="#[fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
-</UL>
+<P><STRONG><a name="[64]"></a>calibration_waiting_1</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, main.o(i.calibration_waiting_1))
 <BR>[Address Reference Count : 1]<UL><LI> glcd_menu.o(i.init_menu)
 </UL>
-<P><STRONG><a name="[65]"></a>calibration_waiting_2</STRONG> (Thumb, 52 bytes, Stack size 40 bytes, main.o(i.calibration_waiting_2))
-<BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = calibration_waiting_2 &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
-</UL>
-<BR>[Calls]<UL><LI><a href="#[df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Transmit
-<LI><a href="#[fc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
-<LI><a href="#[fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
-</UL>
+<P><STRONG><a name="[65]"></a>calibration_waiting_2</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, main.o(i.calibration_waiting_2))
 <BR>[Address Reference Count : 1]<UL><LI> glcd_menu.o(i.init_menu)
 </UL>
 <P><STRONG><a name="[95]"></a>data_spliter</STRONG> (Thumb, 32 bytes, Stack size 12 bytes, dsp.o(i.data_spliter))
@@ -1584,8 +1565,8 @@ Global Symbols
 <LI><a href="#[10e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_main_page
 </UL>
 
-<P><STRONG><a name="[100]"></a>init_menu</STRONG> (Thumb, 1858 bytes, Stack size 64 bytes, glcd_menu.o(i.init_menu))
-<BR><BR>[Stack]<UL><LI>Max Depth = 64<LI>Call Chain = init_menu
+<P><STRONG><a name="[100]"></a>init_menu</STRONG> (Thumb, 1820 bytes, Stack size 56 bytes, glcd_menu.o(i.init_menu))
+<BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = init_menu
 </UL>
 <BR>[Calls]<UL><LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strcpy
 </UL>
@@ -1630,16 +1611,15 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> entry9a.o(.ARM.Collect$$$$0000000B)
 </UL>
-<P><STRONG><a name="[6a]"></a>main_thread</STRONG> (Thumb, 160 bytes, Stack size 16 bytes, main.o(i.main_thread))
+<P><STRONG><a name="[6a]"></a>main_thread</STRONG> (Thumb, 152 bytes, Stack size 16 bytes, main.o(i.main_thread))
 <BR><BR>[Stack]<UL><LI>Max Depth = 352<LI>Call Chain = main_thread &rArr; print_main_page &rArr; glcd_draw_string_xy &rArr; glcd_draw_char_xy &rArr; GLCD_SetPixel &rArr; GLCD_GoTo &rArr; GLCD_WriteCommand &rArr; GLCD_ReadStatus &rArr; Port_in_out_mode &rArr; HAL_GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[ba]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_GetTime
 <LI><a href="#[b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_GetDate
-<LI><a href="#[df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Transmit
 <LI><a href="#[109]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskCreate
-<LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
+<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 <LI><a href="#[10f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelete
-<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_menu_from_variables
+<LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_menu_from_variables
 <LI><a href="#[10d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_menu
 <LI><a href="#[10e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_main_page
 </UL>
@@ -1780,7 +1760,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[142]"></a>pvTaskIncrementMutexHeldCount</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, tasks.o(i.pvTaskIncrementMutexHeldCount))
-<BR><BR>[Called By]<UL><LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
+<BR><BR>[Called By]<UL><LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 </UL>
 
 <P><STRONG><a name="[12d]"></a>pxPortInitialiseStack</STRONG> (Thumb, 40 bytes, Stack size 8 bytes, port.o(i.pxPortInitialiseStack))
@@ -1807,7 +1787,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> glcd_menu.o(i.init_menu)
 </UL>
-<P><STRONG><a name="[10b]"></a>update_menu_from_variables</STRONG> (Thumb, 224 bytes, Stack size 24 bytes, glcd_menu.o(i.update_menu_from_variables))
+<P><STRONG><a name="[10c]"></a>update_menu_from_variables</STRONG> (Thumb, 290 bytes, Stack size 24 bytes, glcd_menu.o(i.update_menu_from_variables))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = update_menu_from_variables
 </UL>
 <BR>[Calls]<UL><LI><a href="#[101]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strcpy
@@ -1857,7 +1837,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvCheckTasksWaitingTermination
 <LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvAddNewTaskToReadyList
 <LI><a href="#[102]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
-<LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
+<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 <LI><a href="#[10f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelete
 <LI><a href="#[144]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskCheckForTimeOut
 <LI><a href="#[141]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReset
@@ -1870,7 +1850,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvCheckTasksWaitingTermination
 <LI><a href="#[11e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvAddNewTaskToReadyList
 <LI><a href="#[102]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
-<LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
+<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 <LI><a href="#[10f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelete
 <LI><a href="#[144]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskCheckForTimeOut
 <LI><a href="#[141]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReset
@@ -1936,7 +1916,7 @@ Global Symbols
 <LI><a href="#[11d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vListInsert
 </UL>
 <BR>[Called By]<UL><LI><a href="#[102]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
-<LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
+<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 </UL>
 
 <P><STRONG><a name="[13a]"></a>vTaskPriorityInherit</STRONG> (Thumb, 124 bytes, Stack size 16 bytes, tasks.o(i.vTaskPriorityInherit))
@@ -1945,12 +1925,12 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[11c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vListInsertEnd
 <LI><a href="#[11b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uxListRemove
 </UL>
-<BR>[Called By]<UL><LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
+<BR>[Called By]<UL><LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 </UL>
 
 <P><STRONG><a name="[143]"></a>vTaskSetTimeOutState</STRONG> (Thumb, 30 bytes, Stack size 0 bytes, tasks.o(i.vTaskSetTimeOutState))
 <BR><BR>[Called By]<UL><LI><a href="#[102]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
-<LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
+<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 <LI><a href="#[144]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskCheckForTimeOut
 </UL>
 
@@ -1967,7 +1947,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvCheckTasksWaitingTermination
 <LI><a href="#[110]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
 <LI><a href="#[102]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
-<LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
+<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 <LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortFree
 <LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pvPortMalloc
 </UL>
@@ -2011,7 +1991,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[108]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueCreateCountingSemaphore
 </UL>
 
-<P><STRONG><a name="[10c]"></a>xQueueGenericReceive</STRONG> (Thumb, 362 bytes, Stack size 64 bytes, queue.o(i.xQueueGenericReceive))
+<P><STRONG><a name="[10b]"></a>xQueueGenericReceive</STRONG> (Thumb, 362 bytes, Stack size 64 bytes, queue.o(i.xQueueGenericReceive))
 <BR><BR>[Stack]<UL><LI>Max Depth = 120<LI>Call Chain = xQueueGenericReceive &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[130]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskRemoveFromEventList
@@ -2078,7 +2058,7 @@ Global Symbols
 <LI><a href="#[11f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortEnterCritical
 </UL>
 <BR>[Called By]<UL><LI><a href="#[102]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
-<LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
+<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 </UL>
 
 <P><STRONG><a name="[109]"></a>xTaskCreate</STRONG> (Thumb, 86 bytes, Stack size 56 bytes, tasks.o(i.xTaskCreate))
@@ -2097,7 +2077,7 @@ Global Symbols
 
 <P><STRONG><a name="[112]"></a>xTaskGetSchedulerState</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, tasks.o(i.xTaskGetSchedulerState))
 <BR><BR>[Called By]<UL><LI><a href="#[102]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
-<LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
+<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 <LI><a href="#[f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osSystickHandler
 </UL>
 
@@ -2129,7 +2109,7 @@ Global Symbols
 </UL>
 <BR>[Called By]<UL><LI><a href="#[de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGiveFromISR
 <LI><a href="#[102]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
-<LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
+<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 <LI><a href="#[141]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReset
 <LI><a href="#[12f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvUnlockQueue
 </UL>
@@ -2147,7 +2127,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvCheckTasksWaitingTermination
 <LI><a href="#[110]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
 <LI><a href="#[102]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
-<LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
+<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 <LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortFree
 <LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pvPortMalloc
 </UL>
@@ -2281,7 +2261,7 @@ Local Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[127]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
-<BR>[Called By]<UL><LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
+<BR>[Called By]<UL><LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 </UL>
 
 <P><STRONG><a name="[128]"></a>prvCopyDataToQueue</STRONG> (Thumb, 108 bytes, Stack size 24 bytes, queue.o(i.prvCopyDataToQueue))
@@ -2299,7 +2279,7 @@ Local Symbols
 <BR>[Calls]<UL><LI><a href="#[121]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortExitCritical
 <LI><a href="#[11f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortEnterCritical
 </UL>
-<BR>[Called By]<UL><LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
+<BR>[Called By]<UL><LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 </UL>
 
 <P><STRONG><a name="[12f]"></a>prvUnlockQueue</STRONG> (Thumb, 106 bytes, Stack size 24 bytes, queue.o(i.prvUnlockQueue))
@@ -2311,7 +2291,7 @@ Local Symbols
 <LI><a href="#[11f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortEnterCritical
 </UL>
 <BR>[Called By]<UL><LI><a href="#[102]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
-<LI><a href="#[10c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
+<LI><a href="#[10b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 </UL>
 
 <P><STRONG><a name="[114]"></a>makeFreeRtosPriority</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, cmsis_os.o(i.makeFreeRtosPriority))
