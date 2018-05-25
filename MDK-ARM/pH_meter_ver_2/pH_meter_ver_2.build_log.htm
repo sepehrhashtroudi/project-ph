@@ -22,7 +22,7 @@ Dialog DLL:      TCM.DLL V1.32.0.0
  
 <h2>Project:</h2>
 D:\sepehr\arm\stm32_projects\pH_meter_ver_2\MDK-ARM\pH_meter_ver_2.uvprojx
-Project File Date:  05/07/2018
+Project File Date:  05/24/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
@@ -30,22 +30,29 @@ Build target 'pH_meter_ver_2'
 compiling main.c...
 ../Inc/glcd_menu.h(36): warning:  #1-D: last line of file ends without a newline
   	
-../Src/main.c(384): warning:  #177-D: variable "sprintf_buff"  was declared but never referenced
+../Src/main.c(214): warning:  #177-D: variable "data"  was declared but never referenced
+  	uint8_t data[10];
+../Src/main.c(326): warning:  #188-D: enumerated type mixed with another type
+  	HAL_GPIO_WritePin(
+EL_1_GPIO_Port,
+EL_1_Pin,1);
+../Src/main.c(338): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  			MAX485_send_string(sprintf_buff,7,100);
+../Src/main.c(393): warning:  #177-D: variable "sprintf_buff"  was declared but never referenced
   	char sprintf_buff[10];
-../Src/main.c(442): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
-  	HAL_UART_Transmit(&huart2,sprintf_buff,13,100);
-../Src/main.c(444): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
-  	HAL_UART_Transmit(&huart2,sprintf_buff,13,100);
-../Src/main.c(446): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
-  	HAL_UART_Transmit(&huart2,sprintf_buff,13,100);
-../Src/main.c(461): warning:  #177-D: variable "sprintf_buff"  was declared but never referenced
+../Src/main.c: 10 warnings, 0 errors
+  	MAX485_send_string(sprintf_buff,13,100);
+../Src/main.c(454): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  	MAX485_send_string(sprintf_buff,13,100);
+../Src/main.c(456): warning:  #167-D: argument of type "char *" is incompatible with parameter of type "uint8_t *"
+  	MAX485_send_string(sprintf_buff,13,100);
+../Src/main.c(472): warning:  #177-D: variable "sprintf_buff"  was declared but never referenced
   	char sprintf_buff[20];
-../Src/main.c(467): warning:  #177-D: variable "sprintf_buff"  was declared but never referenced
+../Src/main.c(478): warning:  #177-D: variable "sprintf_buff"  was declared but never referenced
   	char sprintf_buff[20];
-../Src/main.c: 7 warnings, 0 errors
 linking...
-Program Size: Code=26588 RO-data=10856 RW-data=268 ZI-data=24676  
-"pH_meter_ver_2\pH_meter_ver_2.axf" - 0 Error(s), 7 Warning(s).
+Program Size: Code=27572 RO-data=10856 RW-data=268 ZI-data=24676  
+"pH_meter_ver_2\pH_meter_ver_2.axf" - 0 Error(s), 9 Warning(s).
 
 <h2>Software Packages used:</h2>
 

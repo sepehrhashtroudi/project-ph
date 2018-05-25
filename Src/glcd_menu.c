@@ -15,6 +15,7 @@
 #include "font5x8.h"
 #include "graphic.h"
 #include <stdlib.h>
+#include "max485.h"
 extern Menu menu_list[9];
 extern void calculate_calibration_coefficients(void);
 extern void calibration_step1(void);
@@ -459,6 +460,10 @@ void get_user_input(uint8_t *input,int *active_menu)
 				
 		}
 	}
+	if(input[0] == 'e')
+	{
+		*active_menu = 0;
+	}
 	if(input[0] == 'w')
 	{
 		if(menu_list[*active_menu].menu_pointer > 0)
@@ -488,13 +493,13 @@ void get_user_input(uint8_t *input,int *active_menu)
 		{
 			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] += menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] ;
 			sprintf(sprintf_buff,"value:%f\n",menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer]);
-			HAL_UART_Transmit(&huart2,(uint8_t *)sprintf_buff,10,100);
+			//HAL_UART_Transmit(&huart2,(uint8_t *)sprintf_buff,10,100);
 		}
 		else if(menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] != 0)
 		{
 			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] = 0;
 			sprintf(sprintf_buff,"value:%f\n",menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer]);
-			HAL_UART_Transmit(&huart2,(uint8_t *)sprintf_buff,10,100);
+			MAX485_send_string((uint8_t *)sprintf_buff,13,100);
 		}
 	}
 	if(input[0] == 'a')
@@ -504,13 +509,13 @@ void get_user_input(uint8_t *input,int *active_menu)
 		{
 			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] -= menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] ;
 			sprintf(sprintf_buff,"value:%f\n",menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer]);
-			HAL_UART_Transmit(&huart2,(uint8_t *)sprintf_buff,10,100);
+			MAX485_send_string((uint8_t *)sprintf_buff,13,100);
 		}
 		else if(menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] != 0)
 		{
 			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] = menu_list[*active_menu].value_max[menu_list[*active_menu].menu_pointer];
 			sprintf(sprintf_buff,"value:%f\n",menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer]);
-			HAL_UART_Transmit(&huart2,(uint8_t *)sprintf_buff,10,100);
+			MAX485_send_string((uint8_t *)sprintf_buff,13,100);
 		}
 	}	
 }

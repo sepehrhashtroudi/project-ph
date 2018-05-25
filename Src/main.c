@@ -64,6 +64,7 @@
 #include "Dsp.h"
 #include "PID.h"
 #include "defines.h"
+#include "max485.h"
 //#include <math.h>
 #include <stdlib.h>
 //#include <string.h>
@@ -186,12 +187,16 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_USART2_UART_Init();
   MX_ADC1_Init();
   MX_TIM2_Init();
   MX_DAC_Init();
   MX_RTC_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
+	HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
+	HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
+	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 0);
+	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, 0);
 	// Prepare PID controller for operation
 	pid = pid_create(&ctrldata, &input, &output, setpoint, *kp, *ki, *kd);
 	// Set controler output limits from 0 to 90
@@ -206,7 +211,10 @@ int main(void)
 	GLCD_Initalize();
 	GLCD_ClearScreen();
 	init_menu();
-	HAL_UART_Receive_IT(&huart2,uart_buff,1);
+	uint8_t data[10];
+	MAX485_send_string("starting ...",14,100);
+	HAL_UART_Receive_IT(&huart3,uart_buff,1);
+	
 
 //	rtc_time.Hours =0x05 ;
 //	rtc_time.Minutes = 0x03;
@@ -315,9 +323,10 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 void main_thread(void * pvParameters)
 {
+	HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,1);
+	char sprintf_buff[10];
 	while(1)
 	{
-		
 		HAL_RTC_GetTime(&hrtc,&rtc_time,FORMAT_BIN);
 		HAL_RTC_GetDate(&hrtc,&rtc_date,FORMAT_BIN);
 		*rtc_minute_p = rtc_time.Minutes;
@@ -325,6 +334,8 @@ void main_thread(void * pvParameters)
 		
 		if( xSemaphoreTake( lcd_semaphore, 1000 ) == pdTRUE )
 		{
+			sprintf(sprintf_buff,"%d\n",pH_filtered);
+			MAX485_send_string(sprintf_buff,7,100);
 			update_menu_from_variables();
 			if(active_menu == 0 )
 			{
@@ -337,8 +348,6 @@ void main_thread(void * pvParameters)
 			
 		}
 		
-		//HAL_UART_Transmit(&huart2,"main\n",6,100);
-		//calibration_step1();
 		if(create_task_flag == 1)
 		{
 			create_task_flag = 0;
@@ -386,16 +395,17 @@ void calibration_thread(void * pvParameters)
 	uint32_t start_time = HAL_GetTick();
 	while(1)
 	{
-		progress = (HAL_GetTick() - start_time)/200 - (abs(pH_filtered - last_ph_filtered)) ;
+		progress = (HAL_GetTick() - start_time)/1000 - (abs(pH_filtered - last_ph_filtered)) ;
 		//progress = 100 - 10 * (abs(pH_filtered - last_ph_filtered)) ;
 		//sprintf(sprintf_buff,"%d\n",pH_filtered);
 		//HAL_UART_Transmit(&huart2,sprintf_buff,5,100);
 		//sprintf(sprintf_buff,"%d\n",progress);
 		//HAL_UART_Transmit(&huart2,sprintf_buff,5,100);
-		if(abs(pH_filtered - last_ph_filtered) > 20)
+		if(abs(pH_filtered - last_ph_filtered) > 5)
 		{
 			start_time = HAL_GetTick();
-			HAL_UART_Transmit(&huart2,"reset\n",7,100);
+			//HAL_UART_Transmit(&huart3,"reset\n",7,100);
+			MAX485_send_string("reset\n",10,100);
 		}
 		if(progress > 100 )
 		{
@@ -418,7 +428,7 @@ void calibration_thread(void * pvParameters)
 void pump_set_stroke(uint16_t stroke)
 {
 	uint16_t dac_value = (4095 * ((4 + stroke * 0.16) * 0.1) / 3.3);
-	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, dac_value);
+	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, dac_value);
 }
 void pump_turn_on_off(uint16_t state)
 {
@@ -439,21 +449,22 @@ void calculate_calibration_coefficients(void)
 	p1_p = (*calibration_point_1_ph - *calibration_point_2_ph) / (float)(calibration_point_1 - calibration_point_2 ) ;
 	p2_p = *calibration_point_1_ph - (calibration_point_1)*(p1_p);
 	sprintf(sprintf_buff,"%d,%.1f\n",calibration_point_1,*calibration_point_1_ph);
-	HAL_UART_Transmit(&huart2,sprintf_buff,13,100);
+	MAX485_send_string(sprintf_buff,13,100);
 	sprintf(sprintf_buff,"%d,%.1f\n",calibration_point_2,*calibration_point_2_ph);
-	HAL_UART_Transmit(&huart2,sprintf_buff,13,100);
+	MAX485_send_string(sprintf_buff,13,100);
 	sprintf(sprintf_buff,"%.5f,%.5f\n",p1_p,p2_p);
-	HAL_UART_Transmit(&huart2,sprintf_buff,13,100);
+	MAX485_send_string(sprintf_buff,13,100);
 }
 
 void calibration_step1(void)
 {
-	HAL_UART_Transmit(&huart2,"calibration1\n",13,100);
+	//HAL_UART_Transmit(&huart2,"calibration1\n",13,100);
+	MAX485_send_string("calibration1\n",13,100);
 	create_task_flag = 1;
 }
 void calibration_step2(void)
 {
-	HAL_UART_Transmit(&huart2,"calibration2\n",13,100);
+	MAX485_send_string("calibration2\n",13,100);
 	create_task_flag = 1;
 }
 void calibration_waiting_1(void)
@@ -492,7 +503,7 @@ void set_pid_coefficients(void)
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
 	HAL_ADC_Stop_DMA(&hadc1);
-	data_spliter(adc_value, bufferLength, temp_buffer, pH_buffer);
+	data_spliter(adc_value, bufferLength,pH_buffer,temp_buffer );
 	ph_averaged = average(pH_buffer, bufferLength);
 	pH_filtered = best_moving_average(ph_averaged, ph_history, &ph_sum, &ph_window_pointer);
 	pH = p1_p * pH_filtered + p2_p;
@@ -524,30 +535,75 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 			}
 		}
 	}
-//	char sprintf_buff[12];
-	//sprintf(sprintf_buff,"%.3f,%.1f\n",*pH,*output);
-	//HAL_UART_Transmit(&huart2,sprintf_buff,12,100);
-//	for(int i=0;i<bufferLength;i++)
-//	{
-//		sprintf(sprintf_buff,"%d,",pH_buffer[i]);
-//		HAL_UART_Transmit(&huart2,sprintf_buff,6,100);
-//	}
-//	HAL_UART_Transmit(&huart2,"\n",1,100);
-//	for(int i=0;i<bufferLength;i++)
-//	{
-//		sprintf(sprintf_buff,"%d,",temp_buffer[i]);
-//		HAL_UART_Transmit(&huart2,sprintf_buff,6,100);
-//	}
-//	HAL_UART_Transmit(&huart2,"\n",1,100);
 }
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-	//HAL_UART_Transmit(&huart2,"ok\n",3,100);
-	
 	get_user_input(uart_buff,&active_menu);
 	xSemaphoreGiveFromISR( lcd_semaphore, NULL );
-	HAL_UART_Transmit(&huart2,uart_buff,1,100);
-	HAL_UART_Receive_IT(&huart2,uart_buff,1);
+	MAX485_send_string(uart_buff,13,100);
+	HAL_UART_Receive_IT(&huart3,uart_buff,1);
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+	//HAL_GPIO_WritePin(POWER_STATE_GPIO_Port ,POWER_STATE_Pin , GPIO_PIN_RESET);
+	for(int i=0; i<200000;i++);
+	//HAL_GPIO_WritePin(POWER_STATE_GPIO_Port ,POWER_STATE_Pin , GPIO_PIN_SET);
+	
+	if(GPIO_Pin==Esc_Pin)
+	{
+		if(HAL_GPIO_ReadPin(Esc_GPIO_Port,Esc_Pin)==0)
+		{
+		//HAL_UART_Transmit(&huart2,"ESC\n",4,100);
+			uart_buff[0]='e';
+		}
+	}
+	
+	if(GPIO_Pin==Enter_Pin)
+	{
+		if(HAL_GPIO_ReadPin(Enter_GPIO_Port,Enter_Pin)==0)
+		{
+		//HAL_UART_Transmit(&huart2,"ESC\n",4,100);
+			uart_buff[0]='\n';
+		}
+	}
+	if(GPIO_Pin==Up_Pin)
+	{
+		if(HAL_GPIO_ReadPin(Up_GPIO_Port,Up_Pin)==0)
+		{
+		//HAL_UART_Transmit(&huart2,"ESC\n",4,100);
+			uart_buff[0]='w';
+		}
+	}
+	if(GPIO_Pin==Down_Pin)
+	{
+		if(HAL_GPIO_ReadPin(Down_GPIO_Port,Down_Pin)==0)
+		{
+		//HAL_UART_Transmit(&huart2,"ESC\n",4,100);
+			uart_buff[0]='s';
+		}
+	}
+	if(GPIO_Pin==Right_Pin)
+	{
+		if(HAL_GPIO_ReadPin(Right_GPIO_Port,Right_Pin)==0)
+		{
+		//HAL_UART_Transmit(&huart2,"ESC\n",4,100);
+			uart_buff[0]='d';
+		}
+	}
+	if(GPIO_Pin==Left_Pin)
+	{
+		if(HAL_GPIO_ReadPin(Left_GPIO_Port,Left_Pin)==0)
+		{
+		//HAL_UART_Transmit(&huart2,"ESC\n",4,100);
+			uart_buff[0]='a';
+		}
+	}
+	get_user_input(uart_buff,&active_menu);
+	xSemaphoreGiveFromISR( lcd_semaphore, NULL );
+	MAX485_send_string(uart_buff,13,100);
+	
+	
 }
 /* USER CODE END 4 */
 

@@ -39,6 +39,7 @@
 "ph_meter_ver_2\tim.o"
 "ph_meter_ver_2\dac.o"
 "ph_meter_ver_2\rtc.o"
+"ph_meter_ver_2\max485.o"
 "ph_meter_ver_2\system_stm32f4xx.o"
 "ph_meter_ver_2\heap_4.o"
 "ph_meter_ver_2\croutine.o"

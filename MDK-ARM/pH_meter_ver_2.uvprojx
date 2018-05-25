@@ -134,7 +134,7 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4099</DriverSelection>
+            <DriverSelection>4100</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>STLink\ST-LINKIII-KEIL_SWO.dll</Flash2>
@@ -336,7 +336,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;                                                    ../Drivers/STM32F4xx_HAL_Driver/Inc;                                                    ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;                                                    ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;                                                    ../Drivers/CMSIS/Include;                      ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;                      ../Middlewares/Third_Party/FreeRTOS/Source/include;                      ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS</IncludePath>
+              <IncludePath>../Inc;                                                             ../Drivers/STM32F4xx_HAL_Driver/Inc;                                                             ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;                                                             ../Drivers/CMSIS/Device/ST/STM32F4xx/Include;                                                             ../Drivers/CMSIS/Include;                               ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;                               ../Middlewares/Third_Party/FreeRTOS/Source/include;                               ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -589,6 +589,11 @@
               <FileName>rtc.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/rtc.c</FilePath>
+            </File>
+            <File>
+              <FileName>max485.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\max485.c</FilePath>
             </File>
           </Files>
         </Group>

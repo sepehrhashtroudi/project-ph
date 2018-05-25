@@ -64,4 +64,5 @@ ph_meter_ver_2\main.o: ../Inc/Dsp.h
 ph_meter_ver_2\main.o: ../Inc/PID.h
 ph_meter_ver_2\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 ph_meter_ver_2\main.o: ../Inc/defines.h
+ph_meter_ver_2\main.o: ../Inc/max485.h
 ph_meter_ver_2\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h

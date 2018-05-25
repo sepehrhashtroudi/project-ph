@@ -43,3 +43,4 @@ ph_meter_ver_2\glcd_menu.o: ../Inc/usart.h
 ph_meter_ver_2\glcd_menu.o: ../Inc/font5x8.h
 ph_meter_ver_2\glcd_menu.o: ../Inc/graphic.h
 ph_meter_ver_2\glcd_menu.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+ph_meter_ver_2\glcd_menu.o: ../Inc/max485.h

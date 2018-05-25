@@ -31,4 +31,6 @@ void init_menu(void);
 void print_menu(int active_menu);
 void print_main_page(int active_menu);
 void get_user_input(uint8_t *input,int *active_menu);
-void update_menu_from_variables();
+void update_menu_from_variables(void);
+
+	
