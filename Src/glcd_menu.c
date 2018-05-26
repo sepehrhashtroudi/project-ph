@@ -16,25 +16,25 @@
 #include "graphic.h"
 #include <stdlib.h>
 #include "max485.h"
-extern Menu menu_list[9];
-extern void calculate_calibration_coefficients(void);
-extern void calibration_step1(void);
-extern void calibration_step2(void);
-extern void calibration_waiting_2(void);
-extern void calibration_waiting_1(void);
+#include "glcd_menu_functions.h"
+extern Menu menu_list[20];
 extern void set_date_time(void);
 extern uint16_t pH_filtered;
 extern void set_pid_coefficients(void);
 extern float output;
 extern int16_t progress;
-
-
+extern int create_ph_calibration_task_flag;
+extern int delete_ph_calibration_task_flag;
+extern int create_temp_calibration_task_flag;
+extern int delete_temp_calibration_task_flag;
 extern float pH;
+extern float temp;
+
 
 void init_menu(void)
 {
 	strcpy(menu_list[0].menu_name , "first page");
-	strcpy(menu_list[0].menu_strings[0],  "%.1f");
+	strcpy(menu_list[0].menu_strings[0],  "%.2f");
 	strcpy(menu_list[0].menu_strings[1] , "ph");
 	strcpy(menu_list[0].menu_strings[2] , "%.1f `c");
 	strcpy(menu_list[0].menu_strings[3] , "%d:%d");//hour & minute
@@ -46,7 +46,7 @@ void init_menu(void)
 	menu_list[0].values[0]=7;
 	menu_list[0].values[3]=10;
 	menu_list[0].x_position[0]=45;
-	menu_list[0].x_position[1]=80;
+	menu_list[0].x_position[1]=90;
 	menu_list[0].x_position[2]=15;
 	menu_list[0].x_position[3]=80;
 	menu_list[0].x_position[4]=90;
@@ -72,7 +72,7 @@ void init_menu(void)
 	strcpy(menu_list[1].menu_strings[3] , " Exit ");
 	menu_list[1].menu_id=1;
 	menu_list[1].menu_item_count = 4;
-	menu_list[1].next_menu_id[0]=2;
+	menu_list[1].next_menu_id[0]=7;
 	menu_list[1].next_menu_id[1]=8;
 	menu_list[1].next_menu_id[2]=11;
 	menu_list[1].next_menu_id[3]=0;
@@ -81,82 +81,78 @@ void init_menu(void)
 	strcpy(menu_list[2].menu_name , "Calibration wizard");
 	strcpy(menu_list[2].menu_strings[0],  " Step 1 ");
 	strcpy(menu_list[2].menu_strings[1] , " Enter Buffer ph:%.1f ");
-	strcpy(menu_list[2].menu_strings[2] , " put sensor in buffer ");
-	strcpy(menu_list[2].menu_strings[3] , " and then press Ok ");
-	strcpy(menu_list[2].menu_strings[4] , " Ok ");
+	strcpy(menu_list[2].menu_strings[2] , " Ok ");
 	menu_list[2].next_menu_id[0]=2;
 	menu_list[2].next_menu_id[1]=2;
-	menu_list[2].next_menu_id[2]=2;
-	menu_list[2].next_menu_id[3]=2;
-	menu_list[2].next_menu_id[4]=3;
+	menu_list[2].next_menu_id[2]=3;
 	menu_list[2].values[1]=7.000;
-	menu_list[2].value_resolution[0]=0;
 	menu_list[2].value_resolution[1]=1.0000;
-	menu_list[2].value_max[0]=0;
 	menu_list[2].value_max[1]=14;
 	menu_list[2].menu_id=2;
-	menu_list[2].menu_item_count = 5;
-	menu_list[2].menu_pointer=4;
-	menu_list[2].fun_ptr = &calibration_step1;
+	menu_list[2].menu_item_count = 3;
+	menu_list[2].menu_pointer=2;
+	menu_list[2].fun_ptr = &ph_calibration_step1;
 	
 	strcpy(menu_list[3].menu_name , "Calibration wizard");
-	strcpy(menu_list[3].menu_strings[0],  " Please wait ");
+	strcpy(menu_list[3].menu_strings[0],  " calibrating ... ");
 	strcpy(menu_list[3].menu_strings[1] , "  ");
-	strcpy(menu_list[3].menu_strings[2] , " calibrating ... ");
+	strcpy(menu_list[3].menu_strings[2] , " Please wait ");
 	menu_list[3].next_menu_id[0]=3;
 	menu_list[3].next_menu_id[1]=3;
 	menu_list[3].next_menu_id[2]=3;
 	menu_list[3].menu_id=3;
 	menu_list[3].menu_item_count = 3;
 	menu_list[3].menu_pointer=1;
-	menu_list[3].fun_ptr = &calibration_waiting_1;
+	menu_list[3].fun_ptr = &ph_calibration_waiting_1;
 	
 	
 	strcpy(menu_list[4].menu_name , "Calibration wizard");
 	strcpy(menu_list[4].menu_strings[0],  " Step 2 ");
 	strcpy(menu_list[4].menu_strings[1] , " Enter Buffer ph:%.1f ");
-	strcpy(menu_list[4].menu_strings[2] , " put sensor in buffer ");
-	strcpy(menu_list[4].menu_strings[3] , " and then press Ok ");
-	strcpy(menu_list[4].menu_strings[4] , " Ok ");
+	strcpy(menu_list[4].menu_strings[2] , " Ok ");
 	menu_list[4].next_menu_id[0]=4;
 	menu_list[4].next_menu_id[1]=4;
-	menu_list[4].next_menu_id[2]=4;
-	menu_list[4].next_menu_id[3]=4;
-	menu_list[4].next_menu_id[4]=5;
+	menu_list[4].next_menu_id[2]=5;
 	menu_list[4].menu_id=4;
 	menu_list[4].values[1]=7.000;
-	menu_list[4].values[2]=200;
-	menu_list[4].value_resolution[0]=0;
 	menu_list[4].value_resolution[1]=1.0000;
-	menu_list[4].value_resolution[2]=0;
 	menu_list[4].value_max[0]=0;
 	menu_list[4].value_max[1]=14;
-	menu_list[4].menu_item_count = 5;
-	menu_list[4].menu_pointer=4;
-	menu_list[4].fun_ptr = &calibration_step1;
+	menu_list[4].menu_item_count = 3;
+	menu_list[4].menu_pointer=2;
+	menu_list[4].fun_ptr = &ph_calibration_step1;
 	
 	strcpy(menu_list[5].menu_name , "Calibration wizard");
-	strcpy(menu_list[5].menu_strings[0],  " Please wait ");
-	strcpy(menu_list[3].menu_strings[1] , "  ");
-	strcpy(menu_list[5].menu_strings[2] , " calibrating ... ");
+	strcpy(menu_list[5].menu_strings[0],  " calibrating ... ");
+	strcpy(menu_list[5].menu_strings[1] , "  ");
+	strcpy(menu_list[5].menu_strings[2] , " Please wait ");
 	menu_list[5].next_menu_id[0]=5;
 	menu_list[5].next_menu_id[1]=5;
 	menu_list[5].next_menu_id[2]=5;
 	menu_list[5].menu_id=5;
 	menu_list[5].menu_item_count = 3;
 	menu_list[5].menu_pointer=1;
-	menu_list[5].fun_ptr = &calibration_waiting_2;
+	menu_list[5].fun_ptr = &ph_calibration_waiting_2;
 	
 	strcpy(menu_list[6].menu_name , "Calibration wizard");
 	strcpy(menu_list[6].menu_strings[0],  " Step 3 ");
 	strcpy(menu_list[6].menu_strings[1] , " Ok ");
-	menu_list[6].next_menu_id[0]=1;
-	menu_list[6].next_menu_id[1]=1;
-	menu_list[6].next_menu_id[2]=1;
+	menu_list[6].next_menu_id[0]=0;
+	menu_list[6].next_menu_id[1]=0;
+	menu_list[6].next_menu_id[2]=0;
 	menu_list[6].menu_id=6;
 	menu_list[6].menu_item_count = 2;
 	menu_list[6].menu_pointer=1;
-	menu_list[6].fun_ptr = &calculate_calibration_coefficients;
+	menu_list[6].fun_ptr = &ph_calculate_calibration_coefficients;
+	
+	strcpy(menu_list[7].menu_name , " Select sensor");
+	strcpy(menu_list[7].menu_strings[0],  " pH calibration ");
+	strcpy(menu_list[7].menu_strings[1] , " Temp calibration ");
+	menu_list[7].next_menu_id[0]=2;
+	menu_list[7].next_menu_id[1]=12;
+	menu_list[7].menu_id=7;
+	menu_list[7].menu_item_count = 2;
+	menu_list[7].menu_pointer=0;
 	
 	strcpy(menu_list[8].menu_name , " Controller ");
 	strcpy(menu_list[8].menu_strings[0], " ON , OFF ");
@@ -254,6 +250,75 @@ void init_menu(void)
 	menu_list[11].menu_item_count = 3;
 	menu_list[11].menu_pointer=0;
 	menu_list[11].fun_ptr = &set_date_time;
+	
+	strcpy(menu_list[12].menu_name , "Step 1");
+	strcpy(menu_list[12].menu_strings[0] , " Enter ");
+	strcpy(menu_list[12].menu_strings[1] , " bath temperature:%.1f ");
+	strcpy(menu_list[12].menu_strings[2] , " Ok ");
+	menu_list[12].next_menu_id[0]=12;
+	menu_list[12].next_menu_id[1]=12;
+	menu_list[12].next_menu_id[2]=13;
+	menu_list[12].values[1]=25;
+	menu_list[12].value_resolution[1]=5.0000;
+	menu_list[12].value_max[1]=70;
+	menu_list[12].menu_id=12;
+	menu_list[12].menu_item_count = 3;
+	menu_list[12].menu_pointer=1;
+	menu_list[12].fun_ptr = &temp_calibration_step1;
+	
+	strcpy(menu_list[13].menu_name , " Step 1 ");
+	strcpy(menu_list[13].menu_strings[0],  " calibrating ... ");
+	strcpy(menu_list[13].menu_strings[1] , "  ");
+	strcpy(menu_list[13].menu_strings[2] , " Please wait ");
+	menu_list[13].next_menu_id[0]=13;
+	menu_list[13].next_menu_id[1]=13;
+	menu_list[13].next_menu_id[2]=13;
+	menu_list[13].menu_id=13;
+	menu_list[13].menu_item_count = 3;
+	menu_list[13].menu_pointer=2;
+	menu_list[13].fun_ptr = &temp_calibration_waiting_1;
+	
+	
+	strcpy(menu_list[14].menu_name , " Step 2 ");
+	strcpy(menu_list[14].menu_strings[0] , " Enter ");
+	strcpy(menu_list[14].menu_strings[1] , " bath temperature:%.1f ");
+	strcpy(menu_list[14].menu_strings[2] , " Ok ");
+	menu_list[14].next_menu_id[0]=14;
+	menu_list[14].next_menu_id[1]=14;
+	menu_list[14].next_menu_id[2]=14;
+	menu_list[14].next_menu_id[3]=14;
+	menu_list[14].next_menu_id[4]=15;
+	menu_list[14].menu_id=14;
+	menu_list[14].values[1]=35;
+	menu_list[14].value_resolution[1]=5.0000;
+	menu_list[14].value_max[1]=70;
+	menu_list[14].menu_item_count = 3;
+	menu_list[14].menu_pointer=1;
+	menu_list[14].fun_ptr = &temp_calibration_step2;
+	
+	strcpy(menu_list[15].menu_name , " Step 2 ");
+	strcpy(menu_list[15].menu_strings[0],  " calibrating ... ");
+	strcpy(menu_list[15].menu_strings[1] , "  ");
+	strcpy(menu_list[15].menu_strings[2] , " Please wait ");
+	menu_list[15].next_menu_id[0]=15;
+	menu_list[15].next_menu_id[1]=15;
+	menu_list[15].next_menu_id[2]=15;
+	menu_list[15].menu_id=15;
+	menu_list[15].menu_item_count = 3;
+	menu_list[15].menu_pointer=2;
+	menu_list[15].fun_ptr = &temp_calibration_waiting_2;
+	
+	strcpy(menu_list[16].menu_name , " Step 3 ");
+	strcpy(menu_list[16].menu_strings[0],  " Calibration Done ");
+	strcpy(menu_list[16].menu_strings[1] , " Ok ");
+	menu_list[16].next_menu_id[0]=0;
+	menu_list[16].next_menu_id[1]=0;
+	menu_list[16].next_menu_id[2]=0;
+	menu_list[16].menu_id=16;
+	menu_list[16].menu_item_count = 2;
+	menu_list[16].menu_pointer=1;
+	menu_list[16].fun_ptr = &temp_calculate_calibration_coefficients;
+	
 }
 void update_menu_from_variables(void)
 {
@@ -272,49 +337,74 @@ void update_menu_from_variables(void)
 	{
 		menu_list[9].values[1] = menu_list[9].values[0];
 	}
-	menu_list[3].values[1] = progress;//ADC value for calibration 
+	menu_list[3].values[1] = progress;//calibration progress
 	menu_list[5].values[1] = progress;	
 	
 	if(progress < 25)
 	{
 		strcpy(menu_list[3].menu_strings[1] , " #### ");
 		strcpy(menu_list[5].menu_strings[1] , " #### ");
+		strcpy(menu_list[13].menu_strings[1] , " #### ");
+		strcpy(menu_list[15].menu_strings[1] , " #### ");
 	}
 	if(progress >= 25 && progress < 50)
 	{
 		strcpy(menu_list[3].menu_strings[1] , " ######## ");
 		strcpy(menu_list[5].menu_strings[1] , " ######## ");
+		strcpy(menu_list[13].menu_strings[1] , " ######## ");
+		strcpy(menu_list[15].menu_strings[1] , " ######## ");
 	}
 	if(progress > 50 && progress < 75)
 	{
 		strcpy(menu_list[3].menu_strings[1] , " ############ ");
 		strcpy(menu_list[5].menu_strings[1] , " ############ ");
+		strcpy(menu_list[13].menu_strings[1] , " ############ ");
+		strcpy(menu_list[15].menu_strings[1] , " ############ ");
 	}
 	if(progress > 75 && progress < 100)
 	{
 		strcpy(menu_list[3].menu_strings[1] , " ################ ");
 		strcpy(menu_list[5].menu_strings[1] , " ################ ");
+		strcpy(menu_list[13].menu_strings[1] , " ################ ");
+		strcpy(menu_list[15].menu_strings[1] , " ################ ");
 	}
 	
 	if( progress == 100 )
 	{
 		menu_list[5].next_menu_id[2]=6;
 		menu_list[3].next_menu_id[2]=4;
+		menu_list[15].next_menu_id[2]=16;
+		menu_list[13].next_menu_id[2]=14;
+		strcpy(menu_list[3].menu_strings[0],  " Calibration done ");
+		strcpy(menu_list[5].menu_strings[0],  " Calibration done ");
 		strcpy(menu_list[3].menu_strings[2] , " Ok ");
 		strcpy(menu_list[5].menu_strings[2] , " Ok ");
+		strcpy(menu_list[13].menu_strings[0],  " Calibration done ");
+		strcpy(menu_list[15].menu_strings[0],  " Calibration done ");
+		strcpy(menu_list[13].menu_strings[2] , " Ok ");
+		strcpy(menu_list[15].menu_strings[2] , " Ok ");
 
 	}
 	else
 	{
 		menu_list[5].next_menu_id[2]=5;
 		menu_list[3].next_menu_id[2]=3;
-		strcpy(menu_list[3].menu_strings[2] , " calibrating ... ");
-		strcpy(menu_list[5].menu_strings[2] , " calibrating ... ");
+		menu_list[15].next_menu_id[2]=15;
+		menu_list[13].next_menu_id[2]=13;
+		strcpy(menu_list[3].menu_strings[0],  " Calibrating ... ");
+		strcpy(menu_list[5].menu_strings[0],  " Calibrating ... ");
+		strcpy(menu_list[3].menu_strings[2] , " Please wait ");
+		strcpy(menu_list[5].menu_strings[2] , " Please wait ");
+		strcpy(menu_list[13].menu_strings[0],  " Calibrating ... ");
+		strcpy(menu_list[15].menu_strings[0],  " Calibrating ... ");
+		strcpy(menu_list[13].menu_strings[2] , " Please wait ");
+		strcpy(menu_list[15].menu_strings[2] , " Please wait ");
 	}
 		
 		
 	menu_list[0].values[5] = output; 
 	menu_list[0].values[0] = pH;
+	menu_list[0].values[2] = temp;
 
 }
 
@@ -336,9 +426,9 @@ void print_main_page(int active_menu)
 						glcd_set_font(Terminal6x8 ,6,8,32,127);
 			}
 			
-			char Menu_strings_buff[22];
+			char Menu_strings_buff[25];
 			char *menu_strings_buff = Menu_strings_buff;
-			char Final_menu_strings[22];
+			char Final_menu_strings[25];
 			char *final_menu_strings = Final_menu_strings;
 			
 			strcpy(menu_strings_buff , menu_list[active_menu].menu_strings[i]);
@@ -367,6 +457,10 @@ void print_main_page(int active_menu)
 				
 			}
 			else if (strstr(menu_strings_buff, "%.1f") != 0)
+			{
+				sprintf(final_menu_strings, menu_strings_buff , (menu_list[active_menu].values[i]));
+			}
+			else if (strstr(menu_strings_buff, "%.2f") != 0)
 			{
 				sprintf(final_menu_strings, menu_strings_buff , (menu_list[active_menu].values[i]));
 			}
@@ -399,9 +493,9 @@ void print_menu(int active_menu)
 		GLCD_Line(10,10,117,10);
 		for(int i=0 ; i < menu_list[active_menu].menu_item_count ; i++)
 		{
-			char Menu_strings_buff[22];
+			char Menu_strings_buff[25];
 			char *menu_strings_buff = Menu_strings_buff;
-			char Final_menu_strings[22];
+			char Final_menu_strings[25];
 			char *final_menu_strings = Final_menu_strings;
 			
 			strcpy(menu_strings_buff , menu_list[active_menu].menu_strings[i]);
@@ -410,6 +504,10 @@ void print_menu(int active_menu)
 				sprintf(final_menu_strings, menu_strings_buff , (int)(menu_list[active_menu].values[i]));
 			}
 			else if (strstr(menu_strings_buff, "%.1f") != 0)
+			{
+				sprintf(final_menu_strings, menu_strings_buff , (menu_list[active_menu].values[i]));
+			}
+			else if (strstr(menu_strings_buff, "%.2f") != 0)
 			{
 				sprintf(final_menu_strings, menu_strings_buff , (menu_list[active_menu].values[i]));
 			}
@@ -447,7 +545,6 @@ void get_user_input(uint8_t *input,int *active_menu)
 		if(*active_menu == 0)
 		{
 			*active_menu = 1;
-			GLCD_ClearScreen();
 		}
 		else
 		{
@@ -456,13 +553,14 @@ void get_user_input(uint8_t *input,int *active_menu)
 				menu_list[*active_menu].fun_ptr();
 			}
 			*active_menu = menu_list[*active_menu].next_menu_id[menu_list[*active_menu].menu_pointer];
-			GLCD_ClearScreen();
 				
 		}
 	}
 	if(input[0] == 'e')
 	{
 		*active_menu = 0;
+		delete_ph_calibration_task_flag = 1;
+		delete_temp_calibration_task_flag = 1;
 	}
 	if(input[0] == 'w')
 	{

@@ -78,11 +78,15 @@
 
 TaskHandle_t lcd_demo_handle = NULL;
 TaskHandle_t main_thread_handle = NULL;
-TaskHandle_t calibration_thread_handle = NULL;
+TaskHandle_t ph_calibration_thread_handle = NULL;
+TaskHandle_t temp_calibration_thread_handle = NULL;
 SemaphoreHandle_t lcd_semaphore;
-int create_task_flag = 0;
-int delete_task_flag = 0;
-Menu menu_list[15];
+int create_ph_calibration_task_flag = 0;
+int delete_ph_calibration_task_flag = 0;
+int create_temp_calibration_task_flag = 0;
+int delete_temp_calibration_task_flag = 0;
+Menu menu_list[20];
+Menu last_menu_list[20];
 uint8_t uart_buff[20];
 int active_menu=0;
 uint32_t adc_value[2*bufferLength]={0};
@@ -100,27 +104,21 @@ float p2_p = -0.8505;
 float p1_t = 0.04082;
 float p2_t = 2.204;
 float pH =0;
-float *temp = &menu_list[0].values[2];
+float temp;
 uint8_t message[30];
 uint8_t log_uart[10];
-uint16_t tempDigital = 0;
 uint16_t ph_averaged = 0;
 uint16_t pH_filtered ;
+uint16_t temp_averaged = 0;
 uint16_t temp_filtered = 0;
-float *calibration_point_1_ph = &menu_list[2].values[1];
-float *calibration_point_2_ph = &menu_list[4].values[1];
-uint16_t calibration_point_1 = 0;
-uint16_t calibration_point_2 = 0;
 int16_t progress = 0;
+int16_t last_progress = 0;
 // rtc 
 RTC_TimeTypeDef rtc_time;
 RTC_DateTypeDef rtc_date;
 float *rtc_hour_p = &menu_list[0].values[3];
 float *rtc_minute_p = &menu_list[0].values[4];
-//float *rtc_day_p = &menu_list[8].values[2];
-//float *rtc_month_p = &menu_list[8].values[3];
-//float *rtc_year_p = &menu_list[8].values[4];
-// Structure to strore PID data and pointer to PID structure
+// Structure to store PID data and pointer to PID structure
 struct pid_controller ctrldata;
 pid_t pid;
 // Control loop input,output and setpoint variables
@@ -145,8 +143,8 @@ void MX_FREERTOS_Init(void);
 void main_thread(void *);
 void lcd_print(void *);
 void read_adc(void *);
-void calibration_thread(void *);
-void calibration_step1(void);
+void ph_calibration_thread(void *);
+void temp_calibration_thread(void * pvParameters);
 void pump_set_stroke(uint16_t stroke);
 
 //extern void calculate_calibration_coefficients(void);
@@ -193,10 +191,7 @@ int main(void)
   MX_RTC_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
-	HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
-	HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
-	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 0);
-	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, 0);
+	init_menu();
 	// Prepare PID controller for operation
 	pid = pid_create(&ctrldata, &input, &output, setpoint, *kp, *ki, *kd);
 	// Set controler output limits from 0 to 90
@@ -208,20 +203,16 @@ int main(void)
 	// Set the direction of controller
 	pid_direction(pid, E_PID_REVERSE);
 	
+	HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
+	HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
+	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 0);
+	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, 0);
 	GLCD_Initalize();
 	GLCD_ClearScreen();
-	init_menu();
+
 	uint8_t data[10];
 	MAX485_send_string("starting ...",14,100);
 	HAL_UART_Receive_IT(&huart3,uart_buff,1);
-	
-
-//	rtc_time.Hours =0x05 ;
-//	rtc_time.Minutes = 0x03;
-//	rtc_time.Seconds=0x50;
-//	HAL_RTC_SetTime(&hrtc,&rtc_time,FORMAT_BCD );
-
-	
 	HAL_TIM_Base_Start_IT(&htim2);
 	HAL_ADC_Start_DMA(&hadc1, adc_value, 2*bufferLength);
 	lcd_semaphore = xSemaphoreCreateCounting(5,1);
@@ -324,6 +315,8 @@ void SystemClock_Config(void)
 void main_thread(void * pvParameters)
 {
 	HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,1);
+	HAL_Delay(100);
+	HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,0);
 	char sprintf_buff[10];
 	while(1)
 	{
@@ -348,16 +341,36 @@ void main_thread(void * pvParameters)
 			
 		}
 		
-		if(create_task_flag == 1)
+		if(create_ph_calibration_task_flag == 1)
 		{
-			create_task_flag = 0;
+			create_ph_calibration_task_flag = 0;
 			progress = 0;
-			xTaskCreate(calibration_thread,"calibration_thread",128,( void * )1,3,&calibration_thread_handle);
+			xTaskCreate(ph_calibration_thread,"ph_calibration_thread",128,( void * )1,3,&ph_calibration_thread_handle);
 		}
-		if(delete_task_flag == 1)
+		if(delete_ph_calibration_task_flag == 1)
 		{
-			delete_task_flag = 0;
-			vTaskDelete( calibration_thread_handle );
+			delete_ph_calibration_task_flag = 0;
+			if( ph_calibration_thread_handle != NULL )
+			{
+				vTaskDelete( ph_calibration_thread_handle );
+				ph_calibration_thread_handle = NULL;
+			}
+			progress = 0;
+		}
+		if(create_temp_calibration_task_flag == 1)
+		{
+			create_temp_calibration_task_flag = 0;
+			progress = 0;
+			xTaskCreate(temp_calibration_thread,"temp_calibration_thread",128,( void * )1,3,&temp_calibration_thread_handle);
+		}
+		if(delete_temp_calibration_task_flag == 1)
+		{
+			delete_temp_calibration_task_flag = 0;
+			if( temp_calibration_thread_handle != NULL)
+			{
+				vTaskDelete( temp_calibration_thread_handle );
+				temp_calibration_thread_handle = NULL;
+			}
 			progress = 0;
 		}
 	}
@@ -369,42 +382,39 @@ void lcd_print(void * pvParameters)
 	while(1)
 	{
 		osDelay(1000);
+		update_menu_from_variables();
 		if(active_menu == 0 )
 		{
-			xSemaphoreGive( lcd_semaphore );
-		}
-		if( active_menu == 3 || active_menu == 5)
-		{
-			if (count < 1)
+			if( menu_list[0].values[0] != last_menu_list[0].values[0] || menu_list[0].values[2] != last_menu_list[0].values[2] || menu_list[0].values[3] != last_menu_list[0].values[3] || menu_list[0].values[4] != last_menu_list[0].values[4] || menu_list[0].values[5] != last_menu_list[0].values[5])
 			{
-				count++;
-			}
-			else
-			{
-				count = 0;
 				xSemaphoreGive( lcd_semaphore );
+				last_menu_list[0] = menu_list[0];
 			}
+		}
+		if( active_menu == 3 || active_menu == 5 || active_menu == 13 || active_menu == 15 )
+		{ 
+				if(progress - last_progress >= 25 || progress == 100)
+				{
+					xSemaphoreGive( lcd_semaphore );
+					last_progress = progress;
+				}
+			
 		}
 		
 	}
 }
-void calibration_thread(void * pvParameters)
+void ph_calibration_thread(void * pvParameters)
 {
 	char sprintf_buff[10];
 	uint16_t last_ph_filtered = pH_filtered;
 	uint32_t start_time = HAL_GetTick();
 	while(1)
 	{
+		MAX485_send_string("ph calibration\n",16,100);
 		progress = (HAL_GetTick() - start_time)/1000 - (abs(pH_filtered - last_ph_filtered)) ;
-		//progress = 100 - 10 * (abs(pH_filtered - last_ph_filtered)) ;
-		//sprintf(sprintf_buff,"%d\n",pH_filtered);
-		//HAL_UART_Transmit(&huart2,sprintf_buff,5,100);
-		//sprintf(sprintf_buff,"%d\n",progress);
-		//HAL_UART_Transmit(&huart2,sprintf_buff,5,100);
-		if(abs(pH_filtered - last_ph_filtered) > 5)
+		if(abs(pH_filtered - last_ph_filtered) > 3)
 		{
 			start_time = HAL_GetTick();
-			//HAL_UART_Transmit(&huart3,"reset\n",7,100);
 			MAX485_send_string("reset\n",10,100);
 		}
 		if(progress > 100 )
@@ -416,9 +426,41 @@ void calibration_thread(void * pvParameters)
 			progress = 0;
 		}
 		last_ph_filtered = pH_filtered;
-		osDelay(1000);
+		osDelay(3000);
 	}
 }
+
+void temp_calibration_thread(void * pvParameters)
+{
+	char sprintf_buff[10];
+	uint16_t last_temp_filtered = temp_filtered;
+	uint32_t start_time = HAL_GetTick();
+	while(1)
+	{
+		MAX485_send_string("temp calibration\n",20,100);
+		sprintf(sprintf_buff,"%d\n",progress);
+		MAX485_send_string(sprintf_buff,10,100);
+		progress = (HAL_GetTick() - start_time)/1000 - (abs(temp_filtered - last_temp_filtered)) ;
+		if(abs(temp_filtered - last_temp_filtered) > 3)
+		{
+			start_time = HAL_GetTick();
+			MAX485_send_string("reset\n",10,100);
+		}
+		if(progress > 100 )
+		{
+			progress = 100;
+		}
+		if(progress < 0 )
+		{
+			progress = 0;
+		}
+		last_temp_filtered = temp_filtered;
+		osDelay(3000);
+	}
+}
+
+
+
 
 /**
   * @brief  This function sets pump stroke.
@@ -434,51 +476,14 @@ void pump_turn_on_off(uint16_t state)
 {
 	if(state == 1)
 	{
-		//HAL_GPIO_WritePin(...
+		HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,GPIO_PIN_SET);
 	}
 	if(state == 0)
 	{
-		//HAL_GPIO_WritePin(...
+		HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,GPIO_PIN_RESET);
 	}
-	
 }
 
-void calculate_calibration_coefficients(void)
-{
-	char sprintf_buff[20];
-	p1_p = (*calibration_point_1_ph - *calibration_point_2_ph) / (float)(calibration_point_1 - calibration_point_2 ) ;
-	p2_p = *calibration_point_1_ph - (calibration_point_1)*(p1_p);
-	sprintf(sprintf_buff,"%d,%.1f\n",calibration_point_1,*calibration_point_1_ph);
-	MAX485_send_string(sprintf_buff,13,100);
-	sprintf(sprintf_buff,"%d,%.1f\n",calibration_point_2,*calibration_point_2_ph);
-	MAX485_send_string(sprintf_buff,13,100);
-	sprintf(sprintf_buff,"%.5f,%.5f\n",p1_p,p2_p);
-	MAX485_send_string(sprintf_buff,13,100);
-}
-
-void calibration_step1(void)
-{
-	//HAL_UART_Transmit(&huart2,"calibration1\n",13,100);
-	MAX485_send_string("calibration1\n",13,100);
-	create_task_flag = 1;
-}
-void calibration_step2(void)
-{
-	MAX485_send_string("calibration2\n",13,100);
-	create_task_flag = 1;
-}
-void calibration_waiting_1(void)
-{
-	char sprintf_buff[20];
-	delete_task_flag = 1;
-	calibration_point_1 = pH_filtered;
-}
-void calibration_waiting_2(void)
-{
-	char sprintf_buff[20];
-	delete_task_flag = 1;
-	calibration_point_2 = pH_filtered;
-}
 void set_date_time(void)
 {
 	rtc_time.Hours = menu_list[11].values[0];
@@ -507,9 +512,9 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	ph_averaged = average(pH_buffer, bufferLength);
 	pH_filtered = best_moving_average(ph_averaged, ph_history, &ph_sum, &ph_window_pointer);
 	pH = p1_p * pH_filtered + p2_p;
-	tempDigital = average(temp_buffer, bufferLength);
-	temp_filtered = best_moving_average(tempDigital, temp_history, &temp_sum, &temp_window_pointer);
-	*temp = p1_t * temp_filtered + p2_t;
+	temp_averaged = average(temp_buffer, bufferLength);
+	temp_filtered = best_moving_average(temp_averaged, temp_history, &temp_sum, &temp_window_pointer);
+	temp = p1_t * temp_filtered + p2_t;
 	if(menu_list[8].values[0]==0) // controller is ON
 	{
 		if(menu_list[8].values[1]==0) // controller type is pid

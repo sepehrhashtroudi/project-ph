@@ -595,6 +595,11 @@
               <FileType>1</FileType>
               <FilePath>..\Src\max485.c</FilePath>
             </File>
+            <File>
+              <FileName>glcd_menu_functions.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\glcd_menu_functions.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

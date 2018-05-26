@@ -14,7 +14,7 @@
 		char menu_name[25];
 		int menu_pointer;
 		int menu_item_count;
-		char menu_strings[8][25];
+		char menu_strings[8][27];
 		int next_menu_id[8];
 		float values[8];
 		float value_resolution[8];
