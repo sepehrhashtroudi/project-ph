@@ -65,10 +65,9 @@
 #include "PID.h"
 #include "defines.h"
 #include "max485.h"
-//#include <math.h>
+#include "eeprom.h"
 #include <stdlib.h>
-//#include <string.h>
-//#include "font5x8.h"
+#include "math.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -105,6 +104,9 @@ float p1_t = 0.04082;
 float p2_t = 2.204;
 float pH =0;
 float temp;
+int32_t eeprom_buff;
+uint16_t VirtAddVarTab[2] = {p1_p_eeprom_add, p2_p_eeprom_add};
+
 uint8_t message[30];
 uint8_t log_uart[10];
 uint16_t ph_averaged = 0;
@@ -131,6 +133,8 @@ float *ki = &menu_list[10].values[1];
 float *kd = &menu_list[10].values[2];
 // PID sample time in ms
 uint32_t sample_time = 10;
+extern const unsigned char Times_New_Roman25x26[] ;
+static FLASH_EraseInitTypeDef EraseInitStruct;
 
 /* USER CODE END PV */
 
@@ -209,8 +213,16 @@ int main(void)
 	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, 0);
 	GLCD_Initalize();
 	GLCD_ClearScreen();
-
-	uint8_t data[10];
+	glcd_set_font_with_num(1);
+	glcd_draw_string_xy(10,10,"Loading...",0,0,0);
+	
+	char sprintf_buff[20];
+	eeprom_read_data(p1_p_eeprom_add,&eeprom_buff,1);
+	p1_p = eeprom_buff / float_to_int_factor;
+	eeprom_read_data(p2_p_eeprom_add,&eeprom_buff,1);
+	p2_p = eeprom_buff / float_to_int_factor;
+	//sprintf(sprintf_buff,"%.5f,%.5f\n",p1_p,p2_p);
+	//MAX485_send_string(sprintf_buff,20,100);
 	MAX485_send_string("starting ...",14,100);
 	HAL_UART_Receive_IT(&huart3,uart_buff,1);
 	HAL_TIM_Base_Start_IT(&htim2);
@@ -314,9 +326,9 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 void main_thread(void * pvParameters)
 {
-	HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,1);
+	HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,GPIO_PIN_SET);
 	HAL_Delay(100);
-	HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,0);
+	HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,GPIO_PIN_RESET);
 	char sprintf_buff[10];
 	while(1)
 	{
@@ -378,10 +390,9 @@ void main_thread(void * pvParameters)
 
 void lcd_print(void * pvParameters)
 {
-	int count=0;
 	while(1)
 	{
-		osDelay(1000);
+		osDelay(2000);
 		update_menu_from_variables();
 		if(active_menu == 0 )
 		{
@@ -405,7 +416,6 @@ void lcd_print(void * pvParameters)
 }
 void ph_calibration_thread(void * pvParameters)
 {
-	char sprintf_buff[10];
 	uint16_t last_ph_filtered = pH_filtered;
 	uint32_t start_time = HAL_GetTick();
 	while(1)
@@ -512,9 +522,11 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	ph_averaged = average(pH_buffer, bufferLength);
 	pH_filtered = best_moving_average(ph_averaged, ph_history, &ph_sum, &ph_window_pointer);
 	pH = p1_p * pH_filtered + p2_p;
+	pH = roundf(pH * 100.0) / 100.0; 
 	temp_averaged = average(temp_buffer, bufferLength);
 	temp_filtered = best_moving_average(temp_averaged, temp_history, &temp_sum, &temp_window_pointer);
 	temp = p1_t * temp_filtered + p2_t;
+	temp = roundf(temp * 10.0) / 10.0; 
 	if(menu_list[8].values[0]==0) // controller is ON
 	{
 		if(menu_list[8].values[1]==0) // controller type is pid

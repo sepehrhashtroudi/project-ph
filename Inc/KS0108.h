@@ -19,6 +19,7 @@ void GLCD_ClearScreen(void);
 void GLCD_GoTo(unsigned char, unsigned char);
 void GLCD_SetPixel(unsigned char x, unsigned char y, unsigned char color);
 void glcd_set_font(const unsigned char  * font_table, unsigned char width, unsigned char height, unsigned char start_char, unsigned char end_char);
+void glcd_set_font_with_num(int font_num);
 int glcd_draw_char_xy(unsigned char x, unsigned char y, char c,int fast,int invert,int overwrite);
 void glcd_draw_string_xy(unsigned char x, unsigned char y, char *c,int fast,int invert, int overwrite);
 void GLCD_WriteString(char *);

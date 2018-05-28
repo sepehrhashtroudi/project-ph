@@ -9,5 +9,5 @@
 //-----------------------------------------------------------------------------
 
 void MAX485_init(int baudrate);
-void MAX485_send_string(uint8_t* data,int size,int timeout);
+void MAX485_send_string(char* data,int size,int timeout);
 void MAX485_receive_string(uint8_t* data,int size,int timeout);

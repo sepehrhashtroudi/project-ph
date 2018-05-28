@@ -32,7 +32,7 @@ void MAX485_init(int baudrate)
   }
 }
 
-void MAX485_send_string(uint8_t* data,int size,int timeout)
+void MAX485_send_string(char* data,int size,int timeout)
 {
 	HAL_GPIO_WritePin(RS485_RTS_GPIO_Port,RS485_RTS_Pin,GPIO_PIN_SET);
 	HAL_Delay(10);

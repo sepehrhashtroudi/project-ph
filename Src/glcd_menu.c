@@ -12,7 +12,7 @@
 #include "KS0108.h"
 #include <string.h>
 #include "usart.h"
-#include "font5x8.h"
+//#include "font5x8.h"
 #include "graphic.h"
 #include <stdlib.h>
 #include "max485.h"
@@ -419,11 +419,12 @@ void print_main_page(int active_menu)
 			
 			if(menu_list[active_menu].font[i] == 1)
 			{
-						glcd_set_font(Times_New_Roman25x26 ,25,26,32,127);
+						glcd_set_font_with_num(1);
+
 			}
 			if(menu_list[active_menu].font[i] == 0)
 			{
-						glcd_set_font(Terminal6x8 ,6,8,32,127);
+						glcd_set_font_with_num(0);
 			}
 			
 			char Menu_strings_buff[25];
@@ -486,7 +487,7 @@ void print_menu(int active_menu)
 
 		int print_offset=0;
 		GLCD_ClearScreen();
-		glcd_set_font(Terminal6x8 ,6,8,32,127);
+		glcd_set_font_with_num(0);
 		
 		print_offset = (128 - CalcTextWidthEN( menu_list[active_menu].menu_name))/2;
 		glcd_draw_string_xy(print_offset,0,menu_list[active_menu].menu_name,0,0,0);
