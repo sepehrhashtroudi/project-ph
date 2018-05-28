@@ -549,8 +549,8 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 		else if(menu_list[8].values[1]==1)// controller type is relay
 		{
 			
-			uint16_t threshold = (menu_list[6].values[0] - menu_list[6].values[1])/4;
-			uint16_t mean = (menu_list[6].values[0] + menu_list[6].values[1])/2;
+			uint16_t threshold = (menu_list[9].values[0] - menu_list[9].values[1])/4;
+			uint16_t mean = (menu_list[9].values[0] + menu_list[9].values[1])/2;
 			if (pH > mean + threshold ) // pH is bigger than maximum value
 			{
 				pump_turn_on_off(1);
