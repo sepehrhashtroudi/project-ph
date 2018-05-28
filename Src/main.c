@@ -221,6 +221,10 @@ int main(void)
 	p1_p = eeprom_buff / float_to_int_factor;
 	eeprom_read_data(p2_p_eeprom_add,&eeprom_buff,1);
 	p2_p = eeprom_buff / float_to_int_factor;
+	eeprom_read_data(p1_t_eeprom_add,&eeprom_buff,1);
+	p1_t = eeprom_buff / float_to_int_factor;
+	eeprom_read_data(p2_t_eeprom_add,&eeprom_buff,1);
+	p2_t = eeprom_buff / float_to_int_factor;
 	//sprintf(sprintf_buff,"%.5f,%.5f\n",p1_p,p2_p);
 	//MAX485_send_string(sprintf_buff,20,100);
 	MAX485_send_string("starting ...",14,100);
@@ -339,8 +343,6 @@ void main_thread(void * pvParameters)
 		
 		if( xSemaphoreTake( lcd_semaphore, 1000 ) == pdTRUE )
 		{
-			sprintf(sprintf_buff,"%d\n",pH_filtered);
-			MAX485_send_string(sprintf_buff,7,100);
 			update_menu_from_variables();
 			if(active_menu == 0 )
 			{
@@ -357,6 +359,7 @@ void main_thread(void * pvParameters)
 		{
 			create_ph_calibration_task_flag = 0;
 			progress = 0;
+			last_progress = 0;
 			xTaskCreate(ph_calibration_thread,"ph_calibration_thread",128,( void * )1,3,&ph_calibration_thread_handle);
 		}
 		if(delete_ph_calibration_task_flag == 1)
@@ -366,13 +369,15 @@ void main_thread(void * pvParameters)
 			{
 				vTaskDelete( ph_calibration_thread_handle );
 				ph_calibration_thread_handle = NULL;
+				progress = 0;
+				last_progress = 0;
 			}
-			progress = 0;
 		}
 		if(create_temp_calibration_task_flag == 1)
 		{
 			create_temp_calibration_task_flag = 0;
 			progress = 0;
+			last_progress = 0;
 			xTaskCreate(temp_calibration_thread,"temp_calibration_thread",128,( void * )1,3,&temp_calibration_thread_handle);
 		}
 		if(delete_temp_calibration_task_flag == 1)
@@ -382,8 +387,9 @@ void main_thread(void * pvParameters)
 			{
 				vTaskDelete( temp_calibration_thread_handle );
 				temp_calibration_thread_handle = NULL;
+				progress = 0;
+				last_progress = 0;
 			}
-			progress = 0;
 		}
 	}
 }
@@ -418,14 +424,17 @@ void ph_calibration_thread(void * pvParameters)
 {
 	uint16_t last_ph_filtered = pH_filtered;
 	uint32_t start_time = HAL_GetTick();
+	char sprintf_buff[20];
 	while(1)
 	{
-		MAX485_send_string("ph calibration\n",16,100);
+		MAX485_send_string("ph calibration\n",15,100);
 		progress = (HAL_GetTick() - start_time)/1000 - (abs(pH_filtered - last_ph_filtered)) ;
+		sprintf(sprintf_buff,"%d\n",pH_filtered);
+		MAX485_send_string(sprintf_buff,7,100);
 		if(abs(pH_filtered - last_ph_filtered) > 3)
 		{
 			start_time = HAL_GetTick();
-			MAX485_send_string("reset\n",10,100);
+			MAX485_send_string("reset\n",6,100);
 		}
 		if(progress > 100 )
 		{
@@ -448,8 +457,8 @@ void temp_calibration_thread(void * pvParameters)
 	while(1)
 	{
 		MAX485_send_string("temp calibration\n",20,100);
-		sprintf(sprintf_buff,"%d\n",progress);
-		MAX485_send_string(sprintf_buff,10,100);
+		sprintf(sprintf_buff,"%d\n",temp_filtered);
+		MAX485_send_string(sprintf_buff,7,100);
 		progress = (HAL_GetTick() - start_time)/1000 - (abs(temp_filtered - last_temp_filtered)) ;
 		if(abs(temp_filtered - last_temp_filtered) > 3)
 		{

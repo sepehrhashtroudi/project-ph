@@ -285,9 +285,7 @@ void init_menu(void)
 	strcpy(menu_list[14].menu_strings[2] , " Ok ");
 	menu_list[14].next_menu_id[0]=14;
 	menu_list[14].next_menu_id[1]=14;
-	menu_list[14].next_menu_id[2]=14;
-	menu_list[14].next_menu_id[3]=14;
-	menu_list[14].next_menu_id[4]=15;
+	menu_list[14].next_menu_id[2]=15;
 	menu_list[14].menu_id=14;
 	menu_list[14].values[1]=35;
 	menu_list[14].value_resolution[1]=5.0000;

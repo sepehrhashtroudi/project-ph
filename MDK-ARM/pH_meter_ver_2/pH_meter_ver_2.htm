@@ -3,7 +3,7 @@
 <title>Static Call Graph - [pH_meter_ver_2\pH_meter_ver_2.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image pH_meter_ver_2\pH_meter_ver_2.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Mon May 28 14:00:36 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Mon May 28 19:01:12 2018
 <BR><P>
 <H3>Maximum Stack Usage =        544 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1440,7 +1440,6 @@ Global Symbols
 <LI><a href="#[c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_user_input
 <LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;temp_calibration_thread
 <LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ph_calibration_thread
-<LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main_thread
 <LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 <LI><a href="#[fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_RxCpltCallback
 <LI><a href="#[c3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_EXTI_Callback
@@ -1667,7 +1666,7 @@ Global Symbols
 <LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_main_page
 <LI><a href="#[c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_user_input
 <LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;temp_calibration_thread
-<LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main_thread
+<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ph_calibration_thread
 </UL>
 
 <P><STRONG><a name="[17b]"></a>__c89sprintf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0sprintf), UNUSED)
@@ -1784,7 +1783,7 @@ Global Symbols
 <LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
 </UL>
 
-<P><STRONG><a name="[127]"></a>init_menu</STRONG> (Thumb, 2178 bytes, Stack size 56 bytes, glcd_menu.o(i.init_menu))
+<P><STRONG><a name="[127]"></a>init_menu</STRONG> (Thumb, 2170 bytes, Stack size 56 bytes, glcd_menu.o(i.init_menu))
 <BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = init_menu
 </UL>
 <BR>[Calls]<UL><LI><a href="#[128]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strcpy
@@ -1802,7 +1801,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(i.main)
 </UL>
-<P><STRONG><a name="[5b]"></a>main</STRONG> (Thumb, 364 bytes, Stack size 16 bytes, main.o(i.main))
+<P><STRONG><a name="[5b]"></a>main</STRONG> (Thumb, 428 bytes, Stack size 16 bytes, main.o(i.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 280<LI>Call Chain = main &rArr; glcd_draw_string_xy &rArr; glcd_draw_char_xy &rArr; GLCD_SetPixel &rArr; GLCD_GoTo &rArr; GLCD_WriteCommand &rArr; GLCD_ReadStatus &rArr; Port_in_out_mode &rArr; HAL_GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Init
@@ -1841,12 +1840,11 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> entry9a.o(.ARM.Collect$$$$0000000B)
 </UL>
-<P><STRONG><a name="[6f]"></a>main_thread</STRONG> (Thumb, 256 bytes, Stack size 24 bytes, main.o(i.main_thread))
-<BR><BR>[Stack]<UL><LI>Max Depth = 384<LI>Call Chain = main_thread &rArr; print_menu &rArr; glcd_draw_string_xy &rArr; glcd_draw_char_xy &rArr; GLCD_SetPixel &rArr; GLCD_GoTo &rArr; GLCD_WriteCommand &rArr; GLCD_ReadStatus &rArr; Port_in_out_mode &rArr; HAL_GPIO_Init
+<P><STRONG><a name="[6f]"></a>main_thread</STRONG> (Thumb, 246 bytes, Stack size 16 bytes, main.o(i.main_thread))
+<BR><BR>[Stack]<UL><LI>Max Depth = 376<LI>Call Chain = main_thread &rArr; print_menu &rArr; glcd_draw_string_xy &rArr; glcd_draw_char_xy &rArr; GLCD_SetPixel &rArr; GLCD_GoTo &rArr; GLCD_WriteCommand &rArr; GLCD_ReadStatus &rArr; Port_in_out_mode &rArr; HAL_GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[b9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
 <LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin
-<LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
 <LI><a href="#[d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_GetTime
 <LI><a href="#[d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_GetDate
 <LI><a href="#[133]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskCreate
@@ -1855,7 +1853,6 @@ Global Symbols
 <LI><a href="#[129]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_menu_from_variables
 <LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_menu
 <LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_main_page
-<LI><a href="#[c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MAX485_send_string
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(i.main)
 </UL>
@@ -1915,10 +1912,11 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> glcd_menu.o(i.init_menu)
 </UL>
-<P><STRONG><a name="[70]"></a>ph_calibration_thread</STRONG> (Thumb, 112 bytes, Stack size 0 bytes, main.o(i.ph_calibration_thread))
-<BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = ph_calibration_thread &rArr; MAX485_send_string &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
+<P><STRONG><a name="[70]"></a>ph_calibration_thread</STRONG> (Thumb, 134 bytes, Stack size 24 bytes, main.o(i.ph_calibration_thread))
+<BR><BR>[Stack]<UL><LI>Max Depth = 104<LI>Call Chain = ph_calibration_thread &rArr; MAX485_send_string &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
+<LI><a href="#[122]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
 <LI><a href="#[10e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
 <LI><a href="#[c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MAX485_send_string
 </UL>
@@ -2088,7 +2086,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> glcd_menu.o(i.init_menu)
 </UL>
-<P><STRONG><a name="[71]"></a>temp_calibration_thread</STRONG> (Thumb, 132 bytes, Stack size 16 bytes, main.o(i.temp_calibration_thread))
+<P><STRONG><a name="[71]"></a>temp_calibration_thread</STRONG> (Thumb, 134 bytes, Stack size 16 bytes, main.o(i.temp_calibration_thread))
 <BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = temp_calibration_thread &rArr; MAX485_send_string &rArr; HAL_UART_Transmit &rArr; UART_WaitOnFlagUntilTimeout
 </UL>
 <BR>[Calls]<UL><LI><a href="#[92]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GetTick
