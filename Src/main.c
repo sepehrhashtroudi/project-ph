@@ -68,6 +68,7 @@
 #include "eeprom.h"
 #include <stdlib.h>
 #include "math.h"
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -216,6 +217,10 @@ int main(void)
 	glcd_set_font_with_num(1);
 	glcd_draw_string_xy(10,10,"Loading...",0,0,0);
 	
+//	eeprom_buff = p1_p*float_to_int_factor;
+//	eeprom_write_data(p1_p_eeprom_add,&eeprom_buff,1);
+//	eeprom_buff = p2_p*float_to_int_factor;
+//	eeprom_write_data(p2_p_eeprom_add,&eeprom_buff,1);
 	char sprintf_buff[20];
 	eeprom_read_data(p1_p_eeprom_add,&eeprom_buff,1);
 	p1_p = eeprom_buff / float_to_int_factor;
@@ -334,6 +339,9 @@ void main_thread(void * pvParameters)
 	HAL_Delay(100);
 	HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,GPIO_PIN_RESET);
 	char sprintf_buff[10];
+	HAL_Delay(100);
+	GLCD_Initalize();
+	GLCD_ClearScreen();
 	while(1)
 	{
 		HAL_RTC_GetTime(&hrtc,&rtc_time,FORMAT_BIN);
@@ -491,6 +499,11 @@ void pump_set_stroke(uint16_t stroke)
 	uint16_t dac_value = (4095 * ((4 + stroke * 0.16) * 0.1) / 3.3);
 	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, dac_value);
 }
+void send_pH_4_20(uint16_t pH)
+{
+	uint16_t dac_value = (4095 * ((4 + pH * 16.0 / 14.0) * 0.1) / 3.3);
+	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, dac_value);
+}
 void pump_turn_on_off(uint16_t state)
 {
 	if(state == 1)
@@ -532,14 +545,33 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	pH_filtered = best_moving_average(ph_averaged, ph_history, &ph_sum, &ph_window_pointer);
 	pH = p1_p * pH_filtered + p2_p;
 	pH = roundf(pH * 100.0) / 100.0; 
+	if(pH > 14)
+	{
+		pH = 14;
+	}
+	if(pH < 0)
+	{
+		pH = 0;
+	}
+	send_pH_4_20(pH);
 	temp_averaged = average(temp_buffer, bufferLength);
 	temp_filtered = best_moving_average(temp_averaged, temp_history, &temp_sum, &temp_window_pointer);
 	temp = p1_t * temp_filtered + p2_t;
 	temp = roundf(temp * 10.0) / 10.0; 
+	if(temp_filtered > 3180 || temp_filtered < 8)
+	{
+		strcpy(menu_list[0].menu_strings[2] , "NC `c");
+	}
+	else
+	{
+		strcpy(menu_list[0].menu_strings[2] , "%.1f `c");
+	}
+	
 	if(menu_list[8].values[0]==0) // controller is ON
 	{
 		if(menu_list[8].values[1]==0) // controller type is pid
 		{
+			pump_turn_on_off(0);
 			/* Updating PID input*/
 			input = pH;
 			/* Compute new PID output*/
@@ -561,12 +593,16 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 			}
 		}
 	}
+	else
+	{
+		pump_turn_on_off(0);
+	}
 }
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	get_user_input(uart_buff,&active_menu);
 	xSemaphoreGiveFromISR( lcd_semaphore, NULL );
-	MAX485_send_string(uart_buff,13,100);
+	//MAX485_send_string(uart_buff,13,100);
 	HAL_UART_Receive_IT(&huart3,uart_buff,1);
 }
 
