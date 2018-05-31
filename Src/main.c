@@ -116,6 +116,7 @@ uint16_t temp_averaged = 0;
 uint16_t temp_filtered = 0;
 int16_t progress = 0;
 int16_t last_progress = 0;
+int16_t pump_on_off_state = 0;
 // rtc 
 RTC_TimeTypeDef rtc_time;
 RTC_DateTypeDef rtc_date;
@@ -199,8 +200,8 @@ int main(void)
 	init_menu();
 	// Prepare PID controller for operation
 	pid = pid_create(&ctrldata, &input, &output, setpoint, *kp, *ki, *kd);
-	// Set controler output limits from 0 to 90
-	pid_limits(pid, 0, 90);
+	// Set controler output limits from 0 to 100
+	pid_limits(pid, 0, 100);
 	// Allow PID to compute and change output
 	pid_auto(pid);
 	// Set sampling time
@@ -212,11 +213,6 @@ int main(void)
 	HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
 	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 0);
 	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, 0);
-	GLCD_Initalize();
-	GLCD_ClearScreen();
-	glcd_set_font_with_num(1);
-	glcd_draw_string_xy(10,10,"Loading...",0,0,0);
-	
 //	eeprom_buff = p1_p*float_to_int_factor;
 //	eeprom_write_data(p1_p_eeprom_add,&eeprom_buff,1);
 //	eeprom_buff = p2_p*float_to_int_factor;
@@ -236,6 +232,10 @@ int main(void)
 	HAL_UART_Receive_IT(&huart3,uart_buff,1);
 	HAL_TIM_Base_Start_IT(&htim2);
 	HAL_ADC_Start_DMA(&hadc1, adc_value, 2*bufferLength);
+	GLCD_Initalize();
+	GLCD_ClearScreen();
+	glcd_set_font_with_num(1);
+	glcd_draw_string_xy(10,10,"Loading...",0,0,0);
 	lcd_semaphore = xSemaphoreCreateCounting(5,1);
 	xTaskCreate(lcd_print,"lcd_print",64,( void * )1,3,&lcd_demo_handle);
 	xTaskCreate(main_thread,"main_thread",512,( void * )1,2,&main_thread_handle);
@@ -335,10 +335,6 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 void main_thread(void * pvParameters)
 {
-	HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,GPIO_PIN_SET);
-	HAL_Delay(100);
-	HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,GPIO_PIN_RESET);
-	char sprintf_buff[10];
 	HAL_Delay(100);
 	GLCD_Initalize();
 	GLCD_ClearScreen();
@@ -404,8 +400,15 @@ void main_thread(void * pvParameters)
 
 void lcd_print(void * pvParameters)
 {
+	uint32_t last_lcd_init=0;
 	while(1)
 	{
+		if((uint32_t)(HAL_GetTick() - last_lcd_init) > 3600000)
+		{
+			GLCD_Initalize();
+			GLCD_ClearScreen();
+			last_lcd_init = HAL_GetTick();
+		}
 		osDelay(2000);
 		update_menu_from_variables();
 		if(active_menu == 0 )
@@ -423,7 +426,6 @@ void lcd_print(void * pvParameters)
 					xSemaphoreGive( lcd_semaphore );
 					last_progress = progress;
 				}
-			
 		}
 		
 	}
@@ -558,7 +560,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	temp_filtered = best_moving_average(temp_averaged, temp_history, &temp_sum, &temp_window_pointer);
 	temp = p1_t * temp_filtered + p2_t;
 	temp = roundf(temp * 10.0) / 10.0; 
-	if(temp_filtered > 3180 || temp_filtered < 8)
+	if(temp_filtered > 3180 || temp_filtered < 10)
 	{
 		strcpy(menu_list[0].menu_strings[2] , "NC `c");
 	}
@@ -580,16 +582,17 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 		}
 		else if(menu_list[8].values[1]==1)// controller type is relay
 		{
-			
 			uint16_t threshold = (menu_list[9].values[0] - menu_list[9].values[1])/4;
 			uint16_t mean = (menu_list[9].values[0] + menu_list[9].values[1])/2;
 			if (pH > mean + threshold ) // pH is bigger than maximum value
 			{
-				pump_turn_on_off(1);
+				pump_on_off_state = 1;
+				pump_turn_on_off(pump_on_off_state);
 			}
 			else if (pH < mean - threshold )
 			{
-				pump_turn_on_off(0);
+				pump_on_off_state = 0;
+				pump_turn_on_off(pump_on_off_state);
 			}
 		}
 	}

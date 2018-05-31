@@ -22,6 +22,7 @@ extern void set_date_time(void);
 extern uint16_t pH_filtered;
 extern void set_pid_coefficients(void);
 extern float output;
+extern int16_t pump_on_off_state;
 extern int16_t progress;
 extern int create_ph_calibration_task_flag;
 extern int delete_ph_calibration_task_flag;
@@ -31,13 +32,14 @@ extern float pH;
 extern float temp;
 
 
+
 void init_menu(void)
 {
 	strcpy(menu_list[0].menu_name , "first page");
 	strcpy(menu_list[0].menu_strings[0],  "%.2f");
 	strcpy(menu_list[0].menu_strings[1] , "ph");
 	strcpy(menu_list[0].menu_strings[2] , "%.1f `c");
-	strcpy(menu_list[0].menu_strings[3] , "%d:%d");//hour & minute
+	strcpy(menu_list[0].menu_strings[3] , "%02d:%02d");//hour & minute
 	strcpy(menu_list[0].menu_strings[5] , "%d s/m");
 	//strcpy(menu_list[0].menu_strings[5] , "%d"); //minute
 	menu_list[0].menu_id=0;
@@ -45,18 +47,18 @@ void init_menu(void)
 	menu_list[0].menu_pointer=0;
 	menu_list[0].values[0]=7;
 	menu_list[0].values[3]=10;
-	menu_list[0].x_position[0]=40;
-	menu_list[0].x_position[1]=95;
-	menu_list[0].x_position[2]=15;
-	menu_list[0].x_position[3]=80;
-	menu_list[0].x_position[4]=90;
-	menu_list[0].x_position[5]=80;
+	menu_list[0].x_position[0]=64;
+	menu_list[0].x_position[1]=92;
+	menu_list[0].x_position[2]=64;
+	menu_list[0].x_position[3]=16;
+	menu_list[0].x_position[4]=16;
+	menu_list[0].x_position[5]=105;
 	menu_list[0].y_position[0]=4;
-	menu_list[0].y_position[1]=20;
+	menu_list[0].y_position[1]=15;
 	menu_list[0].y_position[2]=35;
-	menu_list[0].y_position[3]=50;
-	menu_list[0].y_position[4]=50;
-	menu_list[0].y_position[5]=35;
+	menu_list[0].y_position[3]=52;
+	menu_list[0].y_position[4]=52;
+	menu_list[0].y_position[5]=52;
 	menu_list[0].font[0]=1;
 	menu_list[0].font[1]=0;
 	menu_list[0].font[2]=0;
@@ -157,10 +159,10 @@ void init_menu(void)
 	menu_list[8].next_menu_id[1]=8;
 	menu_list[8].next_menu_id[2]=8;
 	menu_list[8].next_menu_id[3]=9;
-	menu_list[8].values[0]=1;
-	menu_list[8].values[1]=1;
+	menu_list[8].values[0]=0;
+	menu_list[8].values[1]=0;
 	menu_list[8].values[2]=7.100;
-	menu_list[8].values[3]=1;
+	menu_list[8].values[3]=0;
 	menu_list[8].value_resolution[0]=1.00000;
 	menu_list[8].value_resolution[1]=1.00000;
 	menu_list[8].value_resolution[2]=0.10000;
@@ -384,41 +386,56 @@ void update_menu_from_variables(void)
 		strcpy(menu_list[13].menu_strings[2] , " Please wait ");
 		strcpy(menu_list[15].menu_strings[2] , " Please wait ");
 	}
-		
+	if(menu_list[8].values[1]==1 && pump_on_off_state == 1)
+	{
+		strcpy(menu_list[0].menu_strings[5] , "K1");
+		menu_list[0].x_position[5]=115;
+	}
+	if(menu_list[8].values[1]==1 && pump_on_off_state == 0)
+	{
+		strcpy(menu_list[0].menu_strings[5] , " ");
+	}
+	if(menu_list[8].values[1]==0)
+	{
+		strcpy(menu_list[0].menu_strings[5] ,"%d s/m");
+		menu_list[0].x_position[5]=105;
+	}
 		
 	menu_list[0].values[5] = output; 
 	menu_list[0].values[0] = pH;
 	menu_list[0].values[2] = temp;
-
+	if(pH < 10)
+	{
+		menu_list[0].x_position[1]=95;
+	}
+	else
+	{
+		menu_list[0].x_position[1]=102;
+	}
+	
 }
 
 
 void print_main_page(int active_menu)
 {
-
+		int text_width=0;
 		GLCD_ClearScreen();
-
 		for(int i=0 ; i < menu_list[active_menu].menu_item_count ; i++)
 		{
 			
 			if(menu_list[active_menu].font[i] == 1)
 			{
 						glcd_set_font_with_num(1);
-
 			}
 			if(menu_list[active_menu].font[i] == 0)
 			{
 						glcd_set_font_with_num(0);
-			}
-			
+			}	
 			char Menu_strings_buff[25];
 			char *menu_strings_buff = Menu_strings_buff;
 			char Final_menu_strings[25];
 			char *final_menu_strings = Final_menu_strings;
-			
 			strcpy(menu_strings_buff , menu_list[active_menu].menu_strings[i]);
-			
-
 			if (strstr(menu_strings_buff, "%d") != 0)
 			{
 				int count =0;
@@ -439,7 +456,27 @@ void print_main_page(int active_menu)
 					sprintf(final_menu_strings, menu_strings_buff , (int)(menu_list[active_menu].values[i]),(int)(menu_list[active_menu].values[i+1]));
 					i++;
 				}
+			}
+			else if (strstr(menu_strings_buff, "%02d") != 0)
+			{
+				int count =0;
+				const char *tmp = menu_strings_buff;
+				while(strstr(tmp,"%02d")!= 0) // fined number of %d in string
+				{
+					 tmp = strstr(tmp,"%02d");
+					 count++;
+					 tmp++;
+				}
 				
+				if(count == 1)
+				{
+					sprintf(final_menu_strings, menu_strings_buff , (int)(menu_list[active_menu].values[i]));
+				}
+				if(count == 2)
+				{
+					sprintf(final_menu_strings, menu_strings_buff , (int)(menu_list[active_menu].values[i]),(int)(menu_list[active_menu].values[i+1]));
+					i++;
+				}
 			}
 			else if (strstr(menu_strings_buff, "%.1f") != 0)
 			{
@@ -461,8 +498,8 @@ void print_main_page(int active_menu)
 			{
 				strcpy(final_menu_strings , menu_list[active_menu].menu_strings[i]);
 			}
-
-			glcd_draw_string_xy(menu_list[active_menu].x_position[i],menu_list[active_menu].y_position[i],final_menu_strings,0,0,0);
+			text_width = CalcTextWidthEN(final_menu_strings);
+			glcd_draw_string_xy(menu_list[active_menu].x_position[i] - (text_width/2),menu_list[active_menu].y_position[i],final_menu_strings,0,0,0);
 		}
 }
 

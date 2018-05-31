@@ -83,6 +83,8 @@
 #define Enter_Pin GPIO_PIN_15
 #define Enter_GPIO_Port GPIOD
 #define Enter_EXTI_IRQn EXTI15_10_IRQn
+#define LCD_RST_Pin GPIO_PIN_12
+#define LCD_RST_GPIO_Port GPIOC
 #define LCD_CS2_Pin GPIO_PIN_0
 #define LCD_CS2_GPIO_Port GPIOD
 #define LCD_CS1_Pin GPIO_PIN_1
