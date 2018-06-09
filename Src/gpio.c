@@ -101,8 +101,8 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : PDPin PDPin PDPin PDPin 
                            PDPin PDPin */
-  GPIO_InitStruct.Pin = Left_Pin|Down_Pin|Up_Pin|Right_Pin 
-                          |Esc_Pin|Enter_Pin;
+  GPIO_InitStruct.Pin = Esc_Pin|Left_Pin|Enter_Pin|Down_Pin 
+                          |Up_Pin|Right_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);

@@ -34,9 +34,9 @@ unsigned int 							bytes_per_char;
 void GLCD_Initalize(void)
 {
 	HAL_GPIO_WritePin(LCD_RST_GPIO_Port,LCD_RST_Pin,GPIO_PIN_RESET);
-	HAL_Delay(100);
+	HAL_Delay(50);
 	HAL_GPIO_WritePin(LCD_RST_GPIO_Port,LCD_RST_Pin,GPIO_PIN_SET);
-	HAL_Delay(100);
+	HAL_Delay(50);
 	unsigned char i;
 	for(i = 0; i < 2; i++)
 		GLCD_WriteCommand((DISPLAY_ON_CMD | ON), i);

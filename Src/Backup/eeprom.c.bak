@@ -9,7 +9,7 @@
   */
 #include "stm32f4xx_hal.h"
 #include "eeprom.h"
-
+//#include "max485.h"
 
 
 
@@ -65,40 +65,48 @@ void eeprom_write_data(uint32_t VirtAddress, int32_t *Data,uint32_t length)
 {
 	uint32_t  Address = 0;
 	int32_t back_up[eeprom_length];
-	eeprom_read_data(0, back_up,100);
+	eeprom_read_data(0, back_up,eeprom_length);
+	int erase_flag=0;
 	for(int i = 0 ; i < length ; i++)
 	{
 		Address = VirtAddress + i;
-		back_up[Address] = Data[i];
+		if(back_up[Address] != Data[i])
+		{
+			back_up[Address] = Data[i];
+			erase_flag = 1;
+		}
 	}
-	eeprom_erase();
-	HAL_FLASH_Unlock();
+	if(erase_flag == 1)
+	{
+		eeprom_erase();
+		HAL_FLASH_Unlock();
 
-  /* Program the user Flash area word by word
-    (area defined by FLASH_USER_START_ADDR and FLASH_USER_END_ADDR) ***********/
-	
-  Address = FLASH_USER_START_ADDR ;
+		/* Program the user Flash area word by word
+			(area defined by FLASH_USER_START_ADDR and FLASH_USER_END_ADDR) ***********/
+		
+		Address = FLASH_USER_START_ADDR ;
 
-	for(int i=0 ; i < 100 ; i++)
-  {
-    if (HAL_FLASH_Program(TYPEPROGRAM_WORD, Address, back_up[i]) == HAL_OK)
-    {
-      Address = Address + 4;
-    }
-    else
-    { 
-      /* Error occurred while writing data in Flash memory. 
-         User can add here some code to deal with this error */
-      /*
-        FLASH_ErrorTypeDef errorcode = HAL_FLASH_GetError();
-      */
-      //Error_Handler();
-    }
-  }
+		for(int i=0 ; i < eeprom_length ; i++)
+		{
+			if (HAL_FLASH_Program(TYPEPROGRAM_WORD, Address, back_up[i]) == HAL_OK)
+			{
+				Address = Address + 4;
+			}
+			else
+			{ 
+				/* Error occurred while writing data in Flash memory. 
+					 User can add here some code to deal with this error */
+				/*
+					FLASH_ErrorTypeDef errorcode = HAL_FLASH_GetError();
+				*/
+				//Error_Handler();
+			}
+		}
 
-  /* Lock the Flash to disable the flash control register access (recommended
-     to protect the FLASH memory against possible unwanted operation) *********/
-  HAL_FLASH_Lock(); 
+		/* Lock the Flash to disable the flash control register access (recommended
+			 to protect the FLASH memory against possible unwanted operation) *********/
+		HAL_FLASH_Lock(); 
+	}
 }
 
 void eeprom_read_data(uint32_t VirtAddress, int32_t *Data,uint32_t length)

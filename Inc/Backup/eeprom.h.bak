@@ -22,7 +22,7 @@
 #define ADDR_FLASH_SECTOR_11    ((uint32_t)0x080E0000) /* Base @ of Sector 11, 128 Kbytes */
 #define FLASH_USER_START_ADDR   ADDR_FLASH_SECTOR_11   /* Start @ of user Flash area */
 #define FLASH_USER_END_ADDR     ADDR_FLASH_SECTOR_11  +  GetSectorSize(ADDR_FLASH_SECTOR_11) -1 /* End @ of user Flash area : sector start address + sector size -1 */
-#define eeprom_length 		100 //number of addresses in the eeprom (each is int32_t variable)
+#define eeprom_length 		20 //number of addresses in the eeprom (each is int32_t variable)
 static uint32_t GetSector(uint32_t Address);
 static uint32_t GetSectorSize(uint32_t Sector);
 void eeprom_read_data(uint32_t VirtAddress, int32_t *Data,uint32_t length);

@@ -99,5 +99,24 @@ void temp_calibration_waiting_2(void)
 	delete_temp_calibration_task_flag = 1;
 	calibration_point_2 = temp_filtered;
 }
-
+void set_relay_Hysteresis(void)
+{
+	EEprom_buff = menu_list[9].values[0]*float_to_int_factor;
+	eeprom_write_data(relay_max_eeprom_add,&EEprom_buff,1);
+	EEprom_buff = menu_list[9].values[1]*float_to_int_factor;
+	eeprom_write_data(relay_min_eeprom_add,&EEprom_buff,1);
+	EEprom_buff = menu_list[8].values[0];
+	eeprom_write_data(controller_on_off_eeprom_add,&EEprom_buff,1);
+	EEprom_buff = menu_list[8].values[1];
+	eeprom_write_data(controller_type_eeprom_add,&EEprom_buff,1);
+}
+void set_controller_set_point(void)
+{
+	EEprom_buff = menu_list[8].values[0];
+	eeprom_write_data(controller_on_off_eeprom_add,&EEprom_buff,1);
+	EEprom_buff = menu_list[8].values[1];
+	eeprom_write_data(controller_type_eeprom_add,&EEprom_buff,1);
+	EEprom_buff = menu_list[8].values[3]* float_to_int_factor;
+	eeprom_write_data(controller_setpoint_eeprom_add,&EEprom_buff,1);
+}
 

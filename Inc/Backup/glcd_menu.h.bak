@@ -14,7 +14,7 @@
 		char menu_name[25];
 		int menu_pointer;
 		int menu_item_count;
-		char menu_strings[8][27];
+		char menu_strings[8][30];
 		int next_menu_id[8];
 		float values[8];
 		float value_resolution[8];
@@ -23,6 +23,7 @@
 		int y_position[8];
 		int font[8];
 		void (*fun_ptr)(void);
+		int run_on_exit;
 		
 		
 	} Menu;
