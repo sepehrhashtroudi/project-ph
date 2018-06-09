@@ -127,6 +127,7 @@ pid_t pid;
 // Control loop input,output and setpoint variables
 float input = 0;
 float output ;
+float output_mA;
 float *setpoint = &menu_list[8].values[3];
 // Control loop gains
 float *kp = &menu_list[10].values[0];
@@ -197,11 +198,11 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 	init_menu();
-	read_setting_from_eeprom();
 //	eeprom_buff = p1_p*float_to_int_factor;
 //	eeprom_write_data(p1_p_eeprom_add,&eeprom_buff,1);
 //	eeprom_buff = p2_p*float_to_int_factor;
 //	eeprom_write_data(p2_p_eeprom_add,&eeprom_buff,1);
+	read_setting_from_eeprom();
 	// Prepare PID controller for operation
 	pid = pid_create(&ctrldata, &input, &output, setpoint, *kp, *ki, *kd);
 	// Set controler output limits from 0 to 100
@@ -608,6 +609,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 			input = pH;
 			/* Compute new PID output*/
 			pid_compute(pid);
+			output_mA = 4 + output*16/100;
 			pump_set_stroke(output);
 		}
 		else if(menu_list[8].values[1]==1)// controller type is relay
@@ -630,6 +632,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	{
 		pump_turn_on_off(0);
 		output=0;
+		output_mA = 0;
 	}
 }
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
