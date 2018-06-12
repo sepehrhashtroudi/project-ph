@@ -15,7 +15,7 @@
 
 void eeprom_erase(void)
 {
-	uint32_t FirstSector = 0, NbOfSectors = 0, Address = 0;
+	uint32_t FirstSector = 0, NbOfSectors = 0;
 	uint32_t SectorError = 0;
 	HAL_FLASH_Unlock();
 	static FLASH_EraseInitTypeDef EraseInitStruct;
@@ -202,3 +202,4 @@ static uint32_t GetSectorSize(uint32_t Sector)
   }  
   return sectorsize;
 }
+

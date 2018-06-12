@@ -202,6 +202,10 @@ int main(void)
 //	eeprom_write_data(p1_p_eeprom_add,&eeprom_buff,1);
 //	eeprom_buff = p2_p*float_to_int_factor;
 //	eeprom_write_data(p2_p_eeprom_add,&eeprom_buff,1);
+//	eeprom_buff = p1_t*float_to_int_factor;
+//	eeprom_write_data(p1_t_eeprom_add,&eeprom_buff,1);
+//	eeprom_buff = p2_t*float_to_int_factor;
+//	eeprom_write_data(p2_t_eeprom_add,&eeprom_buff,1);
 	read_setting_from_eeprom();
 	// Prepare PID controller for operation
 	pid = pid_create(&ctrldata, &input, &output, setpoint, *kp, *ki, *kd);
@@ -330,13 +334,13 @@ void main_thread(void * pvParameters)
 	HAL_Delay(100);
 	GLCD_Initalize();
 	GLCD_ClearScreen();
+	HAL_GPIO_WritePin(power_led_GPIO_Port,power_led_Pin,GPIO_PIN_SET);
 	while(1)
 	{
 		HAL_RTC_GetTime(&hrtc,&rtc_time,FORMAT_BIN);
 		HAL_RTC_GetDate(&hrtc,&rtc_date,FORMAT_BIN);
 		*rtc_minute_p = rtc_time.Minutes;
 		*rtc_hour_p = rtc_time.Hours;
-		
 		if( xSemaphoreTake( lcd_semaphore, 1000 ) == pdTRUE )
 		{
 			if((uint32_t)(HAL_GetTick() - last_lcd_init) > 3600000)
@@ -348,12 +352,13 @@ void main_thread(void * pvParameters)
 			if(active_menu == 0 )
 			{
 				print_main_page(active_menu);
+				HAL_GPIO_WritePin(status_led_GPIO_Port,status_led_Pin,GPIO_PIN_SET);
 			}
 			else 
 			{
 				print_menu(active_menu);
 			}
-			
+
 		}
 		
 		if(create_ph_calibration_task_flag == 1)
@@ -445,6 +450,7 @@ void ph_calibration_thread(void * pvParameters)
 		}
 		last_ph_filtered = pH_filtered;
 		osDelay(3000);
+		HAL_GPIO_TogglePin(status_led_GPIO_Port,status_led_Pin);
 	}
 }
 
@@ -474,6 +480,8 @@ void temp_calibration_thread(void * pvParameters)
 		}
 		last_temp_filtered = temp_filtered;
 		osDelay(3000);
+		HAL_GPIO_TogglePin(status_led_GPIO_Port,status_led_Pin);
+
 	}
 }
 
