@@ -85,8 +85,8 @@ int create_ph_calibration_task_flag = 0;
 int delete_ph_calibration_task_flag = 0;
 int create_temp_calibration_task_flag = 0;
 int delete_temp_calibration_task_flag = 0;
-Menu menu_list[20];
-Menu last_menu_list[20];
+Menu menu_list[menu_list_length];
+Menu last_menu_list[menu_list_length];
 uint8_t uart_buff[20];
 int active_menu=0;
 uint32_t adc_value[2*bufferLength]={0};
@@ -133,6 +133,8 @@ float *setpoint = &menu_list[8].values[3];
 float *kp = &menu_list[10].values[0];
 float *ki = &menu_list[10].values[1];
 float *kd = &menu_list[10].values[2];
+int auto_wash_state = 0;
+
 // PID sample time in ms
 uint32_t sample_time = 10;
 extern const unsigned char Times_New_Roman25x26[] ;
@@ -196,6 +198,7 @@ int main(void)
   MX_DAC_Init();
   MX_RTC_Init();
   MX_USART3_UART_Init();
+  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 	init_menu();
 //	eeprom_buff = p1_p*float_to_int_factor;
@@ -348,7 +351,7 @@ void main_thread(void * pvParameters)
 				GLCD_Initalize();
 				last_lcd_init = HAL_GetTick();
 			}
-			update_menu_from_variables();
+			update_menu_from_variables(active_menu);
 			if(active_menu == 0 )
 			{
 				print_main_page(active_menu);
@@ -405,7 +408,7 @@ void lcd_print(void * pvParameters)
 	while(1)
 	{
 		osDelay(2000);
-		update_menu_from_variables();
+		update_menu_from_variables(active_menu);
 		if(active_menu == 0 )
 		{
 			if( menu_list[0].values[0] != last_menu_list[0].values[0] || menu_list[0].values[2] != last_menu_list[0].values[2] || menu_list[0].values[3] != last_menu_list[0].values[3] || menu_list[0].values[4] != last_menu_list[0].values[4] || menu_list[0].values[5] != last_menu_list[0].values[5])
@@ -612,7 +615,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	{
 		if(menu_list[8].values[1]==0) // controller type is pid
 		{
-			pump_turn_on_off(0);
+			//pump_turn_on_off(0);
 			/* Updating PID input*/
 			input = pH;
 			/* Compute new PID output*/
@@ -622,23 +625,23 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 		}
 		else if(menu_list[8].values[1]==1)// controller type is relay
 		{
-			uint16_t threshold = (menu_list[9].values[0] - menu_list[9].values[1])/4;
-			uint16_t mean = (menu_list[9].values[0] + menu_list[9].values[1])/2;
-			if (pH > mean + threshold ) // pH is bigger than maximum value
-			{
-				pump_on_off_state = 1;
-				pump_turn_on_off(pump_on_off_state);
-			}
-			else if (pH < mean - threshold )
-			{
-				pump_on_off_state = 0;
-				pump_turn_on_off(pump_on_off_state);
-			}
+//			uint16_t threshold = (menu_list[9].values[0] - menu_list[9].values[1])/4;
+//			uint16_t mean = (menu_list[9].values[0] + menu_list[9].values[1])/2;
+//			if (pH > mean + threshold ) // pH is bigger than maximum value
+//			{
+//				pump_on_off_state = 1;
+//				pump_turn_on_off(pump_on_off_state);
+//			}
+//			else if (pH < mean - threshold )
+//			{
+//				pump_on_off_state = 0;
+//				pump_turn_on_off(pump_on_off_state);
+//			}
 		}
 	}
 	else
 	{
-		pump_turn_on_off(0);
+		//pump_turn_on_off(0);
 		output=0;
 		output_mA = 0;
 	}
@@ -649,6 +652,14 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	xSemaphoreGiveFromISR( lcd_semaphore, NULL );
 	//MAX485_send_string(uart_buff,13,100);
 	HAL_UART_Receive_IT(&huart3,uart_buff,1);
+}
+
+void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if (htim->Instance == TIM5) 
+	{
+		auto_wash_handler(&auto_wash_state);
+  }
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)

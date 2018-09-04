@@ -12,7 +12,8 @@
 #include "glcd_menu.h"
 #include "eeprom.h"
 #include "defines.h"
-extern Menu menu_list[20];
+#include "tim.h"
+extern Menu menu_list[menu_list_length];
 extern float p1_p;
 extern float p2_p;
 extern float p1_t;
@@ -30,6 +31,7 @@ extern int create_temp_calibration_task_flag;
 extern int delete_temp_calibration_task_flag;
 extern uint16_t pH_filtered;
 extern uint16_t temp_filtered;
+extern int auto_wash_state;
 void ph_calculate_calibration_coefficients(void)
 {
 	char sprintf_buff[20];
@@ -120,3 +122,82 @@ void set_controller_set_point(void)
 	eeprom_write_data(controller_setpoint_eeprom_add,&EEprom_buff,1);
 }
 
+void relay_on_off(int func_num , int state)
+{
+	if(relay1_func == func_num)
+	{
+		HAL_GPIO_WritePin(REL_1_GPIO_Port, REL_1_Pin, state);
+	}
+	if(relay2_func == func_num)
+	{
+		HAL_GPIO_WritePin(REL_2_GPIO_Port, REL_2_Pin, state);
+	}
+	if(relay3_func == func_num)
+	{
+		//HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,state);
+	}
+	if(relay4_func == func_num)
+	{
+		//HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,state);
+	}
+}
+
+void auto_wash_handler(int *auto_wash_state)
+{
+
+		if(*auto_wash_state == 0)
+		{
+			relay_on_off(supply_func_num , 1);  
+			relay_on_off(drain_func_num , 0);
+			relay_on_off(kcl_func_num , 0);
+			relay_on_off(wash_func_num , 0);	
+			HAL_TIM_OC_Stop_IT(&htim5, TIM_CHANNEL_1);  
+			__HAL_TIM_SET_COUNTER(&htim5, 0);
+		}	
+		else if(*auto_wash_state == 1)
+		{
+			HAL_TIM_OC_Start_IT(&htim5, TIM_CHANNEL_1);
+			relay_on_off(supply_func_num , 0);  
+			relay_on_off(drain_func_num , 0);
+			relay_on_off(kcl_func_num , 0);
+			relay_on_off(wash_func_num , 0);
+			__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, supply_func_time*2000);
+			__HAL_TIM_SET_COUNTER(&htim5, 0);
+			*auto_wash_state = 2;	
+		}
+		else if(*auto_wash_state == 2)
+		{
+			relay_on_off(supply_func_num , 0);  
+			relay_on_off(drain_func_num , 1);
+			relay_on_off(kcl_func_num , 0);
+			relay_on_off(wash_func_num , 0); 
+			__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, drain_func_time*2000);
+			__HAL_TIM_SET_COUNTER(&htim5, 0);
+		*auto_wash_state = 3;	
+		}
+		else if(*auto_wash_state == 3)
+		{
+			relay_on_off(supply_func_num , 0);  
+			relay_on_off(drain_func_num , 0);
+			relay_on_off(kcl_func_num , 1);
+			relay_on_off(wash_func_num , 0); 
+			__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, kcl_func_time*2000);
+			__HAL_TIM_SET_COUNTER(&htim5, 0);
+			*auto_wash_state = 4;	
+		}
+		else if(*auto_wash_state == 4)
+		{
+			relay_on_off(supply_func_num , 0);  
+			relay_on_off(drain_func_num , 0);
+			relay_on_off(kcl_func_num , 0);
+			relay_on_off(wash_func_num , 1);  
+			__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, wash_func_time*2000);
+			__HAL_TIM_SET_COUNTER(&htim5, 0);
+		*auto_wash_state = 0;	
+		}
+}
+void run_auto_wash()
+{
+	auto_wash_state = 1;
+	auto_wash_handler(&auto_wash_state);
+}

@@ -12,7 +12,7 @@
 #include "glcd_menu.h"
 #include "eeprom.h"
 #include "defines.h"
-extern Menu menu_list[20];
+extern Menu menu_list[menu_list_length];
 extern float p1_p;
 extern float p2_p;
 extern float p1_t;
@@ -118,5 +118,25 @@ void set_controller_set_point(void)
 	eeprom_write_data(controller_type_eeprom_add,&EEprom_buff,1);
 	EEprom_buff = menu_list[8].values[3]* float_to_int_factor;
 	eeprom_write_data(controller_setpoint_eeprom_add,&EEprom_buff,1);
+}
+
+void relay_on_off(int func_num , int state)
+{
+	if(relay1_func == func_num)
+	{
+		HAL_GPIO_WritePin(REL_1_GPIO_Port, REL_1_Pin, state);
+	}
+	if(relay2_func == func_num)
+	{
+		HAL_GPIO_WritePin(REL_2_GPIO_Port, REL_2_Pin, state);
+	}
+	if(relay3_func == func_num)
+	{
+		//HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,state);
+	}
+	if(relay4_func == func_num)
+	{
+		//HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,state);
+	}
 }
 

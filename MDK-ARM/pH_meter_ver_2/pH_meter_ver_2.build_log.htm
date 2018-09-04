@@ -21,13 +21,46 @@ Target DLL:      CMSIS_AGDI.dll V1.28.3.0
 Dialog DLL:      TCM.DLL V1.32.0.0
  
 <h2>Project:</h2>
-D:\sepehr\arm\stm32_projects\ph_meter_ver2\MDK-ARM\pH_meter_ver_2.uvprojx
-Project File Date:  07/09/2018
+D:\sepehr\arm\stm32_projects\ph_meter_rahvar\MDK-ARM\pH_meter_ver_2.uvprojx
+Project File Date:  09/02/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 5 (build 528)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'pH_meter_ver_2'
-"pH_meter_ver_2\pH_meter_ver_2.axf" - 0 Error(s), 0 Warning(s).
+compiling glcd_menu_functions.c...
+..\Src\glcd_menu_functions.c(40): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	EEprom_buff = p1_p*
+loat_to_int_factor;
+..\Src\glcd_menu_functions.c(42): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	EEprom_buff = p2_p*
+loat_to_int_factor;
+..\Src\glcd_menu_functions.c(74): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	EEprom_buff = p1_t*
+loat_to_int_factor;
+..\Src\glcd_menu_functions.c(76): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	EEprom_buff = p2_t*
+loat_to_int_factor;
+..\Src\glcd_menu_functions.c(106): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	EEprom_buff = menu_list[9].values[0]*
+loat_to_int_factor;
+..\Src\glcd_menu_functions.c(108): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	EEprom_buff = menu_list[9].values[1]*
+loat_to_int_factor;
+..\Src\glcd_menu_functions.c(121): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  	EEprom_buff = menu_list[8].values[3]* 
+loat_to_int_factor;
+..\Src\glcd_menu_functions.c(129): warning:  #188-D: enumerated type mixed with another type
+  		HAL_GPIO_WritePin(
+EL_1_GPIO_Port, 
+EL_1_Pin, state);
+..\Src\glcd_menu_functions.c(133): warning:  #188-D: enumerated type mixed with another type
+  		HAL_GPIO_WritePin(
+EL_2_GPIO_Port, 
+EL_2_Pin, state);
+..\Src\glcd_menu_functions.c: 9 warnings, 0 errors
+linking...
+Program Size: Code=35392 RO-data=10856 RW-data=308 ZI-data=53292  
+"pH_meter_ver_2\pH_meter_ver_2.axf" - 0 Error(s), 9 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -50,7 +83,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.0.2
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:03
 </pre>
 </body>
 </html>

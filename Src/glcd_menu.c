@@ -17,7 +17,8 @@
 #include <stdlib.h>
 #include "max485.h"
 #include "glcd_menu_functions.h"
-extern Menu menu_list[20];
+#include "defines.h"
+extern Menu menu_list[menu_list_length];
 extern void set_date_time(void);
 extern uint16_t pH_filtered;
 extern void set_pid_coefficients(void);
@@ -70,14 +71,14 @@ void init_menu(void)
 	strcpy(menu_list[1].menu_name , "Main menu");
 	strcpy(menu_list[1].menu_strings[0],  " Calibration ");
 	strcpy(menu_list[1].menu_strings[1] , " Controller ");
-	//strcpy(menu_list[1].menu_strings[2] , " Temp sensor ");
 	strcpy(menu_list[1].menu_strings[2] , " Time ");
+	strcpy(menu_list[1].menu_strings[3] , " Self cleaning ");
 	menu_list[1].menu_id=1;
-	menu_list[1].menu_item_count = 3;
+	menu_list[1].menu_item_count = 4;
 	menu_list[1].next_menu_id[0]=7;
 	menu_list[1].next_menu_id[1]=8;
 	menu_list[1].next_menu_id[2]=11;
-	menu_list[1].next_menu_id[3]=0;
+	menu_list[1].next_menu_id[3]=19;
 	menu_list[1].menu_pointer=0;
 	menu_list[1].run_on_exit=0;
 	
@@ -316,8 +317,110 @@ void init_menu(void)
 	menu_list[16].fun_ptr = &temp_calculate_calibration_coefficients;
 	menu_list[16].run_on_exit=1;
 	
+	strcpy(menu_list[17].menu_name , "Relay Functions");
+	strcpy(menu_list[17].menu_strings[0], " relay1:| <supply>,<drain>,<kcl>,<wash>");
+	strcpy(menu_list[17].menu_strings[1], " relay2:| <supply>,<drain>,<kcl>,<wash>");
+	strcpy(menu_list[17].menu_strings[2], " relay3:| <supply>,<drain>,<kcl>,<wash>");
+	strcpy(menu_list[17].menu_strings[3], " relay4:| <supply>,<drain>,<kcl>,<wash>");
+	menu_list[17].next_menu_id[0]=17;
+	menu_list[17].next_menu_id[1]=17;
+	menu_list[17].next_menu_id[2]=17;
+	menu_list[17].next_menu_id[3]=17;
+	menu_list[17].values[0]=0;
+	menu_list[17].values[1]=1;
+	menu_list[17].values[2]=2;
+	menu_list[17].values[3]=3;
+	menu_list[17].value_resolution[0]=1;
+	menu_list[17].value_resolution[1]=1;
+	menu_list[17].value_resolution[2]=1;
+	menu_list[17].value_resolution[3]=1;
+	menu_list[17].value_max[0]=3;
+	menu_list[17].value_max[1]=3;
+	menu_list[17].value_max[2]=3;
+	menu_list[17].value_max[3]=3;
+	menu_list[17].menu_id=17;
+	menu_list[17].menu_item_count = 4;
+	menu_list[17].menu_pointer=0;
+	menu_list[17].fun_ptr = NULL;
+	menu_list[17].run_on_exit=0;
+	
+	
+	strcpy(menu_list[18].menu_name , "Manual Wash");
+	strcpy(menu_list[18].menu_strings[0], " supply:| <OFF>,<ON>");
+	strcpy(menu_list[18].menu_strings[1], " drain:| <OFF>,<ON>");
+	strcpy(menu_list[18].menu_strings[2], " kcl:| <OFF>,<ON>");
+	strcpy(menu_list[18].menu_strings[3], " wash:| <OFF>,<ON>");
+	menu_list[18].next_menu_id[0]=18;
+	menu_list[18].next_menu_id[1]=18;
+	menu_list[18].next_menu_id[2]=18;
+	menu_list[18].next_menu_id[3]=18;
+	menu_list[18].values[0]=0;
+	menu_list[18].values[1]=0;
+	menu_list[18].values[2]=0;
+	menu_list[18].values[3]=0;
+	menu_list[18].value_resolution[0]=1;
+	menu_list[18].value_resolution[1]=1;
+	menu_list[18].value_resolution[2]=1;
+	menu_list[18].value_resolution[3]=1;
+	menu_list[18].value_max[0]=1;
+	menu_list[18].value_max[1]=1;
+	menu_list[18].value_max[2]=1;
+	menu_list[18].value_max[3]=1;
+	menu_list[18].menu_id=18;
+	menu_list[18].menu_item_count = 4;
+	menu_list[18].menu_pointer=0;
+	menu_list[18].fun_ptr = NULL;
+	menu_list[18].run_on_exit=0;
+	
+	strcpy(menu_list[19].menu_name , "Self Cleaning");
+	strcpy(menu_list[19].menu_strings[0], " Manual Wash");
+	strcpy(menu_list[19].menu_strings[1], " Auto Wash");
+	strcpy(menu_list[19].menu_strings[2], " Relay Functions");
+	menu_list[19].next_menu_id[0]=18;
+	menu_list[19].next_menu_id[1]=20;
+	menu_list[19].next_menu_id[2]=17;
+	menu_list[19].values[0]=0;
+	menu_list[19].values[1]=0;
+	menu_list[19].values[2]=0;
+	menu_list[19].value_resolution[0]=0;
+	menu_list[19].value_resolution[1]=0;
+	menu_list[19].value_resolution[2]=0;
+	menu_list[19].menu_id=19;
+	menu_list[19].menu_item_count = 3;
+	menu_list[19].menu_pointer=0;
+	menu_list[19].fun_ptr = NULL;
+	menu_list[19].run_on_exit=0;
+	
+	strcpy(menu_list[20].menu_name , "Auto Wash");
+	strcpy(menu_list[20].menu_strings[0], " supply: %d ");
+	strcpy(menu_list[20].menu_strings[1], " drain: %d");
+	strcpy(menu_list[20].menu_strings[2], " kcl: %d");
+	strcpy(menu_list[20].menu_strings[3], " wash: %d");
+	strcpy(menu_list[20].menu_strings[4], " OK ");
+	menu_list[20].next_menu_id[0]=20;
+	menu_list[20].next_menu_id[1]=20;
+	menu_list[20].next_menu_id[2]=20;
+	menu_list[20].next_menu_id[3]=20;
+	menu_list[20].next_menu_id[4]=20;
+	menu_list[20].values[0]=5;
+	menu_list[20].values[1]=5;
+	menu_list[20].values[2]=5;
+	menu_list[20].values[3]=5;
+	menu_list[20].value_resolution[0]= 5;
+	menu_list[20].value_resolution[1]= 5;
+	menu_list[20].value_resolution[2]= 5;
+	menu_list[20].value_resolution[3]= 5;
+	menu_list[20].value_max[0]=60;
+	menu_list[20].value_max[1]=60;
+	menu_list[20].value_max[2]=60;
+	menu_list[20].value_max[3]=60;
+	menu_list[20].menu_id=20;
+	menu_list[20].menu_item_count = 5;
+	menu_list[20].menu_pointer=0;
+	menu_list[20].fun_ptr = &run_auto_wash;
+	menu_list[20].run_on_exit=0;
 }
-void update_menu_from_variables(void)
+void update_menu_from_variables(int active_menu)
 {
 	// pid,relay link to coeff and hysteresis
 	menu_list[8].values[2]=menu_list[8].values[1];
@@ -399,6 +502,15 @@ void update_menu_from_variables(void)
 		strcpy(menu_list[13].menu_strings[2] , " Please Wait ");
 		strcpy(menu_list[15].menu_strings[2] , " Please Wait ");
 	}
+	
+	if(active_menu == manual_wash_menu)
+	{
+		relay_on_off(supply_func_num,supply_relay_state);
+		relay_on_off(drain_func_num,drain_relay_state);
+		relay_on_off(kcl_func_num,kcl_relay_state);
+		relay_on_off(wash_func_num,wash_relay_state);
+	}
+	
 	if(menu_list[8].values[0] == 0 && menu_list[8].values[1]==1 && pump_on_off_state == 1)
 	{
 		strcpy(menu_list[0].menu_strings[5] , "K1");
@@ -442,11 +554,11 @@ void print_main_page(int active_menu)
 			
 			if(menu_list[active_menu].font[i] == 1)
 			{
-						glcd_set_font_with_num(1);
+					glcd_set_font_with_num(1);
 			}
 			if(menu_list[active_menu].font[i] == 0)
 			{
-						glcd_set_font_with_num(0);
+					glcd_set_font_with_num(0);
 			}	
 			char Menu_strings_buff[25];
 			char *menu_strings_buff = Menu_strings_buff;
@@ -532,9 +644,9 @@ void print_menu(int active_menu)
 		GLCD_Line(10,10,117,10);
 		for(int i=0 ; i < menu_list[active_menu].menu_item_count ; i++)
 		{
-			char Menu_strings_buff[25];
+			char Menu_strings_buff[40];
 			char *menu_strings_buff = Menu_strings_buff;
-			char Final_menu_strings[25];
+			char Final_menu_strings[40];
 			char *final_menu_strings = Final_menu_strings;
 			
 			strcpy(menu_strings_buff , menu_list[active_menu].menu_strings[i]);
@@ -549,6 +661,27 @@ void print_menu(int active_menu)
 			else if (strstr(menu_strings_buff, "%.2f") != 0)
 			{
 				sprintf(final_menu_strings, menu_strings_buff , (menu_list[active_menu].values[i]));
+			}
+			else if(strstr(menu_strings_buff, "|") != 0)
+			{			
+				
+				char chank1[35];
+				char* Chank1 = chank1;
+				char chank2[35];
+				char* Chank2 = chank2;
+				char chank3[35];
+				char* Chank3 = chank3;
+				Chank1 = strtok(menu_strings_buff , "|");
+				Chank2 = strtok(NULL , "|");
+				
+				
+				Chank3 = strtok(Chank2 , ",");
+				
+				for(int j=0 ; j<(int)(menu_list[active_menu].values[i]) ; j++)
+				{
+					Chank3 = strtok(NULL , ",");
+				}
+				sprintf(final_menu_strings, "%s%s",Chank1, Chank3);
 			}
 			else if(strstr(menu_strings_buff, ",") != 0)
 			{			

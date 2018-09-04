@@ -83,6 +83,10 @@
 #define Right_Pin GPIO_PIN_15
 #define Right_GPIO_Port GPIOD
 #define Right_EXTI_IRQn EXTI15_10_IRQn
+#define status_led_Pin GPIO_PIN_6
+#define status_led_GPIO_Port GPIOC
+#define power_led_Pin GPIO_PIN_7
+#define power_led_GPIO_Port GPIOC
 #define LCD_RST_Pin GPIO_PIN_12
 #define LCD_RST_GPIO_Port GPIOC
 #define LCD_CS2_Pin GPIO_PIN_0
