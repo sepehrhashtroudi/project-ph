@@ -103,8 +103,10 @@ float p1_p =  0.004076;
 float p2_p = -0.8505;
 float p1_t = 0.04082;
 float p2_t = 2.204;
-float pH =0;
-float temp;
+float pH = 0;
+float temp = 0;
+float ph_calibration_temp ;
+float temp_compensation_coef = 0;
 int32_t eeprom_buff;
 
 uint8_t message[30];
@@ -344,6 +346,7 @@ void main_thread(void * pvParameters)
 		HAL_RTC_GetDate(&hrtc,&rtc_date,FORMAT_BIN);
 		*rtc_minute_p = rtc_time.Minutes;
 		*rtc_hour_p = rtc_time.Hours;
+		char sprintf_buff[20];
 		if( xSemaphoreTake( lcd_semaphore, 1000 ) == pdTRUE )
 		{
 			if((uint32_t)(HAL_GetTick() - last_lcd_init) > 3600000)
@@ -361,7 +364,8 @@ void main_thread(void * pvParameters)
 			{
 				print_menu(active_menu);
 			}
-
+			sprintf(sprintf_buff,"%f\n",temp_compensation_coef);
+			MAX485_send_string(sprintf_buff,7,100);
 		}
 		
 		if(create_ph_calibration_task_flag == 1)
@@ -523,6 +527,8 @@ void read_setting_from_eeprom(void)
 	p1_p = eeprom_buff / float_to_int_factor;
 	eeprom_read_data(p2_p_eeprom_add,&eeprom_buff,1);
 	p2_p = eeprom_buff / float_to_int_factor;
+	eeprom_read_data(ph_callibration_temp_add,&eeprom_buff,1);
+	ph_calibration_temp = eeprom_buff / float_to_int_factor;
 	eeprom_read_data(p1_t_eeprom_add,&eeprom_buff,1);
 	p1_t = eeprom_buff / float_to_int_factor;
 	eeprom_read_data(p2_t_eeprom_add,&eeprom_buff,1);
@@ -584,20 +590,8 @@ void set_pid_coefficients(void)
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
 	HAL_ADC_Stop_DMA(&hadc1);
-	data_spliter(adc_value, bufferLength,pH_buffer,temp_buffer );
-	ph_averaged = average(pH_buffer, bufferLength);
-	pH_filtered = best_moving_average(ph_averaged, ph_history, &ph_sum, &ph_window_pointer);
-	pH = p1_p * pH_filtered + p2_p;
-	pH = roundf(pH * 100.0) / 100.0; 
-	if(pH > 14)
-	{
-		pH = 14;
-	}
-	if(pH < 0)
-	{
-		pH = 0;
-	}
-	send_pH_4_20(pH);
+	data_spliter(adc_value, bufferLength,pH_buffer,temp_buffer);
+	
 	temp_averaged = average(temp_buffer, bufferLength);
 	temp_filtered = best_moving_average(temp_averaged, temp_history, &temp_sum, &temp_window_pointer);
 	temp = p1_t * temp_filtered + p2_t;
@@ -610,6 +604,21 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	{
 		strcpy(menu_list[0].menu_strings[2] , "%.1f `c");
 	}
+	
+	ph_averaged = average(pH_buffer, bufferLength);
+	pH_filtered = best_moving_average(ph_averaged, ph_history, &ph_sum, &ph_window_pointer);
+	temp_compensation_coef = (temp + 273.15) / (ph_calibration_temp + 273.15);
+	pH = temp_compensation_coef * p1_p * pH_filtered + p2_p;
+	pH = roundf(pH * 100.0) / 100.0; 
+	if(pH > 14)
+	{
+		pH = 14;
+	}
+	if(pH < 0)
+	{
+		pH = 0;
+	}
+	send_pH_4_20(pH);
 	
 	if(menu_list[8].values[0]==0) // controller is ON
 	{

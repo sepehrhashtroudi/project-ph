@@ -13,6 +13,7 @@
 #include "eeprom.h"
 #include "defines.h"
 #include "tim.h"
+#include <stdlib.h>
 extern Menu menu_list[menu_list_length];
 extern float p1_p;
 extern float p2_p;
@@ -23,26 +24,40 @@ float *calibration_point_1_ph = &menu_list[2].values[0];
 float *calibration_point_2_ph = &menu_list[4].values[0];
 float *calibration_point_1_temp = &menu_list[12].values[0];
 float *calibration_point_2_temp = &menu_list[14].values[0];
-uint16_t calibration_point_1 = 0;
-uint16_t calibration_point_2 = 0;
+int16_t calibration_point_1 = 0;
+int16_t calibration_point_2 = 0;
+float ph_calibration_start_temp = 0;
+float ph_calibration_end_temp = 0;
+extern float ph_calibration_temp ;
 extern int create_ph_calibration_task_flag;
 extern int delete_ph_calibration_task_flag;
 extern int create_temp_calibration_task_flag;
 extern int delete_temp_calibration_task_flag;
 extern uint16_t pH_filtered;
 extern uint16_t temp_filtered;
+extern float temp;
 extern int auto_wash_state;
 void ph_calculate_calibration_coefficients(void)
 {
 	char sprintf_buff[20];
-	p1_p = (*calibration_point_1_ph - *calibration_point_2_ph) / (float)(calibration_point_1 - calibration_point_2 ) ;
-	p2_p = *calibration_point_1_ph - (calibration_point_1)*(p1_p);
-	EEprom_buff = p1_p*float_to_int_factor;
-	eeprom_write_data(p1_p_eeprom_add,&EEprom_buff,1);
-	EEprom_buff = p2_p*float_to_int_factor;
-	eeprom_write_data(p2_p_eeprom_add,&EEprom_buff,1);
-	sprintf(sprintf_buff,"%.5f,%.5f\n",p1_p,p2_p);
-	MAX485_send_string(sprintf_buff,13,100);
+	if (abs(calibration_point_1 - calibration_point_2) > 50)
+	{
+		p1_p = (*calibration_point_1_ph - *calibration_point_2_ph) / (float)(calibration_point_1 - calibration_point_2 ) ;
+		p2_p = *calibration_point_1_ph - (calibration_point_1)*(p1_p);
+		ph_calibration_temp = (ph_calibration_start_temp + ph_calibration_end_temp)/2.0;
+		EEprom_buff = ph_calibration_temp*float_to_int_factor;
+		eeprom_write_data(ph_callibration_temp_add,&EEprom_buff,1);
+		EEprom_buff = p1_p*float_to_int_factor;
+		eeprom_write_data(p1_p_eeprom_add,&EEprom_buff,1);
+		EEprom_buff = p2_p*float_to_int_factor;
+		eeprom_write_data(p2_p_eeprom_add,&EEprom_buff,1);
+		sprintf(sprintf_buff,"%.5f,%.5f\n",p1_p,p2_p);
+		MAX485_send_string(sprintf_buff,13,100);
+	}
+	else
+	{
+		MAX485_send_string("slope error",13,100);
+	}
 }
 
 void ph_calibration_step1(void)
@@ -59,11 +74,13 @@ void ph_calibration_waiting_1(void)
 {
 	delete_ph_calibration_task_flag = 1;
 	calibration_point_1 = pH_filtered;
+	ph_calibration_start_temp = temp;
 }
 void ph_calibration_waiting_2(void)
 {
 	delete_ph_calibration_task_flag = 1;
 	calibration_point_2 = pH_filtered;
+	ph_calibration_end_temp = temp;
 }
 
 void temp_calculate_calibration_coefficients(void)

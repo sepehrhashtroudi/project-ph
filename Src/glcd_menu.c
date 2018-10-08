@@ -38,7 +38,7 @@ void init_menu(void)
 {
 	strcpy(menu_list[0].menu_name , "first page");
 	strcpy(menu_list[0].menu_strings[0],  "%.2f");
-	strcpy(menu_list[0].menu_strings[1] , "ph");
+	strcpy(menu_list[0].menu_strings[1] , "pH");
 	strcpy(menu_list[0].menu_strings[2] , "%.1f `c");
 	strcpy(menu_list[0].menu_strings[3] , "%02d:%02d");//hour & minute
 	strcpy(menu_list[0].menu_strings[5] , "%.1f mA");
@@ -72,7 +72,7 @@ void init_menu(void)
 	strcpy(menu_list[1].menu_strings[0],  " Calibration ");
 	strcpy(menu_list[1].menu_strings[1] , " Controller ");
 	strcpy(menu_list[1].menu_strings[2] , " Time ");
-	strcpy(menu_list[1].menu_strings[3] , " Self cleaning ");
+	strcpy(menu_list[1].menu_strings[3] , " Self Cleaning ");
 	menu_list[1].menu_id=1;
 	menu_list[1].menu_item_count = 4;
 	menu_list[1].next_menu_id[0]=7;
