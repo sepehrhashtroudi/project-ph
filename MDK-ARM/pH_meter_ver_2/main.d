@@ -69,3 +69,4 @@ ph_meter_ver_2\main.o: ../Inc/eeprom.h
 ph_meter_ver_2\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 ph_meter_ver_2\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
 ph_meter_ver_2\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+ph_meter_ver_2\main.o: ../Inc/glcd_menu_functions.h

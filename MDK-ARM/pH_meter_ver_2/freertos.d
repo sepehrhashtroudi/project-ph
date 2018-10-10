@@ -3,7 +3,6 @@ ph_meter_ver_2\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/Fr
 ph_meter_ver_2\freertos.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
 ph_meter_ver_2\freertos.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 ph_meter_ver_2\freertos.o: ../Inc/FreeRTOSConfig.h
-ph_meter_ver_2\freertos.o: ../Inc/main.h
 ph_meter_ver_2\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h
 ph_meter_ver_2\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/portable.h
 ph_meter_ver_2\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h
@@ -11,6 +10,7 @@ ph_meter_ver_2\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/portable/R
 ph_meter_ver_2\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h
 ph_meter_ver_2\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/task.h
 ph_meter_ver_2\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/list.h
+ph_meter_ver_2\freertos.o: ../Inc/main.h
 ph_meter_ver_2\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h
 ph_meter_ver_2\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h
 ph_meter_ver_2\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h

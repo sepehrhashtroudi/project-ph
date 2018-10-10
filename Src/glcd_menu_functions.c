@@ -14,6 +14,8 @@
 #include "defines.h"
 #include "tim.h"
 #include <stdlib.h>
+#include "cmsis_os.h"
+extern SemaphoreHandle_t lcd_semaphore;
 extern Menu menu_list[menu_list_length];
 extern float p1_p;
 extern float p2_p;
@@ -37,6 +39,7 @@ extern uint16_t pH_filtered;
 extern uint16_t temp_filtered;
 extern float temp;
 extern int auto_wash_state;
+extern int active_menu;
 void ph_calculate_calibration_coefficients(void)
 {
 	char sprintf_buff[20];
@@ -151,11 +154,11 @@ void relay_on_off(int func_num , int state)
 	}
 	if(relay3_func == func_num)
 	{
-		//HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,state);
+		HAL_GPIO_WritePin(REL_3_GPIO_Port,REL_3_Pin,state);
 	}
 	if(relay4_func == func_num)
 	{
-		//HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,state);
+		HAL_GPIO_WritePin(REL_4_GPIO_Port,REL_4_Pin,state);
 	}
 }
 
@@ -168,6 +171,13 @@ void auto_wash_handler(int *auto_wash_state)
 			relay_on_off(drain_func_num , 0);
 			relay_on_off(kcl_func_num , 0);
 			relay_on_off(wash_func_num , 0);	
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,0,NULL,-1,1,0);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,1,NULL,-1,0,0);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,2,NULL,-1,0,0);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,3,NULL,-1,0,0); 
+			xSemaphoreGiveFromISR ( lcd_semaphore,NULL );
+			active_menu = Auto_Wash_Menu;
+			xSemaphoreGiveFromISR ( lcd_semaphore,NULL );
 			HAL_TIM_OC_Stop_IT(&htim5, TIM_CHANNEL_1);  
 			__HAL_TIM_SET_COUNTER(&htim5, 0);
 		}	
@@ -178,6 +188,12 @@ void auto_wash_handler(int *auto_wash_state)
 			relay_on_off(drain_func_num , 0);
 			relay_on_off(kcl_func_num , 0);
 			relay_on_off(wash_func_num , 0);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,0,NULL,-1,0,0);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,1,NULL,-1,0,0);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,2,NULL,-1,0,0);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,3,NULL,-1,0,0); 
+			
+			xSemaphoreGiveFromISR ( lcd_semaphore,NULL );
 			__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, supply_func_time*2000);
 			__HAL_TIM_SET_COUNTER(&htim5, 0);
 			*auto_wash_state = 2;	
@@ -188,6 +204,11 @@ void auto_wash_handler(int *auto_wash_state)
 			relay_on_off(drain_func_num , 1);
 			relay_on_off(kcl_func_num , 0);
 			relay_on_off(wash_func_num , 0); 
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,0,NULL,-1,0,1);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,1,NULL,-1,1,1);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,2,NULL,-1,0,1);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,3,NULL,-1,0,1); 
+			xSemaphoreGiveFromISR ( lcd_semaphore,NULL );
 			__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, drain_func_time*2000);
 			__HAL_TIM_SET_COUNTER(&htim5, 0);
 		*auto_wash_state = 3;	
@@ -197,7 +218,13 @@ void auto_wash_handler(int *auto_wash_state)
 			relay_on_off(supply_func_num , 0);  
 			relay_on_off(drain_func_num , 0);
 			relay_on_off(kcl_func_num , 1);
-			relay_on_off(wash_func_num , 0); 
+			relay_on_off(wash_func_num , 0);
+			AWS_Supply_State = 0;
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,0,NULL,-1,0,2);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,1,NULL,-1,0,2);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,2,NULL,-1,1,2);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,3,NULL,-1,0,2); 	
+			xSemaphoreGiveFromISR ( lcd_semaphore,NULL );
 			__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, kcl_func_time*2000);
 			__HAL_TIM_SET_COUNTER(&htim5, 0);
 			*auto_wash_state = 4;	
@@ -207,7 +234,12 @@ void auto_wash_handler(int *auto_wash_state)
 			relay_on_off(supply_func_num , 0);  
 			relay_on_off(drain_func_num , 0);
 			relay_on_off(kcl_func_num , 0);
-			relay_on_off(wash_func_num , 1);  
+			relay_on_off(wash_func_num , 1); 
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,0,NULL,-1,0,3);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,1,NULL,-1,0,3);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,2,NULL,-1,0,3);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,3,NULL,-1,1,3); 		
+			xSemaphoreGiveFromISR ( lcd_semaphore,NULL );
 			__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, wash_func_time*2000);
 			__HAL_TIM_SET_COUNTER(&htim5, 0);
 		*auto_wash_state = 0;	
@@ -218,3 +250,11 @@ void run_auto_wash()
 	auto_wash_state = 1;
 	auto_wash_handler(&auto_wash_state);
 }
+void manual_wash_exit()
+{
+	//relay_on_off(supply_func_num , 1);  
+	//relay_on_off(drain_func_num , 0);
+	//relay_on_off(kcl_func_num , 0);
+	//relay_on_off(wash_func_num , 0); 
+}
+	

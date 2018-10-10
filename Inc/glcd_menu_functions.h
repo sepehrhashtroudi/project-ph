@@ -22,3 +22,4 @@ void set_controller_set_point(void);
 void relay_on_off(int relay_num , int state);
 void run_auto_wash(void);
 void auto_wash_handler(int *auto_wash_state);
+void manual_wash_exit();
