@@ -17,17 +17,31 @@ Library Manager: ArmAr.exe V5.06 update 6 (build 750)
 Hex Converter:   FromElf.exe V5.06 update 6 (build 750)
 CPU DLL:         SARMCM3.DLL V5.25.2.0
 Dialog DLL:      DCM.DLL V1.17.1.0
-Target DLL:      CMSIS_AGDI.dll V1.29.10.0
+Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V3.0.1.0
 Dialog DLL:      TCM.DLL V1.35.1.0
  
 <h2>Project:</h2>
 D:\sepehr\arm\stm32_projects\ph_meter_rahvar\MDK-ARM\pH_meter_ver_2.uvprojx
-Project File Date:  10/07/2018
+Project File Date:  10/09/2018
 
 <h2>Output:</h2>
 *** Using Compiler 'V5.06 update 6 (build 750)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
 Build target 'pH_meter_ver_2'
-"pH_meter_ver_2\pH_meter_ver_2.axf" - 0 Error(s), 0 Warning(s).
+compiling glcd_menu.c...
+../Inc/glcd_menu_functions.h(25): warning:  #1-D: last line of file ends without a newline
+  void manual_wash_exit();
+../Inc/glcd_menu_functions.h(25): warning:  #1295-D: Deprecated declaration manual_wash_exit - give arg types
+  void manual_wash_exit();
+..\Src\glcd_menu.c(798): warning:  #177-D: variable "sprintf_buff"  was declared but never referenced
+  		char sprintf_buff[10];
+..\Src\glcd_menu.c(815): warning:  #1035-D: single-precision operand implicitly converted to double-precision
+  		if(menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] > 0.1)
+..\Src\glcd_menu.c(814): warning:  #177-D: variable "sprintf_buff"  was declared but never referenced
+  		char sprintf_buff[10];
+..\Src\glcd_menu.c: 5 warnings, 0 errors
+linking...
+Program Size: Code=36624 RO-data=10856 RW-data=324 ZI-data=53292  
+"pH_meter_ver_2\pH_meter_ver_2.axf" - 0 Error(s), 5 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -50,7 +64,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE:5.1.1
-Build Time Elapsed:  00:00:01
+Build Time Elapsed:  00:00:04
 </pre>
 </body>
 </html>

@@ -69,6 +69,7 @@
 #include <stdlib.h>
 #include "math.h"
 #include <string.h>
+#include "glcd_menu_functions.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -340,6 +341,7 @@ void main_thread(void * pvParameters)
 	GLCD_Initalize();
 	GLCD_ClearScreen();
 	HAL_GPIO_WritePin(power_led_GPIO_Port,power_led_Pin,GPIO_PIN_SET);
+	relay_on_off(supply_func_num , 1);
 	while(1)
 	{
 		HAL_RTC_GetTime(&hrtc,&rtc_time,FORMAT_BIN);
@@ -596,7 +598,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	temp_filtered = best_moving_average(temp_averaged, temp_history, &temp_sum, &temp_window_pointer);
 	temp = p1_t * temp_filtered + p2_t;
 	temp = roundf(temp * 10.0) / 10.0; 
-	if(temp_filtered > 3180 || temp_filtered < 10)
+	if( temp_filtered < 10)
 	{
 		strcpy(menu_list[0].menu_strings[2] , "NC `c");
 	}

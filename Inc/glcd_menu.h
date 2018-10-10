@@ -34,4 +34,4 @@ void print_main_page(int active_menu);
 void get_user_input(uint8_t *input,int *active_menu);
 void update_menu_from_variables(int active_menu);
 void auto_wash_handler(int *auto_wash_state);
-
+void Change_Menu_Items(int Menu_num, int Menu_line, char* Menu_String, int Next_Menu_Id, float Value, int Menu_Active_Line); // if you dont want to change arg set it -1 or null for strings
