@@ -31,8 +31,16 @@
 #define kcl_func_num 2
 #define wash_func_num 3
 #define manual_wash_menu 18
+#define Auto_Wash_Menu 20
+#define AUTO_WASH_STATE_MENU 21
 
 #define supply_func_time menu_list[20].values[0] 
 #define drain_func_time menu_list[20].values[1] 
 #define kcl_func_time menu_list[20].values[2] 
 #define wash_func_time menu_list[20].values[3]
+
+#define AWS_Supply_State  menu_list[21].values[0] 
+#define AWS_Drain_State  menu_list[21].values[1] 
+#define AWS_KCl_State  menu_list[21].values[2] 
+#define AWS_Wash_State  menu_list[21].values[3] 
+

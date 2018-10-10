@@ -318,10 +318,10 @@ void init_menu(void)
 	menu_list[16].run_on_exit=1;
 	
 	strcpy(menu_list[17].menu_name , "Relay Functions");
-	strcpy(menu_list[17].menu_strings[0], " relay1:| <supply>,<drain>,<kcl>,<wash>");
-	strcpy(menu_list[17].menu_strings[1], " relay2:| <supply>,<drain>,<kcl>,<wash>");
-	strcpy(menu_list[17].menu_strings[2], " relay3:| <supply>,<drain>,<kcl>,<wash>");
-	strcpy(menu_list[17].menu_strings[3], " relay4:| <supply>,<drain>,<kcl>,<wash>");
+	strcpy(menu_list[17].menu_strings[0], " relay1:| <Supply>,<Drain>,<KCL>,<Wash>");
+	strcpy(menu_list[17].menu_strings[1], " relay2:| <Supply>,<Drain>,<KCL>,<Wash>");
+	strcpy(menu_list[17].menu_strings[2], " relay3:| <Supply>,<Drain>,<KCL>,<Wash>");
+	strcpy(menu_list[17].menu_strings[3], " relay4:| <Supply>,<Drain>,<KCL>,<Wash>");
 	menu_list[17].next_menu_id[0]=17;
 	menu_list[17].next_menu_id[1]=17;
 	menu_list[17].next_menu_id[2]=17;
@@ -346,10 +346,10 @@ void init_menu(void)
 	
 	
 	strcpy(menu_list[18].menu_name , "Manual Wash");
-	strcpy(menu_list[18].menu_strings[0], " supply:| <OFF>,<ON>");
-	strcpy(menu_list[18].menu_strings[1], " drain:| <OFF>,<ON>");
-	strcpy(menu_list[18].menu_strings[2], " kcl:| <OFF>,<ON>");
-	strcpy(menu_list[18].menu_strings[3], " wash:| <OFF>,<ON>");
+	strcpy(menu_list[18].menu_strings[0], " Supply:| <OFF>,<ON>");
+	strcpy(menu_list[18].menu_strings[1], " Drain:| <OFF>,<ON>");
+	strcpy(menu_list[18].menu_strings[2], " KCL:| <OFF>,<ON>");
+	strcpy(menu_list[18].menu_strings[3], " Wash:| <OFF>,<ON>");
 	menu_list[18].next_menu_id[0]=18;
 	menu_list[18].next_menu_id[1]=18;
 	menu_list[18].next_menu_id[2]=18;
@@ -369,16 +369,16 @@ void init_menu(void)
 	menu_list[18].menu_id=18;
 	menu_list[18].menu_item_count = 4;
 	menu_list[18].menu_pointer=0;
-	menu_list[18].fun_ptr = NULL;
-	menu_list[18].run_on_exit=0;
+	menu_list[18].fun_ptr = &manual_wash_exit;
+	menu_list[18].run_on_exit=1;
 	
 	strcpy(menu_list[19].menu_name , "Self Cleaning");
-	strcpy(menu_list[19].menu_strings[0], " Manual Wash");
-	strcpy(menu_list[19].menu_strings[1], " Auto Wash");
-	strcpy(menu_list[19].menu_strings[2], " Relay Functions");
-	menu_list[19].next_menu_id[0]=18;
+	strcpy(menu_list[19].menu_strings[0], " Relay Functions ");
+	strcpy(menu_list[19].menu_strings[1], " Auto Wash ");
+	strcpy(menu_list[19].menu_strings[2], " Manual Wash ");
+	menu_list[19].next_menu_id[0]=17;
 	menu_list[19].next_menu_id[1]=20;
-	menu_list[19].next_menu_id[2]=17;
+	menu_list[19].next_menu_id[2]=18;
 	menu_list[19].values[0]=0;
 	menu_list[19].values[1]=0;
 	menu_list[19].values[2]=0;
@@ -392,16 +392,16 @@ void init_menu(void)
 	menu_list[19].run_on_exit=0;
 	
 	strcpy(menu_list[20].menu_name , "Auto Wash");
-	strcpy(menu_list[20].menu_strings[0], " supply: %d ");
-	strcpy(menu_list[20].menu_strings[1], " drain: %d");
-	strcpy(menu_list[20].menu_strings[2], " kcl: %d");
-	strcpy(menu_list[20].menu_strings[3], " wash: %d");
+	strcpy(menu_list[20].menu_strings[0], " Supply: %d ");
+	strcpy(menu_list[20].menu_strings[1], " Drain: %d");
+	strcpy(menu_list[20].menu_strings[2], " KCL: %d");
+	strcpy(menu_list[20].menu_strings[3], " Wash: %d");
 	strcpy(menu_list[20].menu_strings[4], " OK ");
 	menu_list[20].next_menu_id[0]=20;
 	menu_list[20].next_menu_id[1]=20;
 	menu_list[20].next_menu_id[2]=20;
 	menu_list[20].next_menu_id[3]=20;
-	menu_list[20].next_menu_id[4]=20;
+	menu_list[20].next_menu_id[4]=21;
 	menu_list[20].values[0]=5;
 	menu_list[20].values[1]=5;
 	menu_list[20].values[2]=5;
@@ -419,6 +419,33 @@ void init_menu(void)
 	menu_list[20].menu_pointer=0;
 	menu_list[20].fun_ptr = &run_auto_wash;
 	menu_list[20].run_on_exit=0;
+	
+	strcpy(menu_list[21].menu_name , "Auto Wash State");
+	strcpy(menu_list[21].menu_strings[0], " Supply:| <OFF>,<ON>");
+	strcpy(menu_list[21].menu_strings[1], " Drain:| <OFF>,<ON>");
+	strcpy(menu_list[21].menu_strings[2], " KCL:| <OFF>,<ON>");
+	strcpy(menu_list[21].menu_strings[3], " Wash:| <OFF>,<ON>");
+	menu_list[21].next_menu_id[0]=21;
+	menu_list[21].next_menu_id[1]=21;
+	menu_list[21].next_menu_id[2]=21;
+	menu_list[21].next_menu_id[3]=21;
+	menu_list[21].values[0]=0;
+	menu_list[21].values[1]=0;
+	menu_list[21].values[2]=0;
+	menu_list[21].values[3]=0;
+	menu_list[21].value_resolution[0]=1;
+	menu_list[21].value_resolution[1]=1;
+	menu_list[21].value_resolution[2]=1;
+	menu_list[21].value_resolution[3]=1;
+	menu_list[21].value_max[0]=1;
+	menu_list[21].value_max[1]=1;
+	menu_list[21].value_max[2]=1;
+	menu_list[21].value_max[3]=1;
+	menu_list[21].menu_id=21;
+	menu_list[21].menu_item_count = 4;
+	menu_list[21].menu_pointer=0;
+	menu_list[21].fun_ptr = NULL ;
+	menu_list[21].run_on_exit=0;
 }
 void update_menu_from_variables(int active_menu)
 {
@@ -798,4 +825,23 @@ void get_user_input(uint8_t *input,int *active_menu)
 			//MAX485_send_string((uint8_t *)sprintf_buff,13,100);
 		}
 	}	
+}
+void Change_Menu_Items(int Menu_num, int Menu_line, char* Menu_String, int Next_Menu_Id, float Value, int Menu_Active_Line)
+{
+	if (Menu_String != NULL)
+	{
+		strcpy(menu_list[Menu_num].menu_strings[Menu_line] , Menu_String);
+	}
+	if( Next_Menu_Id != -1)
+	{
+		menu_list[Menu_num].next_menu_id[Menu_line] = Next_Menu_Id;
+	}
+	if( Value != -1)
+	{
+		menu_list[Menu_num].values[Menu_line] = Value;
+	}
+	if( Menu_Active_Line != -1)
+	{
+		menu_list[Menu_num].menu_pointer = Menu_Active_Line;
+	}
 }
