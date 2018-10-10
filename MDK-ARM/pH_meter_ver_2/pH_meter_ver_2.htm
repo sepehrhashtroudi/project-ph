@@ -3,7 +3,7 @@
 <title>Static Call Graph - [pH_meter_ver_2\pH_meter_ver_2.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image pH_meter_ver_2\pH_meter_ver_2.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Wed Oct 10 15:52:22 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Wed Oct 10 16:29:10 2018
 <BR><P>
 <H3>Maximum Stack Usage =        408 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -692,6 +692,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strcpy
 </UL>
 <BR>[Called By]<UL><LI><a href="#[fa]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;auto_wash_handler
+<LI><a href="#[137]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_menu_from_variables
 </UL>
 
 <P><STRONG><a name="[42]"></a>DMA2_Stream0_IRQHandler</STRONG> (Thumb, 6 bytes, Stack size 0 bytes, stm32f4xx_it.o(i.DMA2_Stream0_IRQHandler))
@@ -2296,10 +2297,11 @@ Global Symbols
 <P><STRONG><a name="[6e]"></a>temp_calibration_waiting_2</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, glcd_menu_functions.o(i.temp_calibration_waiting_2))
 <BR>[Address Reference Count : 1]<UL><LI> glcd_menu.o(i.init_menu)
 </UL>
-<P><STRONG><a name="[137]"></a>update_menu_from_variables</STRONG> (Thumb, 784 bytes, Stack size 56 bytes, glcd_menu.o(i.update_menu_from_variables))
-<BR><BR>[Stack]<UL><LI>Max Depth = 80<LI>Call Chain = update_menu_from_variables &rArr; relay_on_off
+<P><STRONG><a name="[137]"></a>update_menu_from_variables</STRONG> (Thumb, 796 bytes, Stack size 56 bytes, glcd_menu.o(i.update_menu_from_variables))
+<BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = update_menu_from_variables &rArr; Change_Menu_Items
 </UL>
 <BR>[Calls]<UL><LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;relay_on_off
+<LI><a href="#[93]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Change_Menu_Items
 <LI><a href="#[94]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strcpy
 </UL>
 <BR>[Called By]<UL><LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main_thread

@@ -471,7 +471,8 @@ void update_menu_from_variables(int active_menu)
 	
 	if(progress < 25)
 	{
-		strcpy(menu_list[3].menu_strings[1] , " #### ");
+		Change_Menu_Items(3, 1, " #### ",-1, -1, -1);
+		//strcpy(menu_list[3].menu_strings[1] , " #### ");
 		strcpy(menu_list[5].menu_strings[1] , " #### ");
 		strcpy(menu_list[13].menu_strings[1] , " #### ");
 		strcpy(menu_list[15].menu_strings[1] , " #### ");
