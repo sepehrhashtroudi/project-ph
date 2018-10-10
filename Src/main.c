@@ -201,7 +201,6 @@ int main(void)
   MX_DAC_Init();
   MX_RTC_Init();
   MX_USART3_UART_Init();
-  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 	init_menu();
 //	eeprom_buff = p1_p*float_to_int_factor;
