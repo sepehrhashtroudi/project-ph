@@ -21,6 +21,9 @@ extern float p1_p;
 extern float p2_p;
 extern float p1_t;
 extern float p2_t;
+float slope ;
+float zero ;
+float slope_percent;
 int32_t EEprom_buff;
 float *calibration_point_1_ph = &menu_list[2].values[0];
 float *calibration_point_2_ph = &menu_list[4].values[0];
@@ -42,25 +45,14 @@ extern int auto_wash_state;
 extern int active_menu;
 void ph_calculate_calibration_coefficients(void)
 {
-	char sprintf_buff[20];
-	if (abs(calibration_point_1 - calibration_point_2) > 50)
-	{
-		p1_p = (*calibration_point_1_ph - *calibration_point_2_ph) / (float)(calibration_point_1 - calibration_point_2 ) ;
-		p2_p = *calibration_point_1_ph - (calibration_point_1)*(p1_p);
-		ph_calibration_temp = (ph_calibration_start_temp + ph_calibration_end_temp)/2.0;
-		EEprom_buff = ph_calibration_temp*float_to_int_factor;
-		eeprom_write_data(ph_callibration_temp_add,&EEprom_buff,1);
-		EEprom_buff = p1_p*float_to_int_factor;
-		eeprom_write_data(p1_p_eeprom_add,&EEprom_buff,1);
-		EEprom_buff = p2_p*float_to_int_factor;
-		eeprom_write_data(p2_p_eeprom_add,&EEprom_buff,1);
-		sprintf(sprintf_buff,"%.5f,%.5f\n",p1_p,p2_p);
-		MAX485_send_string(sprintf_buff,13,100);
-	}
-	else
-	{
-		MAX485_send_string("slope error",13,100);
-	}
+
+	ph_calibration_temp = (ph_calibration_start_temp + ph_calibration_end_temp)/2.0;
+	EEprom_buff = ph_calibration_temp*float_to_int_factor;
+	eeprom_write_data(ph_callibration_temp_add,&EEprom_buff,1);
+	EEprom_buff = p1_p*float_to_int_factor;
+	eeprom_write_data(p1_p_eeprom_add,&EEprom_buff,1);
+	EEprom_buff = p2_p*float_to_int_factor;
+	eeprom_write_data(p2_p_eeprom_add,&EEprom_buff,1);
 }
 
 void ph_calibration_step1(void)
@@ -81,9 +73,27 @@ void ph_calibration_waiting_1(void)
 }
 void ph_calibration_waiting_2(void)
 {
+	
 	delete_ph_calibration_task_flag = 1;
 	calibration_point_2 = pH_filtered;
 	ph_calibration_end_temp = temp;
+	
+	p1_p = (*calibration_point_1_ph - *calibration_point_2_ph) / (float)(calibration_point_1 - calibration_point_2 ) ;
+	p2_p = *calibration_point_1_ph - (calibration_point_1)*(p1_p);
+	slope = 1000 / (p1_p * 4095);
+	zero = 1000 * (p2_p + 1.454)/ (p1_p * 4095);
+	slope_percent = 100 * slope / 59.16;
+	Change_Menu_Items(6,1,NULL,-1,slope,-1);
+	Change_Menu_Items(6,2,NULL,-1,zero,-1);
+	char sprintf_buff[20];
+	sprintf(sprintf_buff,"%.5f,%.5f\n",slope,zero);
+	MAX485_send_string(sprintf_buff,13,100);
+	if( slope_percent < 90 || slope_percent > 105 || zero > 50 || zero < -50 )
+	{
+		MAX485_send_string("slope error",13,100);
+	}
+	
+	
 }
 
 void temp_calculate_calibration_coefficients(void)
@@ -97,8 +107,6 @@ void temp_calculate_calibration_coefficients(void)
 	eeprom_write_data(p2_t_eeprom_add,&EEprom_buff,1);
 	sprintf(sprintf_buff,"%.5f,%.5f\n",p1_t,p2_t);
 	MAX485_send_string(sprintf_buff,13,100);
-	
-	
 }
 
 void temp_calibration_step1(void)

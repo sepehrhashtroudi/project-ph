@@ -158,6 +158,7 @@ void ph_calibration_thread(void *);
 void temp_calibration_thread(void * pvParameters);
 void pump_set_stroke(uint16_t stroke);
 void read_setting_from_eeprom(void);
+uint32_t get_timer_time();
 //extern void calculate_calibration_coefficients(void);
 
 /* USER CODE END PFP */
@@ -366,8 +367,6 @@ void main_thread(void * pvParameters)
 			{
 				print_menu(active_menu);
 			}
-			sprintf(sprintf_buff,"%f\n",temp_compensation_coef);
-			MAX485_send_string(sprintf_buff,7,100);
 		}
 		
 		if(create_ph_calibration_task_flag == 1)
@@ -383,6 +382,7 @@ void main_thread(void * pvParameters)
 			if( ph_calibration_thread_handle != NULL )
 			{
 				vTaskDelete( ph_calibration_thread_handle );
+				HAL_TIM_Base_Stop(&htim5);
 				ph_calibration_thread_handle = NULL;
 				progress = 0;
 				last_progress = 0;
@@ -401,6 +401,7 @@ void main_thread(void * pvParameters)
 			if( temp_calibration_thread_handle != NULL)
 			{
 				vTaskDelete( temp_calibration_thread_handle );
+				HAL_TIM_Base_Stop(&htim5);
 				temp_calibration_thread_handle = NULL;
 				progress = 0;
 				last_progress = 0;
@@ -425,10 +426,10 @@ void lcd_print(void * pvParameters)
 		}
 		if( active_menu == 3 || active_menu == 5 || active_menu == 13 || active_menu == 15 )
 		{ 
-				if(progress - last_progress >= 25 || progress == 100)
+				if( progress == 100)
 				{
 					xSemaphoreGive( lcd_semaphore );
-					last_progress = progress;
+					
 				}
 		}
 	}
@@ -436,17 +437,20 @@ void lcd_print(void * pvParameters)
 void ph_calibration_thread(void * pvParameters)
 {
 	uint16_t last_ph_filtered = pH_filtered;
-	uint32_t start_time = HAL_GetTick();
+	HAL_TIM_Base_Start(&htim5);
+	uint32_t start_time = get_timer_time();
 	char sprintf_buff[20];
 	while(1)
 	{
 		MAX485_send_string("ph calibration\n",15,100);
-		progress = (HAL_GetTick() - start_time)/1000 - (abs(pH_filtered - last_ph_filtered)) ;
-		sprintf(sprintf_buff,"%d\n",pH_filtered);
-		MAX485_send_string(sprintf_buff,7,100);
+		progress = (get_timer_time() - start_time)/200 ;
+		sprintf(sprintf_buff,"%d\n",progress);
+		MAX485_send_string(sprintf_buff,10,100);
 		if(abs(pH_filtered - last_ph_filtered) > 3)
 		{
-			start_time = HAL_GetTick();
+			xSemaphoreGive( lcd_semaphore );
+			last_ph_filtered = pH_filtered;
+			start_time = get_timer_time();
 			MAX485_send_string("reset\n",6,100);
 		}
 		if(progress > 100 )
@@ -456,9 +460,8 @@ void ph_calibration_thread(void * pvParameters)
 		if(progress < 0 )
 		{
 			progress = 0;
-		}
-		last_ph_filtered = pH_filtered;
-		osDelay(3000);
+		}	
+		osDelay(2000);
 		HAL_GPIO_TogglePin(status_led_GPIO_Port,status_led_Pin);
 	}
 }
@@ -467,16 +470,19 @@ void temp_calibration_thread(void * pvParameters)
 {
 	char sprintf_buff[10];
 	uint16_t last_temp_filtered = temp_filtered;
-	uint32_t start_time = HAL_GetTick();
+	HAL_TIM_Base_Start(&htim5);
+	uint32_t start_time = get_timer_time();
 	while(1)
 	{
 		MAX485_send_string("temp calibration\n",20,100);
 		sprintf(sprintf_buff,"%d\n",temp_filtered);
 		MAX485_send_string(sprintf_buff,7,100);
-		progress = (HAL_GetTick() - start_time)/1000 - (abs(temp_filtered - last_temp_filtered)) ;
+		progress = (get_timer_time() - start_time)/200  ;
 		if(abs(temp_filtered - last_temp_filtered) > 3)
 		{
-			start_time = HAL_GetTick();
+			xSemaphoreGive( lcd_semaphore );
+			last_temp_filtered = temp_filtered;
+			start_time = get_timer_time();
 			MAX485_send_string("reset\n",10,100);
 		}
 		if(progress > 100 )
@@ -487,8 +493,8 @@ void temp_calibration_thread(void * pvParameters)
 		{
 			progress = 0;
 		}
-		last_temp_filtered = temp_filtered;
-		osDelay(3000);
+		
+		osDelay(2000);
 		HAL_GPIO_TogglePin(status_led_GPIO_Port,status_led_Pin);
 
 	}
@@ -561,6 +567,13 @@ void set_date_time(void)
 	rtc_time.Seconds=1;
 	HAL_RTC_SetTime(&hrtc,&rtc_time,FORMAT_BIN );
 }
+uint32_t get_timer_time()
+{
+	uint32_t counter ;
+	counter = __HAL_TIM_GetCounter(&htim5);
+	counter = counter/2;
+	return counter;
+}
 void set_pid_coefficients(void)
 {
 	pid = pid_create(&ctrldata, &input, &output, setpoint, *kp, *ki, *kd);
@@ -600,11 +613,11 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	temp = roundf(temp * 10.0) / 10.0; 
 	if( temp_filtered < 10)
 	{
-		strcpy(menu_list[0].menu_strings[2] , "NC `c");
+		strcpy(menu_list[0].menu_strings[2] , "NC `C");
 	}
 	else
 	{
-		strcpy(menu_list[0].menu_strings[2] , "%.1f `c");
+		strcpy(menu_list[0].menu_strings[2] , "%.1f `C");
 	}
 	
 	ph_averaged = average(pH_buffer, bufferLength);
