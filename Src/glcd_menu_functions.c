@@ -97,8 +97,12 @@ void temp_calculate_calibration_coefficients(void)
 	eeprom_write_data(p2_t_eeprom_add,&EEprom_buff,1);
 	sprintf(sprintf_buff,"%.5f,%.5f\n",p1_t,p2_t);
 	MAX485_send_string(sprintf_buff,13,100);
-	
-	
+}
+
+void temp_compensation_state_exit(void)
+{
+	EEprom_buff = temp_compensation_state;
+	eeprom_write_data(temp_compensation_state_add,&EEprom_buff,1);
 }
 
 void temp_calibration_step1(void)
@@ -167,10 +171,11 @@ void auto_wash_handler(int *auto_wash_state)
 
 		if(*auto_wash_state == 0)
 		{
-			relay_on_off(supply_func_num , 1);  
+			relay_on_off(supply_func_num , 0);  
 			relay_on_off(drain_func_num , 0);
+			relay_on_off(wash_func_num , 0);
 			relay_on_off(kcl_func_num , 0);
-			relay_on_off(wash_func_num , 0);	
+				
 			Change_Menu_Items(AUTO_WASH_STATE_MENU,0,NULL,-1,1,0);
 			Change_Menu_Items(AUTO_WASH_STATE_MENU,1,NULL,-1,0,0);
 			Change_Menu_Items(AUTO_WASH_STATE_MENU,2,NULL,-1,0,0);
@@ -184,63 +189,67 @@ void auto_wash_handler(int *auto_wash_state)
 		else if(*auto_wash_state == 1)
 		{
 			HAL_TIM_OC_Start_IT(&htim5, TIM_CHANNEL_1);
-			relay_on_off(supply_func_num , 0);  
-			relay_on_off(drain_func_num , 0);
-			relay_on_off(kcl_func_num , 0);
+			relay_on_off(supply_func_num , 1);  
+			relay_on_off(drain_func_num , 1);
 			relay_on_off(wash_func_num , 0);
-			Change_Menu_Items(AUTO_WASH_STATE_MENU,0,NULL,-1,0,0);
-			Change_Menu_Items(AUTO_WASH_STATE_MENU,1,NULL,-1,0,0);
+			relay_on_off(kcl_func_num , 0);
+			
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,0,NULL,-1,1,0);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,1,NULL,-1,1,0);
 			Change_Menu_Items(AUTO_WASH_STATE_MENU,2,NULL,-1,0,0);
 			Change_Menu_Items(AUTO_WASH_STATE_MENU,3,NULL,-1,0,0); 
 			
 			xSemaphoreGiveFromISR ( lcd_semaphore,NULL );
-			__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, supply_func_time*2000);
+			__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, drain1_func_time*2000);
 			__HAL_TIM_SET_COUNTER(&htim5, 0);
 			*auto_wash_state = 2;	
 		}
 		else if(*auto_wash_state == 2)
 		{
-			relay_on_off(supply_func_num , 0);  
+			relay_on_off(supply_func_num , 1);  
 			relay_on_off(drain_func_num , 1);
+			relay_on_off(wash_func_num , 1);
 			relay_on_off(kcl_func_num , 0);
-			relay_on_off(wash_func_num , 0); 
-			Change_Menu_Items(AUTO_WASH_STATE_MENU,0,NULL,-1,0,1);
+			 
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,0,NULL,-1,1,1);
 			Change_Menu_Items(AUTO_WASH_STATE_MENU,1,NULL,-1,1,1);
-			Change_Menu_Items(AUTO_WASH_STATE_MENU,2,NULL,-1,0,1);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,2,NULL,-1,1,1);
 			Change_Menu_Items(AUTO_WASH_STATE_MENU,3,NULL,-1,0,1); 
 			xSemaphoreGiveFromISR ( lcd_semaphore,NULL );
-			__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, drain_func_time*2000);
+			__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, wash_func_time*2000);
 			__HAL_TIM_SET_COUNTER(&htim5, 0);
 		*auto_wash_state = 3;	
 		}
 		else if(*auto_wash_state == 3)
 		{
-			relay_on_off(supply_func_num , 0);  
-			relay_on_off(drain_func_num , 0);
-			relay_on_off(kcl_func_num , 1);
+			relay_on_off(supply_func_num , 1);  
+			relay_on_off(drain_func_num , 1);
 			relay_on_off(wash_func_num , 0);
+			relay_on_off(kcl_func_num , 0);
+			
 			AWS_Supply_State = 0;
-			Change_Menu_Items(AUTO_WASH_STATE_MENU,0,NULL,-1,0,2);
-			Change_Menu_Items(AUTO_WASH_STATE_MENU,1,NULL,-1,0,2);
-			Change_Menu_Items(AUTO_WASH_STATE_MENU,2,NULL,-1,1,2);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,0,NULL,-1,1,2);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,1,NULL,-1,1,2);
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,2,NULL,-1,0,2);
 			Change_Menu_Items(AUTO_WASH_STATE_MENU,3,NULL,-1,0,2); 	
 			xSemaphoreGiveFromISR ( lcd_semaphore,NULL );
-			__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, kcl_func_time*2000);
+			__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, drain2_func_time*2000);
 			__HAL_TIM_SET_COUNTER(&htim5, 0);
 			*auto_wash_state = 4;	
 		}
 		else if(*auto_wash_state == 4)
 		{
-			relay_on_off(supply_func_num , 0);  
+			relay_on_off(supply_func_num , 1);  
 			relay_on_off(drain_func_num , 0);
-			relay_on_off(kcl_func_num , 0);
-			relay_on_off(wash_func_num , 1); 
-			Change_Menu_Items(AUTO_WASH_STATE_MENU,0,NULL,-1,0,3);
+			relay_on_off(wash_func_num , 0); 
+			relay_on_off(kcl_func_num , 1);
+			
+			Change_Menu_Items(AUTO_WASH_STATE_MENU,0,NULL,-1,1,3);
 			Change_Menu_Items(AUTO_WASH_STATE_MENU,1,NULL,-1,0,3);
 			Change_Menu_Items(AUTO_WASH_STATE_MENU,2,NULL,-1,0,3);
 			Change_Menu_Items(AUTO_WASH_STATE_MENU,3,NULL,-1,1,3); 		
 			xSemaphoreGiveFromISR ( lcd_semaphore,NULL );
-			__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, wash_func_time*2000);
+			__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_1, kcl_func_time*2000);
 			__HAL_TIM_SET_COUNTER(&htim5, 0);
 		*auto_wash_state = 0;	
 		}
