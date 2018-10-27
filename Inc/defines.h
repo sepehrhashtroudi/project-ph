@@ -13,7 +13,7 @@
 #define controller_on_off_eeprom_add  (uint32_t)9
 #define controller_type_eeprom_add  (uint32_t)10
 #define controller_setpoint_eeprom_add  (uint32_t)11
-#define ph_callibration_temp_add  (uint32_t)12
+#define ph_calibration_temp_add  (uint32_t)12
 #define float_to_int_factor  100000.0
 
 

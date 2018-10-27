@@ -100,13 +100,13 @@ uint16_t ph_window_pointer=0;
 uint16_t temp_history[filterWindowLength]={0};
 int32_t temp_sum=0;
 uint16_t temp_window_pointer=0;
-float p1_p =  0.004076;
-float p2_p = -0.8505;
-float p1_t = 0.04082;
-float p2_t = 2.204;
+float p1_p =  0.00458 ;
+float p2_p = -2.56793 ;
+float p1_t = -0.06613;
+float p2_t = 128.17461 ;
 float pH = 0;
 float temp = 0;
-float ph_calibration_temp ;
+float ph_calibration_temp = 25 ;
 float temp_compensation_coef = 0;
 int32_t eeprom_buff;
 
@@ -203,6 +203,7 @@ int main(void)
   MX_RTC_Init();
   MX_USART3_UART_Init();
   MX_TIM5_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
 	init_menu();
 //	eeprom_buff = p1_p*float_to_int_factor;
@@ -213,6 +214,9 @@ int main(void)
 //	eeprom_write_data(p1_t_eeprom_add,&eeprom_buff,1);
 //	eeprom_buff = p2_t*float_to_int_factor;
 //	eeprom_write_data(p2_t_eeprom_add,&eeprom_buff,1);
+//	eeprom_buff = ph_calibration_temp*float_to_int_factor;
+//	eeprom_write_data(ph_calibration_temp_add,&eeprom_buff,1);
+	
 	read_setting_from_eeprom();
 	// Prepare PID controller for operation
 	pid = pid_create(&ctrldata, &input, &output, setpoint, *kp, *ki, *kd);
@@ -322,6 +326,10 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
+    /**Enables the Clock Security System 
+    */
+  HAL_RCC_EnableCSS();
+
     /**Configure the Systick interrupt time 
     */
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
@@ -341,7 +349,7 @@ void main_thread(void * pvParameters)
 	HAL_Delay(100);
 	GLCD_Initalize();
 	GLCD_ClearScreen();
-	HAL_GPIO_WritePin(power_led_GPIO_Port,power_led_Pin,GPIO_PIN_SET);
+	HAL_GPIO_WritePin(Power_led_GPIO_Port,Power_led_Pin,GPIO_PIN_SET);
 	relay_on_off(supply_func_num , 1);
 	while(1)
 	{
@@ -361,7 +369,7 @@ void main_thread(void * pvParameters)
 			if(active_menu == 0 )
 			{
 				print_main_page(active_menu);
-				HAL_GPIO_WritePin(status_led_GPIO_Port,status_led_Pin,GPIO_PIN_SET);
+				HAL_GPIO_WritePin(Status_led_GPIO_Port,Status_led_Pin,GPIO_PIN_SET);
 			}
 			else 
 			{
@@ -462,7 +470,7 @@ void ph_calibration_thread(void * pvParameters)
 			progress = 0;
 		}	
 		osDelay(2000);
-		HAL_GPIO_TogglePin(status_led_GPIO_Port,status_led_Pin);
+		HAL_GPIO_TogglePin(Status_led_GPIO_Port,Status_led_Pin);
 	}
 }
 
@@ -495,7 +503,7 @@ void temp_calibration_thread(void * pvParameters)
 		}
 		
 		osDelay(2000);
-		HAL_GPIO_TogglePin(status_led_GPIO_Port,status_led_Pin);
+		HAL_GPIO_TogglePin(Status_led_GPIO_Port,Status_led_Pin);
 
 	}
 }
@@ -535,7 +543,7 @@ void read_setting_from_eeprom(void)
 	p1_p = eeprom_buff / float_to_int_factor;
 	eeprom_read_data(p2_p_eeprom_add,&eeprom_buff,1);
 	p2_p = eeprom_buff / float_to_int_factor;
-	eeprom_read_data(ph_callibration_temp_add,&eeprom_buff,1);
+	eeprom_read_data(ph_calibration_temp_add,&eeprom_buff,1);
 	ph_calibration_temp = eeprom_buff / float_to_int_factor;
 	eeprom_read_data(p1_t_eeprom_add,&eeprom_buff,1);
 	p1_t = eeprom_buff / float_to_int_factor;

@@ -149,11 +149,15 @@ void init_menu(void)
 	
 	strcpy(menu_list[6].menu_name , " Step 3 ");
 	strcpy(menu_list[6].menu_strings[0],  " Calibration Done ");
-	strcpy(menu_list[6].menu_strings[1] , " OK ");
+	strcpy(menu_list[6].menu_strings[1],  " Slope: %.1f ");
+	strcpy(menu_list[6].menu_strings[2],  " Zero: %.1f ");
+	strcpy(menu_list[6].menu_strings[3] , " OK ");
 	menu_list[6].next_menu_id[0]=6;
-	menu_list[6].next_menu_id[1]=0;
+	menu_list[6].next_menu_id[1]=6;
+	menu_list[6].next_menu_id[2]=6;
+	menu_list[6].next_menu_id[3]=0;
 	menu_list[6].menu_id=6;
-	menu_list[6].menu_item_count = 2;
+	menu_list[6].menu_item_count = 4;
 	menu_list[6].menu_pointer=1;
 	menu_list[6].fun_ptr = &ph_calculate_calibration_coefficients;
 	menu_list[6].run_on_exit=1;
@@ -477,11 +481,11 @@ void update_menu_from_variables(int active_menu)
 	{
 		menu_list[9].values[1] = menu_list[9].values[0];
 	}
-	Change_Menu_Items(3, 0, NULL, -1, pH_filtered, -1);
-	Change_Menu_Items(3, 1, NULL, -1, pH, -1);
+	Change_Menu_Items(3, 0, NULL, -1, 1000 * (pH_filtered - 2047) / 4095.0 , -1); //calculate sensor mv
+	Change_Menu_Items(3, 1, NULL, -1, pH_filtered * 0.00413 - 1.454, -1); // calculate ph with ideal coeff
 	Change_Menu_Items(3, 2, NULL, -1, temp, -1);
-	Change_Menu_Items(5, 0, NULL, -1, pH_filtered, -1);
-	Change_Menu_Items(5, 1, NULL, -1, pH, -1);
+	Change_Menu_Items(5, 0, NULL, -1, 1000 * (pH_filtered - 2047) / 4095.0 , -1);
+	Change_Menu_Items(5, 1, NULL, -1, pH_filtered * 0.00413 - 1.454, -1);
 	Change_Menu_Items(5, 2, NULL, -1, temp, -1);
 	
 	Change_Menu_Items(13, 0, NULL, -1, temp_filtered, -1);

@@ -48,7 +48,7 @@ void ph_calculate_calibration_coefficients(void)
 
 	ph_calibration_temp = (ph_calibration_start_temp + ph_calibration_end_temp)/2.0;
 	EEprom_buff = ph_calibration_temp*float_to_int_factor;
-	eeprom_write_data(ph_callibration_temp_add,&EEprom_buff,1);
+	eeprom_write_data(ph_calibration_temp_add,&EEprom_buff,1);
 	EEprom_buff = p1_p*float_to_int_factor;
 	eeprom_write_data(p1_p_eeprom_add,&EEprom_buff,1);
 	EEprom_buff = p2_p*float_to_int_factor;
