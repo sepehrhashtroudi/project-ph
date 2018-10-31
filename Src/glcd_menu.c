@@ -30,6 +30,7 @@ extern int create_ph_calibration_task_flag;
 extern int delete_ph_calibration_task_flag;
 extern int create_temp_calibration_task_flag;
 extern int delete_temp_calibration_task_flag;
+extern int back_light_state;
 extern float pH;
 extern float temp;
 
@@ -84,7 +85,7 @@ void init_menu(void)
 	menu_list[1].run_on_exit=0;
 	
 	strcpy(menu_list[2].menu_name , " Step 1 ");
-	strcpy(menu_list[2].menu_strings[0] , " Buffer pH:%.1f ");
+	strcpy(menu_list[2].menu_strings[0] , "< Buffer pH: %d >");
 	strcpy(menu_list[2].menu_strings[1] , " OK ");
 	menu_list[2].next_menu_id[0]=2;
 	menu_list[2].next_menu_id[1]=3;
@@ -116,7 +117,7 @@ void init_menu(void)
 	menu_list[3].run_on_exit=0;
 	
 	strcpy(menu_list[4].menu_name , " Step 2 ");
-	strcpy(menu_list[4].menu_strings[0] , " Buffer pH:%.1f ");
+	strcpy(menu_list[4].menu_strings[0] , "< Buffer pH: %d >");
 	strcpy(menu_list[4].menu_strings[1] , " OK ");
 	menu_list[4].next_menu_id[0]=4;
 	menu_list[4].next_menu_id[1]=5;
@@ -147,10 +148,10 @@ void init_menu(void)
 	menu_list[5].fun_ptr = &ph_calibration_waiting_2;
 	menu_list[5].run_on_exit=0;
 	
-	strcpy(menu_list[6].menu_name , " Step 3 ");
-	strcpy(menu_list[6].menu_strings[0],  " Calibration Done ");
-	strcpy(menu_list[6].menu_strings[1],  " Slope: %.1f ");
-	strcpy(menu_list[6].menu_strings[2],  " Zero: %.1f ");
+	strcpy(menu_list[6].menu_name , " Done ");
+	strcpy(menu_list[6].menu_strings[0], " Slope: %d %%");
+	strcpy(menu_list[6].menu_strings[1], " Zero: %d mV");
+	strcpy(menu_list[6].menu_strings[2], "Sensor is healthy");
 	strcpy(menu_list[6].menu_strings[3] , " OK ");
 	menu_list[6].next_menu_id[0]=6;
 	menu_list[6].next_menu_id[1]=6;
@@ -202,8 +203,8 @@ void init_menu(void)
 	
 	
 	strcpy(menu_list[9].menu_name , "Hysteresis");
-	strcpy(menu_list[9].menu_strings[0], " Max: %.1f ");
-	strcpy(menu_list[9].menu_strings[1], " Min: %.1f ");
+	strcpy(menu_list[9].menu_strings[0], "< Max: %.1f >");
+	strcpy(menu_list[9].menu_strings[1], "< Min: %.1f >");
 	menu_list[9].next_menu_id[0]=9;
 	menu_list[9].next_menu_id[1]=9;
 	menu_list[9].next_menu_id[2]=0;
@@ -220,9 +221,9 @@ void init_menu(void)
 	menu_list[9].run_on_exit=1;
 	
 	strcpy(menu_list[10].menu_name , "PID Coefficients");
-	strcpy(menu_list[10].menu_strings[0], " P: %d ");
-	strcpy(menu_list[10].menu_strings[1], " I: %.1f ");
-	strcpy(menu_list[10].menu_strings[2], " D: %.1f ");
+	strcpy(menu_list[10].menu_strings[0], "< P: %d >");
+	strcpy(menu_list[10].menu_strings[1], "< I: %.1f >");
+	strcpy(menu_list[10].menu_strings[2], "< D: %.1f >");
 	menu_list[10].next_menu_id[0]=10;
 	menu_list[10].next_menu_id[1]=10;
 	menu_list[10].next_menu_id[2]=10;
@@ -243,8 +244,8 @@ void init_menu(void)
 	menu_list[10].run_on_exit=1;
 	
 	strcpy(menu_list[11].menu_name , "Time");
-	strcpy(menu_list[11].menu_strings[0], " Hour: %d ");
-	strcpy(menu_list[11].menu_strings[1], " Minute: %d ");
+	strcpy(menu_list[11].menu_strings[0], "< Hour: %d >");
+	strcpy(menu_list[11].menu_strings[1], "< Minute: %d >");
 //	strcpy(menu_list[11].menu_strings[2], " Day: %d ");
 //	strcpy(menu_list[11].menu_strings[3], " Month: %d ");
 //	strcpy(menu_list[11].menu_strings[4], " Year: %d ");
@@ -268,13 +269,13 @@ void init_menu(void)
 	menu_list[11].run_on_exit=0;
 	
 	strcpy(menu_list[12].menu_name , "Step 1");
-	strcpy(menu_list[12].menu_strings[0] , " Bath Temperature:%.1f ");
+	strcpy(menu_list[12].menu_strings[0] , "< Bath Temp: %d >");
 	strcpy(menu_list[12].menu_strings[1] , " OK ");
 	menu_list[12].next_menu_id[0]=12;
 	menu_list[12].next_menu_id[1]=13;
 	menu_list[12].values[0]=25;
 	menu_list[12].value_resolution[0]=5.0000;
-	menu_list[12].value_max[0]=70;
+	menu_list[12].value_max[0]=100;
 	menu_list[12].menu_id=12;
 	menu_list[12].menu_item_count = 2;
 	menu_list[12].menu_pointer=0;
@@ -295,14 +296,14 @@ void init_menu(void)
 	menu_list[13].run_on_exit=0;
 	
 	strcpy(menu_list[14].menu_name , " Step 2 ");
-	strcpy(menu_list[14].menu_strings[0] , " Bath Temperature:%.1f ");
+	strcpy(menu_list[14].menu_strings[0] , "< Bath Temp: %d >");
 	strcpy(menu_list[14].menu_strings[1] , " OK ");
 	menu_list[14].next_menu_id[0]=14;
 	menu_list[14].next_menu_id[1]=15;
 	menu_list[14].menu_id=14;
 	menu_list[14].values[0]=35;
 	menu_list[14].value_resolution[0]=5.0000;
-	menu_list[14].value_max[0]=80;
+	menu_list[14].value_max[0]=100;
 	menu_list[14].menu_item_count = 2;
 	menu_list[14].menu_pointer=0;
 	menu_list[14].fun_ptr = &temp_calibration_step2;
@@ -494,19 +495,20 @@ void update_menu_from_variables(int active_menu)
 	Change_Menu_Items(15, 1, NULL, -1, temp, -1);
 	
 	
-	if( progress == 100 )
+	if( progress >= 100 )
 	{
 		Change_Menu_Items(3, 3, " OK ", 4, -1, -1);
 		Change_Menu_Items(5, 3, " OK ", 6, -1, -1);
 		Change_Menu_Items(13, 2, " OK ",14, -1, -1);
-		Change_Menu_Items(15, 2, " OK ",16, -1, -1);			
+		Change_Menu_Items(15, 2, " OK ",16, -1, -1);	
+		back_light_state = 0;	//set backlight to 100%
 	}
 	else
 	{
-		Change_Menu_Items(3, 3, " Please Wait ", 3, -1, -1);
-		Change_Menu_Items(5, 3, " Please Wait ", 5, -1, -1);
-		Change_Menu_Items(13, 2, " Please Wait ",13, -1, -1);
-		Change_Menu_Items(15, 2, " Please Wait ",15, -1, -1);		
+		Change_Menu_Items(3, 3, " Wait to stabilize ", 3, -1, -1);
+		Change_Menu_Items(5, 3, " Wait to stabilize ", 5, -1, -1);
+		Change_Menu_Items(13, 2, " Wait to stabilize ",13, -1, -1);
+		Change_Menu_Items(15, 2, " Wait to stabilize ",15, -1, -1);		
 	}
 	
 	if(active_menu == manual_wash_menu)

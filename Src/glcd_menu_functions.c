@@ -73,34 +73,45 @@ void ph_calibration_waiting_1(void)
 }
 void ph_calibration_waiting_2(void)
 {
-	
 	delete_ph_calibration_task_flag = 1;
 	calibration_point_2 = pH_filtered;
 	ph_calibration_end_temp = temp;
-	
-	p1_p = (*calibration_point_1_ph - *calibration_point_2_ph) / (float)(calibration_point_1 - calibration_point_2 ) ;
-	p2_p = *calibration_point_1_ph - (calibration_point_1)*(p1_p);
+	if(abs(calibration_point_1-calibration_point_2)>5)
+	{
+		p1_p = (*calibration_point_1_ph - *calibration_point_2_ph) / (float)(calibration_point_1 - calibration_point_2 ) ;
+		p2_p = *calibration_point_1_ph - (calibration_point_1)*(p1_p);
+	}
 	slope = 1000 / (p1_p * 4095);
 	zero = 1000 * (p2_p + 1.454)/ (p1_p * 4095);
 	slope_percent = 100 * slope / 59.16;
-	Change_Menu_Items(6,1,NULL,-1,slope,-1);
-	Change_Menu_Items(6,2,NULL,-1,zero,-1);
+	Change_Menu_Items(6,0,NULL,-1,slope_percent,-1);
+	Change_Menu_Items(6,1,NULL,-1,zero,-1);
 	char sprintf_buff[20];
 	sprintf(sprintf_buff,"%.5f,%.5f\n",slope,zero);
-	MAX485_send_string(sprintf_buff,13,100);
-	if( slope_percent < 90 || slope_percent > 105 || zero > 50 || zero < -50 )
-	{
-		MAX485_send_string("slope error",13,100);
-	}
+	MAX485_send_string(sprintf_buff,20,100);
 	
+	if( slope_percent < 90 || slope_percent > 105  || zero > 30 || zero <-30)
+		{
+			Change_Menu_Items(6,2,"Sensor health problem",-1,-1,-1);
+			MAX485_send_string("Sensor health problem",13,100);
+		}
+	else
+		{
+			Change_Menu_Items(6,2,"Sensor is healthy",-1,-1,-1);
+			MAX485_send_string("Sensor is healthy",13,100);
+		}
+			
 	
 }
 
 void temp_calculate_calibration_coefficients(void)
 {
 	char sprintf_buff[20];
+	if(abs(calibration_point_1-calibration_point_2)>5)
+	{
 	p1_t = (*calibration_point_1_temp - *calibration_point_2_temp) / (float)(calibration_point_1 - calibration_point_2 ) ;
 	p2_t = *calibration_point_1_temp - (calibration_point_1)*(p1_t);
+	}
 	EEprom_buff = p1_t*float_to_int_factor;
 	eeprom_write_data(p1_t_eeprom_add,&EEprom_buff,1);
 	EEprom_buff = p2_t*float_to_int_factor;
@@ -162,11 +173,11 @@ void relay_on_off(int func_num , int state)
 	}
 	if(relay3_func == func_num)
 	{
-		//HAL_GPIO_WritePin(REL_3_GPIO_Port,REL_3_Pin,state);
+		HAL_GPIO_WritePin(REL_3_GPIO_Port,REL_3_Pin,state);
 	}
 	if(relay4_func == func_num)
 	{
-		//HAL_GPIO_WritePin(REL_4_GPIO_Port,REL_4_Pin,state);
+		HAL_GPIO_WritePin(REL_4_GPIO_Port,REL_4_Pin,state);
 	}
 }
 

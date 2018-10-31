@@ -81,6 +81,7 @@ TaskHandle_t lcd_demo_handle = NULL;
 TaskHandle_t main_thread_handle = NULL;
 TaskHandle_t ph_calibration_thread_handle = NULL;
 TaskHandle_t temp_calibration_thread_handle = NULL;
+TaskHandle_t back_light_state_thread_handle = NULL;
 SemaphoreHandle_t lcd_semaphore;
 int create_ph_calibration_task_flag = 0;
 int delete_ph_calibration_task_flag = 0;
@@ -137,7 +138,7 @@ float *kp = &menu_list[10].values[0];
 float *ki = &menu_list[10].values[1];
 float *kd = &menu_list[10].values[2];
 int auto_wash_state = 0;
-
+int back_light_state=0;
 // PID sample time in ms
 uint32_t sample_time = 10;
 extern const unsigned char Times_New_Roman25x26[] ;
@@ -158,6 +159,7 @@ void ph_calibration_thread(void *);
 void temp_calibration_thread(void * pvParameters);
 void pump_set_stroke(uint16_t stroke);
 void read_setting_from_eeprom(void);
+void light_thread(void* pvParameters);
 uint32_t get_timer_time();
 //extern void calculate_calibration_coefficients(void);
 
@@ -238,14 +240,22 @@ int main(void)
 	HAL_UART_Receive_IT(&huart3,uart_buff,1);
 	HAL_TIM_Base_Start_IT(&htim2);
 	HAL_ADC_Start_DMA(&hadc1, adc_value, 2*bufferLength);
+	
 	GLCD_Initalize();
 	GLCD_ClearScreen();
 	glcd_set_font_with_num(1);
-	glcd_draw_string_xy(10,10,"Loading...",0,0,0);
+	glcd_draw_string_xy(20,20,"Atrovan",0,0,0);
+	HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_4);
+	for(int i=0; i<100;i++)
+	{
+		__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_4,i);
+		HAL_Delay(15);
+	}
 	lcd_semaphore = xSemaphoreCreateCounting(5,1);
-	xTaskCreate(lcd_print,"lcd_print",64,( void * )1,3,&lcd_demo_handle);
-	xTaskCreate(main_thread,"main_thread",512,( void * )1,2,&main_thread_handle);
-	//xTaskCreate(calibration_thread,"calibration_thread",128,( void * )1,3,&calibration_thread_handle);
+	xTaskCreate(lcd_print,"lcd_print",512,( void * )1,2,&lcd_demo_handle);
+	xTaskCreate(main_thread,"main_thread",512,( void * )1,1,&main_thread_handle);
+	xTaskCreate(light_thread,"back_light",512,( void * )1,2,&back_light_state_thread_handle);
+	//xTaskCreate(ph_calibration_thread,"calibration_thread",128,( void * )1,3,&ph_calibration_thread_handle);
 	
 
 
@@ -342,7 +352,6 @@ void SystemClock_Config(void)
 void main_thread(void * pvParameters)
 {	
 	uint32_t last_lcd_init=0;
-	HAL_Delay(100);
 	GLCD_Initalize();
 	GLCD_ClearScreen();
 	HAL_GPIO_WritePin(Power_led_GPIO_Port,Power_led_Pin,GPIO_PIN_SET);
@@ -366,6 +375,7 @@ void main_thread(void * pvParameters)
 			{
 				print_main_page(active_menu);
 				HAL_GPIO_WritePin(Status_led_GPIO_Port,Status_led_Pin,GPIO_PIN_SET);
+				__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_4,100); // set back light to 100%
 			}
 			else 
 			{
@@ -386,6 +396,7 @@ void main_thread(void * pvParameters)
 			if( ph_calibration_thread_handle != NULL )
 			{
 				vTaskDelete( ph_calibration_thread_handle );
+				back_light_state = 0;// 100% back light
 				HAL_TIM_Base_Stop(&htim5);
 				ph_calibration_thread_handle = NULL;
 				progress = 0;
@@ -405,6 +416,7 @@ void main_thread(void * pvParameters)
 			if( temp_calibration_thread_handle != NULL)
 			{
 				vTaskDelete( temp_calibration_thread_handle );
+				back_light_state = 0;// 100% back light
 				HAL_TIM_Base_Stop(&htim5);
 				temp_calibration_thread_handle = NULL;
 				progress = 0;
@@ -430,33 +442,31 @@ void lcd_print(void * pvParameters)
 		}
 		if( active_menu == 3 || active_menu == 5 || active_menu == 13 || active_menu == 15 )
 		{ 
-				if( progress == 100)
-				{
-					xSemaphoreGive( lcd_semaphore );
-					
-				}
+			if( progress >= 100)
+			{
+				xSemaphoreGive( lcd_semaphore );
+			}
 		}
 	}
 }
 void ph_calibration_thread(void * pvParameters)
 {
+	char sprintf_buff[20];
 	uint16_t last_ph_filtered = pH_filtered;
 	HAL_TIM_Base_Start(&htim5);
 	uint32_t start_time = get_timer_time();
-	char sprintf_buff[20];
+	back_light_state = 1;
 	while(1)
 	{
-		MAX485_send_string("ph calibration\n",15,100);
-		progress = (get_timer_time() - start_time)/200 ;
-		sprintf(sprintf_buff,"%d\n",progress);
-		MAX485_send_string(sprintf_buff,10,100);
 		if(abs(pH_filtered - last_ph_filtered) > 3)
 		{
 			xSemaphoreGive( lcd_semaphore );
 			last_ph_filtered = pH_filtered;
 			start_time = get_timer_time();
 			MAX485_send_string("reset\n",6,100);
+			back_light_state = 1;
 		}
+		progress = (get_timer_time() - start_time)/50 ;
 		if(progress > 100 )
 		{
 			progress = 100;
@@ -465,8 +475,10 @@ void ph_calibration_thread(void * pvParameters)
 		{
 			progress = 0;
 		}	
-		osDelay(2000);
-		HAL_GPIO_TogglePin(Status_led_GPIO_Port,Status_led_Pin);
+		MAX485_send_string("ph calibration\n",15,100);
+		sprintf(sprintf_buff,"%d\n",progress);
+		MAX485_send_string(sprintf_buff,10,100);
+		osDelay(1000);
 	}
 }
 
@@ -476,19 +488,18 @@ void temp_calibration_thread(void * pvParameters)
 	uint16_t last_temp_filtered = temp_filtered;
 	HAL_TIM_Base_Start(&htim5);
 	uint32_t start_time = get_timer_time();
+	back_light_state = 1;
 	while(1)
 	{
-		MAX485_send_string("temp calibration\n",20,100);
-		sprintf(sprintf_buff,"%d\n",temp_filtered);
-		MAX485_send_string(sprintf_buff,7,100);
-		progress = (get_timer_time() - start_time)/200  ;
 		if(abs(temp_filtered - last_temp_filtered) > 3)
 		{
 			xSemaphoreGive( lcd_semaphore );
 			last_temp_filtered = temp_filtered;
 			start_time = get_timer_time();
 			MAX485_send_string("reset\n",10,100);
+			back_light_state = 1;
 		}
+		progress = (get_timer_time() - start_time)/50  ;
 		if(progress > 100 )
 		{
 			progress = 100;
@@ -497,13 +508,41 @@ void temp_calibration_thread(void * pvParameters)
 		{
 			progress = 0;
 		}
-		
-		osDelay(2000);
-		HAL_GPIO_TogglePin(Status_led_GPIO_Port,Status_led_Pin);
-
+		MAX485_send_string("temp calibration\n",20,100);
+		sprintf(sprintf_buff,"%d\n",temp_filtered);
+		MAX485_send_string(sprintf_buff,7,100);
+		osDelay(1000);
 	}
 }
-
+void light_thread(void* pvParameters)
+{
+	while(1)
+	{
+		
+		if(back_light_state == 0)
+		{
+			__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_4,100);
+		}
+		
+		if(back_light_state == 1)
+		{
+			HAL_GPIO_TogglePin(Status_led_GPIO_Port,Status_led_Pin);
+			for(int i=100; i>20;i--)
+			{
+				__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_4,i);
+				osDelay(10);
+			}
+			for(int i=20; i<100;i++)
+			{
+				__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_4,i);
+				osDelay(10);
+			}
+			osDelay(3000);
+			
+		}
+		osDelay(100);
+	}
+}
 
 
 
@@ -561,8 +600,6 @@ void read_setting_from_eeprom(void)
 	menu_list[8].values[1] = eeprom_buff ;
 	eeprom_read_data(controller_setpoint_eeprom_add,&eeprom_buff,1);
 	menu_list[8].values[3] = eeprom_buff / float_to_int_factor;
-
-
 }
 void set_date_time(void)
 {
@@ -677,9 +714,9 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	get_user_input(uart_buff,&active_menu);
-	xSemaphoreGiveFromISR( lcd_semaphore, NULL );
-	//MAX485_send_string(uart_buff,13,100);
+	//MAX485_send_string(uart_buff,1,100);
 	HAL_UART_Receive_IT(&huart3,uart_buff,1);
+	xSemaphoreGiveFromISR( lcd_semaphore, NULL );
 }
 
 void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
@@ -692,16 +729,20 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	//HAL_GPIO_WritePin(POWER_STATE_GPIO_Port ,POWER_STATE_Pin , GPIO_PIN_RESET);
-	for(int i=0; i<200000;i++);
-	//HAL_GPIO_WritePin(POWER_STATE_GPIO_Port ,POWER_STATE_Pin , GPIO_PIN_SET);
-	
+	//HAL_GPIO_WritePin(Status_led_GPIO_Port ,Status_led_Pin , GPIO_PIN_RESET);
+	for(int i=0; i<200000;i++)
+	{
+		for(int j=0; j<15;j++);
+	}
+	//HAL_GPIO_WritePin(Status_led_GPIO_Port ,Status_led_Pin , GPIO_PIN_SET);
 	if(GPIO_Pin==Esc_Pin)
 	{
 		if(HAL_GPIO_ReadPin(Esc_GPIO_Port,Esc_Pin)==0)
 		{
 		//HAL_UART_Transmit(&huart2,"ESC\n",4,100);
 			uart_buff[0]='e';
+			get_user_input(uart_buff,&active_menu);
+			xSemaphoreGiveFromISR( lcd_semaphore, NULL );
 		}
 	}
 	
@@ -711,7 +752,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		{
 		//HAL_UART_Transmit(&huart2,"ESC\n",4,100);
 			uart_buff[0]='\n';
-			
+			get_user_input(uart_buff,&active_menu);
+			xSemaphoreGiveFromISR( lcd_semaphore, NULL );
 		}
 	}
 	if(GPIO_Pin==Up_Pin)
@@ -720,6 +762,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		{
 		//HAL_UART_Transmit(&huart2,"ESC\n",4,100);
 			uart_buff[0]='w';
+			get_user_input(uart_buff,&active_menu);
+			xSemaphoreGiveFromISR( lcd_semaphore, NULL );
 		}
 	}
 	if(GPIO_Pin==Down_Pin)
@@ -728,6 +772,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		{
 		//HAL_UART_Transmit(&huart2,"ESC\n",4,100);
 			uart_buff[0]='s';
+			get_user_input(uart_buff,&active_menu);
+			xSemaphoreGiveFromISR( lcd_semaphore, NULL );
 		}
 	}
 	if(GPIO_Pin==Right_Pin)
@@ -736,6 +782,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		{
 		//HAL_UART_Transmit(&huart2,"ESC\n",4,100);
 			uart_buff[0]='d';
+			get_user_input(uart_buff,&active_menu);
+			xSemaphoreGiveFromISR( lcd_semaphore, NULL );
 		}
 	}
 	if(GPIO_Pin==Left_Pin)
@@ -744,10 +792,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		{
 		//HAL_UART_Transmit(&huart2,"ESC\n",4,100);
 			uart_buff[0]='a';
+			get_user_input(uart_buff,&active_menu);
+			xSemaphoreGiveFromISR( lcd_semaphore, NULL );
 		}
 	}
-	get_user_input(uart_buff,&active_menu);
-	xSemaphoreGiveFromISR( lcd_semaphore, NULL );
+	
+	
 	//MAX485_send_string(uart_buff,13,100);
 	
 	

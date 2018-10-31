@@ -7,6 +7,7 @@
 #include "stm32f4xx_hal.h"
 #include <string.h>
 #include "font5x8.h"
+#include "max485.h"
 
 //-------------------------------------------------------------------------------------------------
 extern void GLCD_InitalizePorts(void);

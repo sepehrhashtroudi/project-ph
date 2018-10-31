@@ -238,10 +238,16 @@ int main(void)
 	HAL_UART_Receive_IT(&huart3,uart_buff,1);
 	HAL_TIM_Base_Start_IT(&htim2);
 	HAL_ADC_Start_DMA(&hadc1, adc_value, 2*bufferLength);
+	HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_4);
 	GLCD_Initalize();
 	GLCD_ClearScreen();
 	glcd_set_font_with_num(1);
 	glcd_draw_string_xy(10,10,"Loading...",0,0,0);
+	for(int i=0; i<100;i++)
+	{
+		__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_4,i);
+		HAL_Delay(2);
+	}
 	lcd_semaphore = xSemaphoreCreateCounting(5,1);
 	xTaskCreate(lcd_print,"lcd_print",64,( void * )1,3,&lcd_demo_handle);
 	xTaskCreate(main_thread,"main_thread",512,( void * )1,2,&main_thread_handle);
@@ -326,10 +332,6 @@ void SystemClock_Config(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Enables the Clock Security System 
-    */
-  HAL_RCC_EnableCSS();
-
     /**Configure the Systick interrupt time 
     */
   HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
@@ -346,7 +348,6 @@ void SystemClock_Config(void)
 void main_thread(void * pvParameters)
 {	
 	uint32_t last_lcd_init=0;
-	HAL_Delay(100);
 	GLCD_Initalize();
 	GLCD_ClearScreen();
 	HAL_GPIO_WritePin(Power_led_GPIO_Port,Power_led_Pin,GPIO_PIN_SET);
@@ -565,8 +566,6 @@ void read_setting_from_eeprom(void)
 	menu_list[8].values[1] = eeprom_buff ;
 	eeprom_read_data(controller_setpoint_eeprom_add,&eeprom_buff,1);
 	menu_list[8].values[3] = eeprom_buff / float_to_int_factor;
-
-
 }
 void set_date_time(void)
 {

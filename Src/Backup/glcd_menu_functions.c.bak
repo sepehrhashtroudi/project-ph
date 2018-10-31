@@ -162,11 +162,11 @@ void relay_on_off(int func_num , int state)
 	}
 	if(relay3_func == func_num)
 	{
-		//HAL_GPIO_WritePin(REL_3_GPIO_Port,REL_3_Pin,state);
+		HAL_GPIO_WritePin(REL_3_GPIO_Port,REL_3_Pin,state);
 	}
 	if(relay4_func == func_num)
 	{
-		//HAL_GPIO_WritePin(REL_4_GPIO_Port,REL_4_Pin,state);
+		HAL_GPIO_WritePin(REL_4_GPIO_Port,REL_4_Pin,state);
 	}
 }
 

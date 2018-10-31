@@ -8,6 +8,7 @@
 
 #include "stm32f4xx_hal.h"
 #include "gpio.h"
+#include "max485.h"
 
 #define DISPLAY_STATUS_BUSY	0x80
 
@@ -100,10 +101,8 @@ return status;
 //-------------------------------------------------------------------------------------------------
 void GLCD_WriteCommand(unsigned char commandToWrite, unsigned char controller)
 {
-for(int i=0;i<100000 && GLCD_ReadStatus(controller)&DISPLAY_STATUS_BUSY;i++);
+for(int i=0;i<1000 && GLCD_ReadStatus(controller)&DISPLAY_STATUS_BUSY;i++);
 Port_in_out_mode(1);
-
-
 HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin | LCD_RW_Pin,GPIO_PIN_RESET);
 GLCD_Delay();
 GLCD_EnableController(controller);
@@ -133,7 +132,7 @@ GLCD_DisableController(controller);
 unsigned char GLCD_ReadData(void)
 {
 unsigned char tmp=0;
-for(int i=0;i<100000 && GLCD_ReadStatus(screen_x / 64)&DISPLAY_STATUS_BUSY;i++);
+for(int i=0;i<1000 && GLCD_ReadStatus(screen_x / 64)&DISPLAY_STATUS_BUSY;i++);
 Port_in_out_mode(0);
 HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin | LCD_RW_Pin,GPIO_PIN_SET);
 GLCD_EnableController(screen_x / 64);
@@ -159,7 +158,8 @@ return tmp;
 //-------------------------------------------------------------------------------------------------
 void GLCD_WriteData(unsigned char dataToWrite)
 {
-for(int i=0;i<100000 && GLCD_ReadStatus(screen_x / 64)&DISPLAY_STATUS_BUSY;i++);
+char buff[20]={0};
+for(int i=0;(i<1000) && (GLCD_ReadStatus(screen_x / 64)&DISPLAY_STATUS_BUSY);i++);
 Port_in_out_mode(1);
 HAL_GPIO_WritePin(LCD_RW_GPIO_Port,  LCD_RW_Pin,GPIO_PIN_RESET);
 HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin ,GPIO_PIN_SET);

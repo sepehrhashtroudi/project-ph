@@ -76,7 +76,7 @@ void MX_RTC_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    /**Initialize RTC and set the Time and Date 
+//    /**Initialize RTC and set the Time and Date 
 //    */
 //  sTime.Hours = 0x0;
 //  sTime.Minutes = 0x0;
