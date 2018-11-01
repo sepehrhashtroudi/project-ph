@@ -336,10 +336,10 @@ void init_menu(void)
 	menu_list[16].run_on_exit=1;
 	
 	strcpy(menu_list[17].menu_name , "Relay Functions");
-	strcpy(menu_list[17].menu_strings[0], " relay1:| <Pump>,<Supply>,<Drain>,<KCL>,<Wash>");
-	strcpy(menu_list[17].menu_strings[1], " relay2:| <Pump>,<Supply>,<Drain>,<KCL>,<Wash>");
-	strcpy(menu_list[17].menu_strings[2], " relay3:| <Pump>,<Supply>,<Drain>,<KCL>,<Wash>");
-	strcpy(menu_list[17].menu_strings[3], " relay4:| <Pump>,<Supply>,<Drain>,<KCL>,<Wash>");
+	strcpy(menu_list[17].menu_strings[0], " relay1:| <Pump>,<Supply>,<Drain>,<Wash>,<KCL>");
+	strcpy(menu_list[17].menu_strings[1], " relay2:| <Pump>,<Supply>,<Drain>,<Wash>,<KCL>");
+	strcpy(menu_list[17].menu_strings[2], " relay3:| <Pump>,<Supply>,<Drain>,<Wash>,<KCL>");
+	strcpy(menu_list[17].menu_strings[3], " relay4:| <Pump>,<Supply>,<Drain>,<Wash>,<KCL>");
 	menu_list[17].next_menu_id[0]=17;
 	menu_list[17].next_menu_id[1]=17;
 	menu_list[17].next_menu_id[2]=17;
@@ -366,8 +366,8 @@ void init_menu(void)
 	strcpy(menu_list[18].menu_name , "Manual Wash");
 	strcpy(menu_list[18].menu_strings[0], " Supply:| <OFF>,<ON>");
 	strcpy(menu_list[18].menu_strings[1], " Drain:| <OFF>,<ON>");
-	strcpy(menu_list[18].menu_strings[2], " KCL:| <OFF>,<ON>");
-	strcpy(menu_list[18].menu_strings[3], " Wash:| <OFF>,<ON>");
+	strcpy(menu_list[18].menu_strings[2], " Wash:| <OFF>,<ON>");
+	strcpy(menu_list[18].menu_strings[3], " KCL:| <OFF>,<ON>");
 	menu_list[18].next_menu_id[0]=18;
 	menu_list[18].next_menu_id[1]=18;
 	menu_list[18].next_menu_id[2]=18;
@@ -410,10 +410,10 @@ void init_menu(void)
 	menu_list[19].run_on_exit=0;
 	
 	strcpy(menu_list[20].menu_name , "Auto Wash");
-	strcpy(menu_list[20].menu_strings[0], " Supply: %d ");
-	strcpy(menu_list[20].menu_strings[1], " Drain: %d");
-	strcpy(menu_list[20].menu_strings[2], " KCL: %d");
-	strcpy(menu_list[20].menu_strings[3], " Wash: %d");
+	strcpy(menu_list[20].menu_strings[0], " Drain 1: %d ");
+	strcpy(menu_list[20].menu_strings[1], " Wash: %d");
+	strcpy(menu_list[20].menu_strings[2], " Drain 2: %d");
+	strcpy(menu_list[20].menu_strings[3], " KCL: %d");
 	strcpy(menu_list[20].menu_strings[4], " OK ");
 	menu_list[20].next_menu_id[0]=20;
 	menu_list[20].next_menu_id[1]=20;
@@ -439,10 +439,10 @@ void init_menu(void)
 	menu_list[20].run_on_exit=0;
 	
 	strcpy(menu_list[21].menu_name , "Auto Wash State");
-	strcpy(menu_list[21].menu_strings[0], " Supply:| <OFF>,<ON>");
+	strcpy(menu_list[21].menu_strings[0], " Supply:| <ON>,<OFF>");
 	strcpy(menu_list[21].menu_strings[1], " Drain:| <OFF>,<ON>");
-	strcpy(menu_list[21].menu_strings[2], " KCL:| <OFF>,<ON>");
-	strcpy(menu_list[21].menu_strings[3], " Wash:| <OFF>,<ON>");
+	strcpy(menu_list[21].menu_strings[2], " Wash:| <OFF>,<ON>");
+	strcpy(menu_list[21].menu_strings[3], " KCL:| <OFF>,<ON>");
 	menu_list[21].next_menu_id[0]=21;
 	menu_list[21].next_menu_id[1]=21;
 	menu_list[21].next_menu_id[2]=21;
@@ -496,13 +496,26 @@ void update_menu_from_variables(int active_menu)
 	{
 		menu_list[9].values[1] = menu_list[9].values[0];
 	}
-	Change_Menu_Items(3, 0, NULL, -1, -1000 * (pH_filtered - 2047) / 4095.0 , -1); //calculate sensor mv
-	Change_Menu_Items(3, 1, NULL, -1, pH_filtered * 0.00413 - 1.454, -1); // calculate ph with ideal coeff
-	Change_Menu_Items(3, 2, NULL, -1, temp, -1);
-	Change_Menu_Items(5, 0, NULL, -1, -1000 * (pH_filtered - 2047) / 4095.0 , -1);
-	Change_Menu_Items(5, 1, NULL, -1, pH_filtered * 0.00413 - 1.454, -1);
-	Change_Menu_Items(5, 2, NULL, -1, temp, -1);
 	
+	Change_Menu_Items(3, 0, NULL, -1, -1000 * (pH_filtered - 2047) / 4095.0 , -1); //calculate sensor mv
+	Change_Menu_Items(5, 0, NULL, -1, -1000 * (pH_filtered - 2047) / 4095.0 , -1);
+	if((pH_filtered * 0.00413 - 1.454) > 14)
+	{
+		Change_Menu_Items(3, 1, NULL, -1,14 , -1);
+		Change_Menu_Items(5, 1, NULL, -1,14, -1);
+	}
+	else if((pH_filtered * 0.00413 - 1.454) < 0)
+	{
+		Change_Menu_Items(3, 1, NULL, -1, 0, -1); // calculate ph with ideal coeff
+		Change_Menu_Items(5, 1, NULL, -1, 0, -1);
+	}
+	else
+	{
+		Change_Menu_Items(3, 1, NULL, -1, pH_filtered * 0.00413 - 1.454, -1); // calculate ph with ideal coeff
+		Change_Menu_Items(5, 1, NULL, -1, pH_filtered * 0.00413 - 1.454, -1);
+	}
+	Change_Menu_Items(3, 2, NULL, -1, temp, -1);
+	Change_Menu_Items(5, 2, NULL, -1, temp, -1);
 	Change_Menu_Items(13, 0, NULL, -1, temp_filtered, -1);
 	Change_Menu_Items(13, 1, NULL, -1, temp, -1);
 	Change_Menu_Items(15, 0, NULL, -1, temp_filtered, -1);
@@ -533,24 +546,17 @@ void update_menu_from_variables(int active_menu)
 		relay_on_off(wash_func_num,wash_relay_state);
 	}
 	
-	if(menu_list[8].values[0] == 0 && menu_list[8].values[1]==1 && pump_on_off_state == 1)
+
+	if(CONTROLLER_ON_OFF == 0 && CONTROLLER_TYPE ==0)
 	{
-		strcpy(menu_list[0].menu_strings[5] , "K1");
-		menu_list[0].x_position[5]=55;
-	}
-	if(menu_list[8].values[0] == 0 && menu_list[8].values[1]==1 && pump_on_off_state == 0)
-	{
-		strcpy(menu_list[0].menu_strings[5] , " ");
-	}
-	if(menu_list[8].values[0] == 0 && menu_list[8].values[1]==0)
-	{
-		strcpy(menu_list[0].menu_strings[5] ,"%.1f mA");
+		Change_Menu_Items(0,5,"%.1f mA",-1,-1,-1);
 		menu_list[0].x_position[5]=105;
 	}
-	if(menu_list[8].values[0] == 1)
+	else if(CONTROLLER_ON_OFF == 1 || CONTROLLER_TYPE==1)
 	{
-		strcpy(menu_list[0].menu_strings[5] , " ");
+		Change_Menu_Items(0,5," ",-1,-1,-1);
 	}
+	
 		
 	menu_list[0].values[5] = output_mA; 
 	menu_list[0].values[0] = pH;

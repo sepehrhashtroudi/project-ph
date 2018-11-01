@@ -351,7 +351,6 @@ void main_thread(void * pvParameters)
 	GLCD_Initalize();
 	GLCD_ClearScreen();
 	HAL_GPIO_WritePin(Power_led_GPIO_Port,Power_led_Pin,GPIO_PIN_SET);
-	relay_on_off(supply_func_num , 1);
 	HAL_UART_Receive_IT(&huart3,uart_buff,1);
 	while(1)
 	{
