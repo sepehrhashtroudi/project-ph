@@ -8,13 +8,14 @@
   ******************************************************************************
   */
 	#include "stm32f4xx_hal.h"
+	#include "defines.h"
 	typedef struct Menu
 	{
 		int menu_id;
 		char menu_name[25];
 		int menu_pointer;
 		int menu_item_count;
-		char menu_strings[8][40];
+		char menu_strings[8][MENU_STRING_LENGTH];
 		int next_menu_id[8];
 		float values[8];
 		float value_resolution[8];

@@ -60,6 +60,7 @@ ph_meter_ver_2\main.o: ../Inc/usart.h
 ph_meter_ver_2\main.o: ../Inc/gpio.h
 ph_meter_ver_2\main.o: ../Inc/KS0108.h
 ph_meter_ver_2\main.o: ../Inc/glcd_menu.h
+ph_meter_ver_2\main.o: ../Inc/defines.h
 ph_meter_ver_2\main.o: ../Inc/Dsp.h
 ph_meter_ver_2\main.o: ../Inc/PID.h
 ph_meter_ver_2\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h

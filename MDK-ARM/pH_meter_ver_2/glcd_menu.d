@@ -37,6 +37,7 @@ ph_meter_ver_2\glcd_menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rt
 ph_meter_ver_2\glcd_menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 ph_meter_ver_2\glcd_menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 ph_meter_ver_2\glcd_menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
+ph_meter_ver_2\glcd_menu.o: ../Inc/defines.h
 ph_meter_ver_2\glcd_menu.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 ph_meter_ver_2\glcd_menu.o: ../Inc/KS0108.h
 ph_meter_ver_2\glcd_menu.o: ../Inc/usart.h

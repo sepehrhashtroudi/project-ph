@@ -46,7 +46,7 @@ extern int active_menu;
 void ph_calculate_calibration_coefficients(void)
 {
 
-	ph_calibration_temp = (ph_calibration_start_temp + ph_calibration_end_temp)/2.0;
+	ph_calibration_temp = (ph_calibration_start_temp + ph_calibration_end_temp)/2.0f;
 	EEprom_buff = ph_calibration_temp*float_to_int_factor;
 	eeprom_write_data(ph_calibration_temp_add,&EEprom_buff,1);
 	EEprom_buff = p1_p*float_to_int_factor;
@@ -80,26 +80,32 @@ void ph_calibration_waiting_2(void)
 	{
 		p1_p = (*calibration_point_1_ph - *calibration_point_2_ph) / (float)(calibration_point_1 - calibration_point_2 ) ;
 		p2_p = *calibration_point_1_ph - (calibration_point_1)*(p1_p);
-	}
-	slope = 1000 / (p1_p * 4095);
-	zero = 1000 * (p2_p + 1.454)/ (p1_p * 4095);
-	slope_percent = 100 * slope / 59.16;
-	Change_Menu_Items(6,0,NULL,-1,slope_percent,-1);
-	Change_Menu_Items(6,1,NULL,-1,zero,-1);
-	char sprintf_buff[20];
-	sprintf(sprintf_buff,"%.5f,%.5f\n",slope,zero);
-	MAX485_send_string(sprintf_buff,20,100);
 	
-	if( slope_percent < 90 || slope_percent > 105  || zero > 30 || zero <-30)
+		slope = 1000 / (p1_p * 4095);
+		zero = 1000 * (p2_p + 1.454f)/ (p1_p * 4095);
+		slope_percent = 100 * slope / 59.16f;
+		Change_Menu_Items(6,0,NULL,-1,slope_percent,-1);
+		Change_Menu_Items(6,1,NULL,-1,zero,-1);
+		char sprintf_buff[20];
+		sprintf(sprintf_buff,"%.5f,%.5f\n",slope,zero);
+		MAX485_send_string(sprintf_buff,20,100);
+	
+		if( slope_percent < 90 || slope_percent > 105  || zero > 40 || zero <-40)
 		{
 			Change_Menu_Items(6,2,"Sensor health problem",-1,-1,-1);
-			MAX485_send_string("Sensor health problem",13,100);
+			MAX485_send_string("Sensor health problem",20,100);
 		}
-	else
+		else
 		{
 			Change_Menu_Items(6,2,"Sensor is healthy",-1,-1,-1);
-			MAX485_send_string("Sensor is healthy",13,100);
+			MAX485_send_string("Sensor is healthy",20,100);
 		}
+	}
+	else
+	{
+		Change_Menu_Items(6,2,"Sensor health problem",-1,-1,-1);
+		MAX485_send_string("Sensor health problem",20,100);
+	}
 			
 	
 }
@@ -165,19 +171,19 @@ void relay_on_off(int func_num , int state)
 {
 	if(relay1_func == func_num)
 	{
-		HAL_GPIO_WritePin(REL_1_GPIO_Port, REL_1_Pin, state);
+		HAL_GPIO_WritePin(REL_1_GPIO_Port, REL_1_Pin,(GPIO_PinState) state);
 	}
 	if(relay2_func == func_num)
 	{
-		HAL_GPIO_WritePin(REL_2_GPIO_Port, REL_2_Pin, state);
+		HAL_GPIO_WritePin(REL_2_GPIO_Port, REL_2_Pin,(GPIO_PinState) state);
 	}
 	if(relay3_func == func_num)
 	{
-		HAL_GPIO_WritePin(REL_3_GPIO_Port,REL_3_Pin,state);
+		HAL_GPIO_WritePin(REL_3_GPIO_Port,REL_3_Pin,(GPIO_PinState) state);
 	}
 	if(relay4_func == func_num)
 	{
-		HAL_GPIO_WritePin(REL_4_GPIO_Port,REL_4_Pin,state);
+		HAL_GPIO_WritePin(REL_4_GPIO_Port,REL_4_Pin,(GPIO_PinState) state);
 	}
 }
 
@@ -269,11 +275,35 @@ void run_auto_wash()
 	auto_wash_state = 1;
 	auto_wash_handler(&auto_wash_state);
 }
+void Measurement_exit()
+{
+	EEprom_buff = ATC;
+	eeprom_write_data(ATC_eeprom_add,&EEprom_buff,1);
+}
 void manual_wash_exit()
 {
 	//relay_on_off(supply_func_num , 1);  
 	//relay_on_off(drain_func_num , 0);
 	//relay_on_off(kcl_func_num , 0);
 	//relay_on_off(wash_func_num , 0); 
+}
+void relay_func_exit(void)
+{
+	relay_on_off(pump_func_num , 0);  
+	relay_on_off(supply_func_num , 0);  
+	relay_on_off(drain_func_num , 0);
+	relay_on_off(kcl_func_num , 0);
+	relay_on_off(wash_func_num , 0); 
+	
+	EEprom_buff = relay1_func;
+	eeprom_write_data(REL_FUNC_1_EEPROM_ADD,&EEprom_buff,1);
+	EEprom_buff = relay2_func;
+	eeprom_write_data(REL_FUNC_2_EEPROM_ADD,&EEprom_buff,1);
+	EEprom_buff = relay3_func;
+	eeprom_write_data(REL_FUNC_3_EEPROM_ADD,&EEprom_buff,1);
+	EEprom_buff = relay4_func;
+	eeprom_write_data(REL_FUNC_4_EEPROM_ADD,&EEprom_buff,1);
+	
+	
 }
 	

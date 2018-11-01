@@ -142,7 +142,7 @@ int back_light_state=0;
 // PID sample time in ms
 uint32_t sample_time = 10;
 extern const unsigned char Times_New_Roman25x26[] ;
-static FLASH_EraseInitTypeDef EraseInitStruct;
+
 
 /* USER CODE END PV */
 
@@ -160,8 +160,7 @@ void temp_calibration_thread(void * pvParameters);
 void pump_set_stroke(uint16_t stroke);
 void read_setting_from_eeprom(void);
 void light_thread(void* pvParameters);
-uint32_t get_timer_time();
-//extern void calculate_calibration_coefficients(void);
+uint32_t get_timer_time(void);
 
 /* USER CODE END PFP */
 
@@ -235,12 +234,9 @@ int main(void)
 	HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
 	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 0);
 	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, 0);
-	char sprintf_buff[20];
 	MAX485_send_string("starting ...",14,100);
-	HAL_UART_Receive_IT(&huart3,uart_buff,1);
 	HAL_TIM_Base_Start_IT(&htim2);
 	HAL_ADC_Start_DMA(&hadc1, adc_value, 2*bufferLength);
-	
 	GLCD_Initalize();
 	GLCD_ClearScreen();
 	glcd_set_font_with_num(1);
@@ -252,9 +248,9 @@ int main(void)
 		HAL_Delay(15);
 	}
 	lcd_semaphore = xSemaphoreCreateCounting(5,1);
-	xTaskCreate(lcd_print,"lcd_print",512,( void * )1,2,&lcd_demo_handle);
-	xTaskCreate(main_thread,"main_thread",512,( void * )1,1,&main_thread_handle);
-	xTaskCreate(light_thread,"back_light",512,( void * )1,2,&back_light_state_thread_handle);
+	xTaskCreate(lcd_print,"lcd_print",1024,( void * )1,2,&lcd_demo_handle);
+	xTaskCreate(main_thread,"main_thread",1024,( void * )1,1,&main_thread_handle);
+	xTaskCreate(light_thread,"back_light",1024,( void * )1,2,&back_light_state_thread_handle);
 	//xTaskCreate(ph_calibration_thread,"calibration_thread",128,( void * )1,3,&ph_calibration_thread_handle);
 	
 
@@ -356,13 +352,13 @@ void main_thread(void * pvParameters)
 	GLCD_ClearScreen();
 	HAL_GPIO_WritePin(Power_led_GPIO_Port,Power_led_Pin,GPIO_PIN_SET);
 	relay_on_off(supply_func_num , 1);
+	HAL_UART_Receive_IT(&huart3,uart_buff,1);
 	while(1)
 	{
 		HAL_RTC_GetTime(&hrtc,&rtc_time,FORMAT_BIN);
 		HAL_RTC_GetDate(&hrtc,&rtc_date,FORMAT_BIN);
 		*rtc_minute_p = rtc_time.Minutes;
 		*rtc_hour_p = rtc_time.Hours;
-		char sprintf_buff[20];
 		if( xSemaphoreTake( lcd_semaphore, 1000 ) == pdTRUE )
 		{
 			if((uint32_t)(HAL_GetTick() - last_lcd_init) > 3600000)
@@ -375,7 +371,7 @@ void main_thread(void * pvParameters)
 			{
 				print_main_page(active_menu);
 				HAL_GPIO_WritePin(Status_led_GPIO_Port,Status_led_Pin,GPIO_PIN_SET);
-				__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_4,100); // set back light to 100%
+				back_light_state =0; // set backlight to 100%
 			}
 			else 
 			{
@@ -466,7 +462,7 @@ void ph_calibration_thread(void * pvParameters)
 			MAX485_send_string("reset\n",6,100);
 			back_light_state = 1;
 		}
-		progress = (get_timer_time() - start_time)/50 ;
+		progress = (get_timer_time() - start_time)/100 ;
 		if(progress > 100 )
 		{
 			progress = 100;
@@ -499,7 +495,7 @@ void temp_calibration_thread(void * pvParameters)
 			MAX485_send_string("reset\n",10,100);
 			back_light_state = 1;
 		}
-		progress = (get_timer_time() - start_time)/50  ;
+		progress = (get_timer_time() - start_time)/100  ;
 		if(progress > 100 )
 		{
 			progress = 100;
@@ -561,17 +557,7 @@ void send_pH_4_20(uint16_t pH)
 	uint16_t dac_value = (4095 * ((4 + pH * 16.0 / 14.0) * 0.1) / 3.3);
 	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, dac_value);
 }
-void pump_turn_on_off(uint16_t state)
-{
-	if(state == 1)
-	{
-		HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,GPIO_PIN_SET);
-	}
-	if(state == 0)
-	{
-		HAL_GPIO_WritePin(REL_1_GPIO_Port,REL_1_Pin,GPIO_PIN_RESET);
-	}
-}
+
 void read_setting_from_eeprom(void)
 {
 	eeprom_read_data(p1_p_eeprom_add,&eeprom_buff,1);
@@ -585,21 +571,32 @@ void read_setting_from_eeprom(void)
 	eeprom_read_data(p2_t_eeprom_add,&eeprom_buff,1);
 	p2_t = eeprom_buff / float_to_int_factor;
 	eeprom_read_data(pid_p_eeprom_add,&eeprom_buff,1);
-	menu_list[10].values[0] = eeprom_buff / float_to_int_factor;
+	PID_P = eeprom_buff / float_to_int_factor;
 	eeprom_read_data(pid_i_eeprom_add,&eeprom_buff,1);
-	menu_list[10].values[1] = eeprom_buff / float_to_int_factor;
+	PID_I = eeprom_buff / float_to_int_factor;
 	eeprom_read_data(pid_d_eeprom_add,&eeprom_buff,1);
-	menu_list[10].values[2] = eeprom_buff / float_to_int_factor;
+	PID_D = eeprom_buff / float_to_int_factor;
 	eeprom_read_data(relay_max_eeprom_add,&eeprom_buff,1);
-	menu_list[9].values[0] = eeprom_buff / float_to_int_factor;
+	CONTROLLER_THRESHOLD_MAX = eeprom_buff / float_to_int_factor;
 	eeprom_read_data(relay_min_eeprom_add,&eeprom_buff,1);
-	menu_list[9].values[1] = eeprom_buff / float_to_int_factor;
+	CONTROLLER_THRESHOLD_MIN = eeprom_buff / float_to_int_factor;
 	eeprom_read_data(controller_on_off_eeprom_add,&eeprom_buff,1);
-	menu_list[8].values[0] = eeprom_buff ;
+	CONTROLLER_ON_OFF = eeprom_buff ;
 	eeprom_read_data(controller_type_eeprom_add,&eeprom_buff,1);
-	menu_list[8].values[1] = eeprom_buff ;
+	CONTROLLER_TYPE = eeprom_buff ;
 	eeprom_read_data(controller_setpoint_eeprom_add,&eeprom_buff,1);
-	menu_list[8].values[3] = eeprom_buff / float_to_int_factor;
+	CONTROLLER_SETPOINT = eeprom_buff / float_to_int_factor;
+	eeprom_read_data(ATC_eeprom_add,&eeprom_buff,1);
+	ATC = eeprom_buff ;
+	eeprom_read_data(REL_FUNC_1_EEPROM_ADD,&eeprom_buff,1);
+	relay1_func = eeprom_buff ;
+	eeprom_read_data(REL_FUNC_2_EEPROM_ADD,&eeprom_buff,1);
+	relay2_func = eeprom_buff ;
+	eeprom_read_data(REL_FUNC_3_EEPROM_ADD,&eeprom_buff,1);
+	relay3_func = eeprom_buff ;
+	eeprom_read_data(REL_FUNC_4_EEPROM_ADD,&eeprom_buff,1);
+	relay4_func = eeprom_buff ;
+	
 }
 void set_date_time(void)
 {
@@ -632,13 +629,12 @@ void set_pid_coefficients(void)
 	eeprom_write_data(pid_i_eeprom_add,&eeprom_buff,1);
 	eeprom_buff = *kd * float_to_int_factor;
 	eeprom_write_data(pid_d_eeprom_add,&eeprom_buff,1);
-	eeprom_buff = menu_list[8].values[0];
+	eeprom_buff = CONTROLLER_ON_OFF;
 	eeprom_write_data(controller_on_off_eeprom_add,&eeprom_buff,1);
-	eeprom_buff = menu_list[8].values[1];
+	eeprom_buff = CONTROLLER_TYPE;
 	eeprom_write_data(controller_type_eeprom_add,&eeprom_buff,1);
-	eeprom_buff = menu_list[8].values[3]* float_to_int_factor;
+	eeprom_buff = CONTROLLER_SETPOINT* float_to_int_factor;
 	eeprom_write_data(controller_setpoint_eeprom_add,&eeprom_buff,1);
-
 }
 
 
@@ -651,21 +647,28 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	temp_averaged = average(temp_buffer, bufferLength);
 	temp_filtered = best_moving_average(temp_averaged, temp_history, &temp_sum, &temp_window_pointer);
 	temp = p1_t * temp_filtered + p2_t;
-	temp = roundf(temp * 10.0) / 10.0; 
+	temp = roundf(temp * 10.0f) / 10.0f; 
 	if( temp_filtered < 10)
 	{
-		strcpy(menu_list[0].menu_strings[2] , "NC `C");
+		Change_Menu_Items(0,2,"NC `C",-1,-1,-1);
 	}
 	else
 	{
-		strcpy(menu_list[0].menu_strings[2] , "%.1f `C");
+		Change_Menu_Items(0,2,"%.1f `C",-1,-1,-1);
 	}
 	
 	ph_averaged = average(pH_buffer, bufferLength);
 	pH_filtered = best_moving_average(ph_averaged, ph_history, &ph_sum, &ph_window_pointer);
-	temp_compensation_coef = (temp + 273.15) / (ph_calibration_temp + 273.15);
-	pH = temp_compensation_coef * p1_p * pH_filtered + p2_p;
-	pH = roundf(pH * 100.0) / 100.0; 
+	if(ATC == 1)
+	{
+		temp_compensation_coef = (temp + 273.15f) / (ph_calibration_temp + 273.15f);
+		pH = temp_compensation_coef * p1_p * pH_filtered + p2_p;
+	}
+	else
+	{
+		pH = p1_p * pH_filtered + p2_p;
+	}
+	pH = roundf(pH * 100.0f) / 100.0f; 
 	if(pH > 14)
 	{
 		pH = 14;
@@ -676,11 +679,11 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	}
 	send_pH_4_20(pH);
 	
-	if(menu_list[8].values[0]==0) // controller is ON
+	if(CONTROLLER_ON_OFF == 0) // controller is ON
 	{
-		if(menu_list[8].values[1]==0) // controller type is pid
+		if(CONTROLLER_TYPE == 0) // controller type is pid
 		{
-			//pump_turn_on_off(0);
+			relay_on_off(pump_func_num,0);
 			/* Updating PID input*/
 			input = pH;
 			/* Compute new PID output*/
@@ -688,25 +691,25 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 			output_mA = 4 + output*16/100;
 			pump_set_stroke(output);
 		}
-		else if(menu_list[8].values[1]==1)// controller type is relay
+		else if(CONTROLLER_TYPE == 1)// controller type is relay
 		{
-//			uint16_t threshold = (menu_list[9].values[0] - menu_list[9].values[1])/4;
-//			uint16_t mean = (menu_list[9].values[0] + menu_list[9].values[1])/2;
-//			if (pH > mean + threshold ) // pH is bigger than maximum value
-//			{
-//				pump_on_off_state = 1;
-//				pump_turn_on_off(pump_on_off_state);
-//			}
-//			else if (pH < mean - threshold )
-//			{
-//				pump_on_off_state = 0;
-//				pump_turn_on_off(pump_on_off_state);
-//			}
+			uint16_t threshold = (CONTROLLER_THRESHOLD_MAX - CONTROLLER_THRESHOLD_MIN)/4;
+			uint16_t mean = (CONTROLLER_THRESHOLD_MAX + CONTROLLER_THRESHOLD_MIN)/2;
+			if (pH > mean + threshold ) // pH is bigger than maximum value
+			{
+				pump_on_off_state = 1;
+				relay_on_off(pump_func_num,pump_on_off_state);
+			}
+			else if (pH < mean - threshold )
+			{
+				pump_on_off_state = 0;
+				relay_on_off(pump_func_num,pump_on_off_state);
+			}
 		}
 	}
 	else
 	{
-		//pump_turn_on_off(0);
+		relay_on_off(pump_func_num,0);
 		output=0;
 		output_mA = 0;
 	}

@@ -73,14 +73,16 @@ void init_menu(void)
 	strcpy(menu_list[1].menu_name , "Main menu");
 	strcpy(menu_list[1].menu_strings[0],  " Calibration ");
 	strcpy(menu_list[1].menu_strings[1] , " Controller ");
-	strcpy(menu_list[1].menu_strings[2] , " Time ");
+	strcpy(menu_list[1].menu_strings[2] , " Measurement ");
 	strcpy(menu_list[1].menu_strings[3] , " Self Cleaning ");
+	strcpy(menu_list[1].menu_strings[4] , " Time ");
 	menu_list[1].menu_id=1;
-	menu_list[1].menu_item_count = 4;
+	menu_list[1].menu_item_count = 5;
 	menu_list[1].next_menu_id[0]=7;
 	menu_list[1].next_menu_id[1]=8;
-	menu_list[1].next_menu_id[2]=11;
+	menu_list[1].next_menu_id[2]=22;
 	menu_list[1].next_menu_id[3]=19;
+	menu_list[1].next_menu_id[4]=11;
 	menu_list[1].menu_pointer=0;
 	menu_list[1].run_on_exit=0;
 	
@@ -161,7 +163,7 @@ void init_menu(void)
 	menu_list[6].menu_item_count = 4;
 	menu_list[6].menu_pointer=1;
 	menu_list[6].fun_ptr = &ph_calculate_calibration_coefficients;
-	menu_list[6].run_on_exit=1;
+	menu_list[6].run_on_exit=0;
 	
 	strcpy(menu_list[7].menu_name , " Select Sensor");
 	strcpy(menu_list[7].menu_strings[0],  " pH ");
@@ -334,10 +336,10 @@ void init_menu(void)
 	menu_list[16].run_on_exit=1;
 	
 	strcpy(menu_list[17].menu_name , "Relay Functions");
-	strcpy(menu_list[17].menu_strings[0], " relay1:| <Supply>,<Drain>,<KCL>,<Wash>");
-	strcpy(menu_list[17].menu_strings[1], " relay2:| <Supply>,<Drain>,<KCL>,<Wash>");
-	strcpy(menu_list[17].menu_strings[2], " relay3:| <Supply>,<Drain>,<KCL>,<Wash>");
-	strcpy(menu_list[17].menu_strings[3], " relay4:| <Supply>,<Drain>,<KCL>,<Wash>");
+	strcpy(menu_list[17].menu_strings[0], " relay1:| <Pump>,<Supply>,<Drain>,<KCL>,<Wash>");
+	strcpy(menu_list[17].menu_strings[1], " relay2:| <Pump>,<Supply>,<Drain>,<KCL>,<Wash>");
+	strcpy(menu_list[17].menu_strings[2], " relay3:| <Pump>,<Supply>,<Drain>,<KCL>,<Wash>");
+	strcpy(menu_list[17].menu_strings[3], " relay4:| <Pump>,<Supply>,<Drain>,<KCL>,<Wash>");
 	menu_list[17].next_menu_id[0]=17;
 	menu_list[17].next_menu_id[1]=17;
 	menu_list[17].next_menu_id[2]=17;
@@ -350,15 +352,15 @@ void init_menu(void)
 	menu_list[17].value_resolution[1]=1;
 	menu_list[17].value_resolution[2]=1;
 	menu_list[17].value_resolution[3]=1;
-	menu_list[17].value_max[0]=3;
-	menu_list[17].value_max[1]=3;
-	menu_list[17].value_max[2]=3;
-	menu_list[17].value_max[3]=3;
+	menu_list[17].value_max[0]=4;
+	menu_list[17].value_max[1]=4;
+	menu_list[17].value_max[2]=4;
+	menu_list[17].value_max[3]=4;
 	menu_list[17].menu_id=17;
 	menu_list[17].menu_item_count = 4;
 	menu_list[17].menu_pointer=0;
-	menu_list[17].fun_ptr = NULL;
-	menu_list[17].run_on_exit=0;
+	menu_list[17].fun_ptr = &relay_func_exit;
+	menu_list[17].run_on_exit=1;
 	
 	
 	strcpy(menu_list[18].menu_name , "Manual Wash");
@@ -462,19 +464,31 @@ void init_menu(void)
 	menu_list[21].menu_pointer=0;
 	menu_list[21].fun_ptr = NULL ;
 	menu_list[21].run_on_exit=0;
+	
+	strcpy(menu_list[22].menu_name , "Measurement");
+	strcpy(menu_list[22].menu_strings[0], " ATC:| <OFF>,<ON>");
+	menu_list[22].next_menu_id[0]=22;
+	menu_list[22].values[0]=0;
+	menu_list[22].value_resolution[0]=1;
+	menu_list[22].value_max[0]=1;
+	menu_list[22].menu_id=22;
+	menu_list[22].menu_item_count = 1;
+	menu_list[22].menu_pointer=0;
+	menu_list[22].fun_ptr = &Measurement_exit ;
+	menu_list[22].run_on_exit=1;
 }
 void update_menu_from_variables(int active_menu)
 {
 	// pid,relay link to coeff and hysteresis
-	menu_list[8].values[2]=menu_list[8].values[1];
-	if(menu_list[8].values[1] == 1)
+	menu_list[8].values[2]= CONTROLLER_TYPE;
+	if(CONTROLLER_TYPE == 1)
 	{
-		menu_list[8].next_menu_id[2]=9;
+		Change_Menu_Items(8,2,NULL,9,-1,-1);
 		menu_list[8].menu_item_count = 3;
 	}
 	else
 	{
-		menu_list[8].next_menu_id[2]=10;
+		Change_Menu_Items(8,2,NULL,10,-1,-1);
 		menu_list[8].menu_item_count = 4;
 	}
 	//relay max min restriction
@@ -482,10 +496,10 @@ void update_menu_from_variables(int active_menu)
 	{
 		menu_list[9].values[1] = menu_list[9].values[0];
 	}
-	Change_Menu_Items(3, 0, NULL, -1, 1000 * (pH_filtered - 2047) / 4095.0 , -1); //calculate sensor mv
+	Change_Menu_Items(3, 0, NULL, -1, -1000 * (pH_filtered - 2047) / 4095.0 , -1); //calculate sensor mv
 	Change_Menu_Items(3, 1, NULL, -1, pH_filtered * 0.00413 - 1.454, -1); // calculate ph with ideal coeff
 	Change_Menu_Items(3, 2, NULL, -1, temp, -1);
-	Change_Menu_Items(5, 0, NULL, -1, 1000 * (pH_filtered - 2047) / 4095.0 , -1);
+	Change_Menu_Items(5, 0, NULL, -1, -1000 * (pH_filtered - 2047) / 4095.0 , -1);
 	Change_Menu_Items(5, 1, NULL, -1, pH_filtered * 0.00413 - 1.454, -1);
 	Change_Menu_Items(5, 2, NULL, -1, temp, -1);
 	
@@ -568,9 +582,9 @@ void print_main_page(int active_menu)
 			{
 					glcd_set_font_with_num(0);
 			}	
-			char Menu_strings_buff[25];
+			char Menu_strings_buff[MENU_STRING_LENGTH];
 			char *menu_strings_buff = Menu_strings_buff;
-			char Final_menu_strings[25];
+			char Final_menu_strings[MENU_STRING_LENGTH];
 			char *final_menu_strings = Final_menu_strings;
 			strcpy(menu_strings_buff , menu_list[active_menu].menu_strings[i]);
 			if (strstr(menu_strings_buff, "%d") != 0)
@@ -652,9 +666,9 @@ void print_menu(int active_menu)
 		GLCD_Line(10,10,117,10);
 		for(int i=0 ; i < menu_list[active_menu].menu_item_count ; i++)
 		{
-			char Menu_strings_buff[40];
+			char Menu_strings_buff[MENU_STRING_LENGTH];
 			char *menu_strings_buff = Menu_strings_buff;
-			char Final_menu_strings[40];
+			char Final_menu_strings[MENU_STRING_LENGTH];
 			char *final_menu_strings = Final_menu_strings;
 			
 			strcpy(menu_strings_buff , menu_list[active_menu].menu_strings[i]);
@@ -673,11 +687,11 @@ void print_menu(int active_menu)
 			else if(strstr(menu_strings_buff, "|") != 0)
 			{			
 				
-				char chank1[35];
+				char chank1[MENU_STRING_LENGTH];
 				char* Chank1 = chank1;
-				char chank2[35];
+				char chank2[MENU_STRING_LENGTH];
 				char* Chank2 = chank2;
-				char chank3[35];
+				char chank3[MENU_STRING_LENGTH];
 				char* Chank3 = chank3;
 				Chank1 = strtok(menu_strings_buff , "|");
 				Chank2 = strtok(NULL , "|");
@@ -776,34 +790,24 @@ void get_user_input(uint8_t *input,int *active_menu)
 	}
 	if(input[0] == 'd')
 	{
-		char sprintf_buff[10];
 		if(menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] < menu_list[*active_menu].value_max[menu_list[*active_menu].menu_pointer])
 		{
 			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] += menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] ;
-			//sprintf(sprintf_buff,"value:%f\n",menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer]);
-			//HAL_UART_Transmit(&huart2,(uint8_t *)sprintf_buff,10,100);
 		}
 		else if(menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] != 0)
 		{
 			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] = 0;
-			//sprintf(sprintf_buff,"value:%f\n",menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer]);
-			//MAX485_send_string((uint8_t *)sprintf_buff,13,100);
 		}
 	}
 	if(input[0] == 'a')
 	{
-		char sprintf_buff[10];
-		if(menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] > 0.1)
+		if(menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] > 0.1f)
 		{
 			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] -= menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] ;
-			//sprintf(sprintf_buff,"value:%f\n",menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer]);
-			//MAX485_send_string((uint8_t *)sprintf_buff,13,100);
 		}
 		else if(menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] != 0)
 		{
 			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] = menu_list[*active_menu].value_max[menu_list[*active_menu].menu_pointer];
-			//sprintf(sprintf_buff,"value:%f\n",menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer]);
-			//MAX485_send_string((uint8_t *)sprintf_buff,13,100);
 		}
 	}	
 }

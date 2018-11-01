@@ -1,5 +1,6 @@
 #define bufferLength 10
 #define filterWindowLength 100// moving average buffer length
+#define MENU_STRING_LENGTH 50
 
 #define p1_p_eeprom_add  (uint32_t)0
 #define p2_p_eeprom_add  (uint32_t)1
@@ -14,7 +15,13 @@
 #define controller_type_eeprom_add  (uint32_t)10
 #define controller_setpoint_eeprom_add  (uint32_t)11
 #define ph_calibration_temp_add  (uint32_t)12
-#define float_to_int_factor  100000.0
+#define ATC_eeprom_add (uint32_t)13
+#define REL_FUNC_1_EEPROM_ADD (uint32_t)14
+#define REL_FUNC_2_EEPROM_ADD (uint32_t)15
+#define REL_FUNC_3_EEPROM_ADD (uint32_t)16
+#define REL_FUNC_4_EEPROM_ADD (uint32_t)17
+
+#define float_to_int_factor  100000.0f
 
 
 #define menu_list_length   30
@@ -26,21 +33,35 @@
 #define drain_relay_state  menu_list[18].values[1] 
 #define kcl_relay_state  menu_list[18].values[2] 
 #define wash_relay_state  menu_list[18].values[3] 
-#define supply_func_num 0
-#define drain_func_num 1
-#define kcl_func_num 2
-#define wash_func_num 3
+#define pump_func_num 0
+#define supply_func_num 1
+#define drain_func_num 2
+#define kcl_func_num 3
+#define wash_func_num 4
 #define manual_wash_menu 18
 #define Auto_Wash_Menu 20
 #define AUTO_WASH_STATE_MENU 21
 
-#define supply_func_time menu_list[20].values[0] 
-#define drain_func_time menu_list[20].values[1] 
-#define kcl_func_time menu_list[20].values[2] 
-#define wash_func_time menu_list[20].values[3]
+#define supply_func_time 					menu_list[20].values[0] 
+#define drain_func_time 					menu_list[20].values[1] 
+#define kcl_func_time 						menu_list[20].values[2] 
+#define wash_func_time 						menu_list[20].values[3]
+#define ATC 											menu_list[22].values[0]
 
-#define AWS_Supply_State  menu_list[21].values[0] 
-#define AWS_Drain_State  menu_list[21].values[1] 
-#define AWS_KCl_State  menu_list[21].values[2] 
-#define AWS_Wash_State  menu_list[21].values[3] 
+#define AWS_Supply_State  				menu_list[21].values[0] 
+#define AWS_Drain_State 					menu_list[21].values[1] 
+#define AWS_KCl_State  						menu_list[21].values[2] 
+#define AWS_Wash_State  					menu_list[21].values[3] 
+
+#define CONTROLLER_THRESHOLD_MAX	menu_list[9].values[0]
+#define CONTROLLER_THRESHOLD_MIN	menu_list[9].values[1]
+
+
+#define CONTROLLER_ON_OFF 				menu_list[8].values[0]
+#define CONTROLLER_TYPE 					menu_list[8].values[1]
+#define CONTROLLER_SETPOINT 			menu_list[8].values[3]
+
+#define PID_P 										menu_list[10].values[0]
+#define PID_I 										menu_list[10].values[1]
+#define PID_D 										menu_list[10].values[2]
 
