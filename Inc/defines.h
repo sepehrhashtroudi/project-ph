@@ -66,3 +66,8 @@
 #define PID_I 										menu_list[10].values[1]
 #define PID_D 										menu_list[10].values[2]
 
+#define HOUR 											menu_list[11].values[0]
+#define MINUTE 										menu_list[11].values[1]
+#define DATE 											menu_list[11].values[2]
+#define MONTH 										menu_list[11].values[3]
+#define YEAR 											menu_list[11].values[4]

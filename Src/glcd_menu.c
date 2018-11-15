@@ -87,12 +87,12 @@ void init_menu(void)
 	menu_list[1].run_on_exit=0;
 	
 	strcpy(menu_list[2].menu_name , " Step 1 ");
-	strcpy(menu_list[2].menu_strings[0] , "< Buffer pH: %d >");
+	strcpy(menu_list[2].menu_strings[0] , "< Buffer pH: %.1f >");
 	strcpy(menu_list[2].menu_strings[1] , " OK ");
 	menu_list[2].next_menu_id[0]=2;
 	menu_list[2].next_menu_id[1]=3;
-	menu_list[2].values[0]=5.000;
-	menu_list[2].value_resolution[0]=1.0000;
+	menu_list[2].values[0]=4.000;
+	menu_list[2].value_resolution[0]=0.1000;
 	menu_list[2].value_max[0]=14;
 	menu_list[2].menu_id=2;
 	menu_list[2].menu_item_count = 2;
@@ -119,13 +119,13 @@ void init_menu(void)
 	menu_list[3].run_on_exit=0;
 	
 	strcpy(menu_list[4].menu_name , " Step 2 ");
-	strcpy(menu_list[4].menu_strings[0] , "< Buffer pH: %d >");
+	strcpy(menu_list[4].menu_strings[0] , "< Buffer pH: %.1f >");
 	strcpy(menu_list[4].menu_strings[1] , " OK ");
 	menu_list[4].next_menu_id[0]=4;
 	menu_list[4].next_menu_id[1]=5;
 	menu_list[4].menu_id=4;
 	menu_list[4].values[0]=7.000;
-	menu_list[4].value_resolution[0]=1.0000;
+	menu_list[4].value_resolution[0]=0.1000;
 	menu_list[4].value_max[0]=14;
 	menu_list[4].menu_item_count = 2;
 	menu_list[4].menu_pointer=0;
@@ -151,8 +151,8 @@ void init_menu(void)
 	menu_list[5].run_on_exit=0;
 	
 	strcpy(menu_list[6].menu_name , " Done ");
-	strcpy(menu_list[6].menu_strings[0], " Slope: %d %%");
-	strcpy(menu_list[6].menu_strings[1], " Zero: %d mV");
+	strcpy(menu_list[6].menu_strings[0], " Slope: %d %% ");
+	strcpy(menu_list[6].menu_strings[1], " Zero: %d mV ");
 	strcpy(menu_list[6].menu_strings[2], "Sensor is healthy");
 	strcpy(menu_list[6].menu_strings[3] , " OK ");
 	menu_list[6].next_menu_id[0]=6;
@@ -248,24 +248,33 @@ void init_menu(void)
 	strcpy(menu_list[11].menu_name , "Time");
 	strcpy(menu_list[11].menu_strings[0], "< Hour: %d >");
 	strcpy(menu_list[11].menu_strings[1], "< Minute: %d >");
-//	strcpy(menu_list[11].menu_strings[2], " Day: %d ");
-//	strcpy(menu_list[11].menu_strings[3], " Month: %d ");
-//	strcpy(menu_list[11].menu_strings[4], " Year: %d ");
-	strcpy(menu_list[11].menu_strings[2], " OK ");
+	strcpy(menu_list[11].menu_strings[2], "< Day: %d >");
+	strcpy(menu_list[11].menu_strings[3], "< Month: %d >");
+	strcpy(menu_list[11].menu_strings[4], "< Year: %d >");
+	strcpy(menu_list[11].menu_strings[5], " OK ");
 	menu_list[11].next_menu_id[0]=11;
 	menu_list[11].next_menu_id[1]=11;
-//	menu_list[11].next_menu_id[2]=8;
-//	menu_list[11].next_menu_id[3]=8;
-//	menu_list[11].next_menu_id[4]=8;
-	menu_list[11].next_menu_id[2]=0;
+	menu_list[11].next_menu_id[2]=11;
+	menu_list[11].next_menu_id[3]=11;
+	menu_list[11].next_menu_id[4]=11;
+	menu_list[11].next_menu_id[5]=1;
 	menu_list[11].values[0]=12;
 	menu_list[11].values[1]=30;
+	menu_list[11].values[2]=15;
+	menu_list[11].values[3]=6;
+	menu_list[11].values[4]=2018;
 	menu_list[11].value_resolution[0]=1.000;
 	menu_list[11].value_resolution[1]=1.000;
+	menu_list[11].value_resolution[2]=1.000;
+	menu_list[11].value_resolution[3]=1.000;
+	menu_list[11].value_resolution[4]=1.000;
 	menu_list[11].value_max[0]=23;
 	menu_list[11].value_max[1]=59;
+	menu_list[11].value_max[1]=31;
+	menu_list[11].value_max[1]=12;
+	menu_list[11].value_max[1]=3000;
 	menu_list[11].menu_id=11;
-	menu_list[11].menu_item_count = 3;
+	menu_list[11].menu_item_count = 6;
 	menu_list[11].menu_pointer=0;
 	menu_list[11].fun_ptr = &set_date_time;
 	menu_list[11].run_on_exit=0;
@@ -276,7 +285,7 @@ void init_menu(void)
 	menu_list[12].next_menu_id[0]=12;
 	menu_list[12].next_menu_id[1]=13;
 	menu_list[12].values[0]=25;
-	menu_list[12].value_resolution[0]=5.0000;
+	menu_list[12].value_resolution[0]=1.0000;
 	menu_list[12].value_max[0]=100;
 	menu_list[12].menu_id=12;
 	menu_list[12].menu_item_count = 2;
@@ -304,7 +313,7 @@ void init_menu(void)
 	menu_list[14].next_menu_id[1]=15;
 	menu_list[14].menu_id=14;
 	menu_list[14].values[0]=35;
-	menu_list[14].value_resolution[0]=5.0000;
+	menu_list[14].value_resolution[0]=1.0000;
 	menu_list[14].value_max[0]=100;
 	menu_list[14].menu_item_count = 2;
 	menu_list[14].menu_pointer=0;
@@ -336,10 +345,10 @@ void init_menu(void)
 	menu_list[16].run_on_exit=1;
 	
 	strcpy(menu_list[17].menu_name , "Relay Functions");
-	strcpy(menu_list[17].menu_strings[0], " relay1:| <Pump>,<Supply>,<Drain>,<Wash>,<KCL>");
-	strcpy(menu_list[17].menu_strings[1], " relay2:| <Pump>,<Supply>,<Drain>,<Wash>,<KCL>");
-	strcpy(menu_list[17].menu_strings[2], " relay3:| <Pump>,<Supply>,<Drain>,<Wash>,<KCL>");
-	strcpy(menu_list[17].menu_strings[3], " relay4:| <Pump>,<Supply>,<Drain>,<Wash>,<KCL>");
+	strcpy(menu_list[17].menu_strings[0], " K1:| <Pump>,<Supply>,<Drain>,<Wash>,<KCL>");
+	strcpy(menu_list[17].menu_strings[1], " K2:| <Pump>,<Supply>,<Drain>,<Wash>,<KCL>");
+	strcpy(menu_list[17].menu_strings[2], " K3:| <Pump>,<Supply>,<Drain>,<Wash>,<KCL>");
+	strcpy(menu_list[17].menu_strings[3], " K4:| <Pump>,<Supply>,<Drain>,<Wash>,<KCL>");
 	menu_list[17].next_menu_id[0]=17;
 	menu_list[17].next_menu_id[1]=17;
 	menu_list[17].next_menu_id[2]=17;
@@ -467,12 +476,16 @@ void init_menu(void)
 	
 	strcpy(menu_list[22].menu_name , "Measurement");
 	strcpy(menu_list[22].menu_strings[0], " ATC:| <OFF>,<ON>");
+	strcpy(menu_list[22].menu_strings[1], " Slope: %d %% ");
+	strcpy(menu_list[22].menu_strings[2], " Zero: %d mV ");
 	menu_list[22].next_menu_id[0]=22;
+	menu_list[22].next_menu_id[1]=22;
+	menu_list[22].next_menu_id[2]=22;
 	menu_list[22].values[0]=0;
 	menu_list[22].value_resolution[0]=1;
 	menu_list[22].value_max[0]=1;
 	menu_list[22].menu_id=22;
-	menu_list[22].menu_item_count = 1;
+	menu_list[22].menu_item_count = 3;
 	menu_list[22].menu_pointer=0;
 	menu_list[22].fun_ptr = &Measurement_exit ;
 	menu_list[22].run_on_exit=1;

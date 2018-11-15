@@ -21,9 +21,9 @@ extern float p1_p;
 extern float p2_p;
 extern float p1_t;
 extern float p2_t;
-float slope ;
-float zero ;
-float slope_percent;
+float p1_p_new = 0;
+float p2_p_new = 0;
+extern float slope, zero, slope_percent ;
 int32_t EEprom_buff;
 float *calibration_point_1_ph = &menu_list[2].values[0];
 float *calibration_point_2_ph = &menu_list[4].values[0];
@@ -45,7 +45,10 @@ extern int auto_wash_state;
 extern int active_menu;
 void ph_calculate_calibration_coefficients(void)
 {
-
+	p1_p = p1_p_new;
+	p2_p = p2_p_new;
+	Change_Menu_Items(22,1,NULL,-1,slope_percent,-1);
+	Change_Menu_Items(22,2,NULL,-1,zero,-1);
 	ph_calibration_temp = (ph_calibration_start_temp + ph_calibration_end_temp)/2.0f;
 	EEprom_buff = ph_calibration_temp*float_to_int_factor;
 	eeprom_write_data(ph_calibration_temp_add,&EEprom_buff,1);
@@ -76,13 +79,13 @@ void ph_calibration_waiting_2(void)
 	delete_ph_calibration_task_flag = 1;
 	calibration_point_2 = pH_filtered;
 	ph_calibration_end_temp = temp;
+	
 	if(abs(calibration_point_1-calibration_point_2)>5)
 	{
-		p1_p = (*calibration_point_1_ph - *calibration_point_2_ph) / (float)(calibration_point_1 - calibration_point_2 ) ;
-		p2_p = *calibration_point_1_ph - (calibration_point_1)*(p1_p);
-	
-		slope = 1000 / (p1_p * 4095);
-		zero = 1000 * (p2_p + 1.454f)/ (p1_p * 4095);
+		p1_p_new = (*calibration_point_1_ph - *calibration_point_2_ph) / (float)(calibration_point_1 - calibration_point_2 ) ;
+		p2_p_new = *calibration_point_1_ph - (calibration_point_1)*(p1_p_new);
+		slope = 1000 / (p1_p_new * 4095);
+		zero = 1000 * (p2_p_new + 1.454f)/ (p1_p_new * 4095);
 		slope_percent = 100 * slope / 59.16f;
 		Change_Menu_Items(6,0,NULL,-1,slope_percent,-1);
 		Change_Menu_Items(6,1,NULL,-1,zero,-1);
@@ -93,7 +96,7 @@ void ph_calibration_waiting_2(void)
 		if( slope_percent < 90 || slope_percent > 105  || zero > 40 || zero <-40)
 		{
 			Change_Menu_Items(6,2,"Sensor health problem",-1,-1,-1);
-			MAX485_send_string("Sensor health problem",20,100);
+			MAX485_send_string("Sensor health problem",25,100);
 		}
 		else
 		{
@@ -104,7 +107,7 @@ void ph_calibration_waiting_2(void)
 	else
 	{
 		Change_Menu_Items(6,2,"Sensor health problem",-1,-1,-1);
-		MAX485_send_string("Sensor health problem",20,100);
+		MAX485_send_string("Sensor health problem",25,100);
 	}
 			
 	

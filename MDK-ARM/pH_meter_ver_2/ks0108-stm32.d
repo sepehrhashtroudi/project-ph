@@ -38,3 +38,4 @@ ph_meter_ver_2\ks0108-stm32.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal
 ph_meter_ver_2\ks0108-stm32.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
 ph_meter_ver_2\ks0108-stm32.o: ../Inc/gpio.h
 ph_meter_ver_2\ks0108-stm32.o: ../Inc/max485.h
+ph_meter_ver_2\ks0108-stm32.o: ../Inc/KS0108.h

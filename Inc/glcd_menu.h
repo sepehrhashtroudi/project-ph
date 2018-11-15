@@ -27,6 +27,7 @@
 		int run_on_exit;
 		
 		
+		
 	} Menu;
 		
 void init_menu(void);

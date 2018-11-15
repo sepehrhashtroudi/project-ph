@@ -101,10 +101,11 @@ uint16_t ph_window_pointer=0;
 uint16_t temp_history[filterWindowLength]={0};
 int32_t temp_sum=0;
 uint16_t temp_window_pointer=0;
-float p1_p =  0.00458 ;
-float p2_p = -2.56793 ;
+float p1_p =  0.00412 ;
+float p2_p = -1.454 ;
 float p1_t = -0.06613;
 float p2_t = 128.17461 ;
+float slope, zero, slope_percent = 0;
 float pH = 0;
 float temp = 0;
 float ph_calibration_temp = 25 ;
@@ -206,55 +207,13 @@ int main(void)
   MX_TIM5_Init();
   MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
-	init_menu();
-//	eeprom_buff = p1_p*float_to_int_factor;
-//	eeprom_write_data(p1_p_eeprom_add,&eeprom_buff,1);
-//	eeprom_buff = p2_p*float_to_int_factor;
-//	eeprom_write_data(p2_p_eeprom_add,&eeprom_buff,1);
-//	eeprom_buff = p1_t*float_to_int_factor;
-//	eeprom_write_data(p1_t_eeprom_add,&eeprom_buff,1);
-//	eeprom_buff = p2_t*float_to_int_factor;
-//	eeprom_write_data(p2_t_eeprom_add,&eeprom_buff,1);
-//	eeprom_buff = ph_calibration_temp*float_to_int_factor;
-//	eeprom_write_data(ph_calibration_temp_add,&eeprom_buff,1);
-	
-	read_setting_from_eeprom();
-	// Prepare PID controller for operation
-	pid = pid_create(&ctrldata, &input, &output, setpoint, *kp, *ki, *kd);
-	// Set controler output limits from 0 to 100
-	pid_limits(pid, 0, 100);
-	// Allow PID to compute and change output
-	pid_auto(pid);
-	// Set sampling time
-	pid_sample(pid, sample_time);
-	// Set the direction of controller
-	pid_direction(pid, E_PID_REVERSE);
-	
-	HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
-	HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
-	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 0);
-	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, 0);
-	MAX485_send_string("starting ...",14,100);
-	HAL_TIM_Base_Start_IT(&htim2);
-	HAL_ADC_Start_DMA(&hadc1, adc_value, 2*bufferLength);
-	GLCD_Initalize();
-	GLCD_ClearScreen();
-	glcd_set_font_with_num(1);
-	glcd_draw_string_xy(20,20,"Atrovan",0,0,0);
-	HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_4);
-	for(int i=0; i<100;i++)
-	{
-		__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_4,i);
-		HAL_Delay(15);
-	}
+
 	lcd_semaphore = xSemaphoreCreateCounting(5,1);
 	xTaskCreate(lcd_print,"lcd_print",1024,( void * )1,2,&lcd_demo_handle);
 	xTaskCreate(main_thread,"main_thread",1024,( void * )1,1,&main_thread_handle);
-	xTaskCreate(light_thread,"back_light",1024,( void * )1,2,&back_light_state_thread_handle);
+	xTaskCreate(light_thread,"back_light",1024,( void * )1,3,&back_light_state_thread_handle);
 	//xTaskCreate(ph_calibration_thread,"calibration_thread",128,( void * )1,3,&ph_calibration_thread_handle);
 	
-
-
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */
@@ -346,25 +305,57 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 void main_thread(void * pvParameters)
-{	
-	uint32_t last_lcd_init=0;
+{		
+	HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_4);
+	__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_4,0);
+	init_menu();
+//	eeprom_buff = p1_p*float_to_int_factor;
+//	eeprom_write_data(p1_p_eeprom_add,&eeprom_buff,1);
+//	eeprom_buff = p2_p*float_to_int_factor;
+//	eeprom_write_data(p2_p_eeprom_add,&eeprom_buff,1);
+//	eeprom_buff = p1_t*float_to_int_factor;
+//	eeprom_write_data(p1_t_eeprom_add,&eeprom_buff,1);
+//	eeprom_buff = p2_t*float_to_int_factor;
+//	eeprom_write_data(p2_t_eeprom_add,&eeprom_buff,1);
+//	eeprom_buff = ph_calibration_temp*float_to_int_factor;
+//	eeprom_write_data(ph_calibration_temp_add,&eeprom_buff,1);
+	read_setting_from_eeprom();
+	// Prepare PID controller for operation
+	pid = pid_create(&ctrldata, &input, &output, setpoint, *kp, *ki, *kd);
+	// Set controler output limits from 0 to 100
+	pid_limits(pid, 0, 100);
+	// Allow PID to compute and change output
+	pid_auto(pid);
+	// Set sampling time
+	pid_sample(pid, sample_time);
+	// Set the direction of controller
+	pid_direction(pid, E_PID_REVERSE);
+	HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
+	HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
+	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 0);
+	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, 0);
+	MAX485_send_string("starting ...",14,100);
+	HAL_TIM_Base_Start_IT(&htim2);
+	HAL_ADC_Start_DMA(&hadc1, adc_value, 2*bufferLength);
 	GLCD_Initalize();
 	GLCD_ClearScreen();
+	glcd_set_font_with_num(1);
+	glcd_draw_string_xy(20,20,"Atrovan",0,0,0);
+	for(int i=0; i<100;i++)
+	{
+		__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_4,i);
+		osDelay(15);
+	}
 	HAL_GPIO_WritePin(Power_led_GPIO_Port,Power_led_Pin,GPIO_PIN_SET);
 	HAL_UART_Receive_IT(&huart3,uart_buff,1);
 	while(1)
 	{
-		HAL_RTC_GetTime(&hrtc,&rtc_time,FORMAT_BIN);
-		HAL_RTC_GetDate(&hrtc,&rtc_date,FORMAT_BIN);
-		*rtc_minute_p = rtc_time.Minutes;
-		*rtc_hour_p = rtc_time.Hours;
 		if( xSemaphoreTake( lcd_semaphore, 1000 ) == pdTRUE )
 		{
-			if((uint32_t)(HAL_GetTick() - last_lcd_init) > 3600000)
-			{
-				GLCD_Initalize();
-				last_lcd_init = HAL_GetTick();
-			}
+			HAL_RTC_GetTime(&hrtc,&rtc_time,FORMAT_BIN);
+			HAL_RTC_GetDate(&hrtc,&rtc_date,FORMAT_BIN);
+			*rtc_minute_p = rtc_time.Minutes;
+			*rtc_hour_p = rtc_time.Hours;
 			update_menu_from_variables(active_menu);
 			if(active_menu == 0 )
 			{
@@ -453,7 +444,7 @@ void ph_calibration_thread(void * pvParameters)
 	back_light_state = 1;
 	while(1)
 	{
-		if(abs(pH_filtered - last_ph_filtered) > 3)
+		if(abs(pH_filtered - last_ph_filtered) >= 5)
 		{
 			xSemaphoreGive( lcd_semaphore );
 			last_ph_filtered = pH_filtered;
@@ -486,7 +477,7 @@ void temp_calibration_thread(void * pvParameters)
 	back_light_state = 1;
 	while(1)
 	{
-		if(abs(temp_filtered - last_temp_filtered) > 3)
+		if(abs(temp_filtered - last_temp_filtered) >= 5)
 		{
 			xSemaphoreGive( lcd_semaphore );
 			last_temp_filtered = temp_filtered;
@@ -511,6 +502,7 @@ void temp_calibration_thread(void * pvParameters)
 }
 void light_thread(void* pvParameters)
 {
+	osDelay(3000);
 	while(1)
 	{
 		
@@ -536,6 +528,11 @@ void light_thread(void* pvParameters)
 			
 		}
 		osDelay(100);
+//		if(GLCD_ReadStatus(0) == 0x20 || GLCD_ReadStatus(1) == 0x20) // lcd is reseted
+//		{
+//			for(int i = 0; i < 2; i++)
+//			GLCD_WriteCommand((DISPLAY_ON_CMD | ON), i);
+//		}
 	}
 }
 
@@ -595,14 +592,22 @@ void read_setting_from_eeprom(void)
 	relay3_func = eeprom_buff ;
 	eeprom_read_data(REL_FUNC_4_EEPROM_ADD,&eeprom_buff,1);
 	relay4_func = eeprom_buff ;
-	
+	slope = 1000 / (p1_p * 4095);
+	zero = 1000 * (p2_p + 1.454f)/ (p1_p * 4095);
+	slope_percent = 100 * slope / 59.16f;
+	Change_Menu_Items(22,1,NULL,-1,slope_percent,-1);
+	Change_Menu_Items(22,2,NULL,-1,zero,-1);
 }
 void set_date_time(void)
 {
-	rtc_time.Hours = menu_list[11].values[0];
-	rtc_time.Minutes = menu_list[11].values[1];
+	rtc_time.Hours = HOUR;
+	rtc_time.Minutes = MINUTE;
 	rtc_time.Seconds=1;
+	rtc_date.Date = DATE;
+	rtc_date.Month = MONTH;
+	rtc_date.Year = YEAR;
 	HAL_RTC_SetTime(&hrtc,&rtc_time,FORMAT_BIN );
+	HAL_RTC_SetDate(&hrtc,&rtc_date,FORMAT_BIN );
 }
 uint32_t get_timer_time()
 {

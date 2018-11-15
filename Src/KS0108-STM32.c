@@ -9,12 +9,12 @@
 #include "stm32f4xx_hal.h"
 #include "gpio.h"
 #include "max485.h"
-
+#include "KS0108.h"
 #define DISPLAY_STATUS_BUSY	0x80
 
 extern unsigned char screen_x;
 extern unsigned char screen_y;
-
+int stat=0;
  GPIO_InitTypeDef GPIO_InitStruct;
 void Port_in_out_mode(int i)
 {
@@ -83,13 +83,13 @@ GLCD_Delay();
 
 //status = LL_GPIO_ReadInputPort(GPIOD) & 0XFF;
 
-status += HAL_GPIO_ReadPin(LCD_D0_GPIO_Port,LCD_D0_Pin);
-status += 2*HAL_GPIO_ReadPin(LCD_D1_GPIO_Port,LCD_D1_Pin);
-status += 4*HAL_GPIO_ReadPin(LCD_D2_GPIO_Port,LCD_D2_Pin);
-status += 8*HAL_GPIO_ReadPin(LCD_D3_GPIO_Port,LCD_D3_Pin);
+//status += HAL_GPIO_ReadPin(LCD_D0_GPIO_Port,LCD_D0_Pin);
+//status += 2*HAL_GPIO_ReadPin(LCD_D1_GPIO_Port,LCD_D1_Pin);
+//status += 4*HAL_GPIO_ReadPin(LCD_D2_GPIO_Port,LCD_D2_Pin);
+//status += 8*HAL_GPIO_ReadPin(LCD_D3_GPIO_Port,LCD_D3_Pin);
 status += 16*HAL_GPIO_ReadPin(LCD_D4_GPIO_Port,LCD_D4_Pin);
 status += 32*HAL_GPIO_ReadPin(LCD_D5_GPIO_Port,LCD_D5_Pin);
-status += 64*HAL_GPIO_ReadPin(LCD_D6_GPIO_Port,LCD_D6_Pin);
+//status += 64*HAL_GPIO_ReadPin(LCD_D6_GPIO_Port,LCD_D6_Pin);
 status += 128*HAL_GPIO_ReadPin(LCD_D7_GPIO_Port,LCD_D7_Pin);
 HAL_GPIO_WritePin(LCD_EN_GPIO_Port,LCD_EN_Pin,GPIO_PIN_RESET);
 GLCD_DisableController(controller);
@@ -132,7 +132,16 @@ GLCD_DisableController(controller);
 unsigned char GLCD_ReadData(void)
 {
 unsigned char tmp=0;
-for(int i=0;i<1000 && GLCD_ReadStatus(screen_x / 64)&DISPLAY_STATUS_BUSY;i++);
+stat = GLCD_ReadStatus(screen_x / 64);
+for(int i=0;i<1000 && stat & DISPLAY_STATUS_BUSY;i++)
+{
+	stat = GLCD_ReadStatus(screen_x / 64);
+}
+if(stat == 0x20) // lcd is reseted
+{
+	for(int i = 0; i < 2; i++)
+	GLCD_WriteCommand((DISPLAY_ON_CMD | ON), i);
+}
 Port_in_out_mode(0);
 HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin | LCD_RW_Pin,GPIO_PIN_SET);
 GLCD_EnableController(screen_x / 64);
@@ -158,8 +167,16 @@ return tmp;
 //-------------------------------------------------------------------------------------------------
 void GLCD_WriteData(unsigned char dataToWrite)
 {
-char buff[20]={0};
-for(int i=0;(i<1000) && (GLCD_ReadStatus(screen_x / 64)&DISPLAY_STATUS_BUSY);i++);
+stat = GLCD_ReadStatus(screen_x / 64);
+for(int i=0;i<1000 && stat & DISPLAY_STATUS_BUSY;i++)
+{
+	stat = GLCD_ReadStatus(screen_x / 64);
+}
+if(stat == 0x20) // lcd is reseted
+{
+	for(int i = 0; i < 2; i++)
+	GLCD_WriteCommand((DISPLAY_ON_CMD | ON), i);
+}
 Port_in_out_mode(1);
 HAL_GPIO_WritePin(LCD_RW_GPIO_Port,  LCD_RW_Pin,GPIO_PIN_RESET);
 HAL_GPIO_WritePin(LCD_RS_GPIO_Port, LCD_RS_Pin ,GPIO_PIN_SET);
