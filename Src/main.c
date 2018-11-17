@@ -81,6 +81,7 @@ TaskHandle_t lcd_demo_handle = NULL;
 TaskHandle_t main_thread_handle = NULL;
 TaskHandle_t ph_calibration_thread_handle = NULL;
 TaskHandle_t temp_calibration_thread_handle = NULL;
+TaskHandle_t back_light_state_thread_handle = NULL;
 SemaphoreHandle_t lcd_semaphore;
 int create_ph_calibration_task_flag = 0;
 int delete_ph_calibration_task_flag = 0;
@@ -158,6 +159,7 @@ void ph_calibration_thread(void *);
 void temp_calibration_thread(void * pvParameters);
 void pump_set_stroke(uint16_t stroke);
 void read_setting_from_eeprom(void);
+void light_thread(void* pvParameters);
 //extern void calculate_calibration_coefficients(void);
 
 /* USER CODE END PFP */
@@ -238,8 +240,9 @@ int main(void)
 	glcd_set_font_with_num(1);
 	glcd_draw_string_xy(10,10,"Loading...",0,0,0);
 	lcd_semaphore = xSemaphoreCreateCounting(5,1);
-	xTaskCreate(lcd_print,"lcd_print",64,( void * )1,3,&lcd_demo_handle);
-	xTaskCreate(main_thread,"main_thread",512,( void * )1,2,&main_thread_handle);
+	xTaskCreate(lcd_print,"lcd_print",1024,( void * )1,3,&lcd_demo_handle);
+	xTaskCreate(main_thread,"main_thread",1024,( void * )1,2,&main_thread_handle);
+	xTaskCreate(light_thread,"back_light",1024,( void * )1,3,&back_light_state_thread_handle);
 	//xTaskCreate(calibration_thread,"calibration_thread",128,( void * )1,3,&calibration_thread_handle);
 	
 
@@ -452,7 +455,7 @@ void ph_calibration_thread(void * pvParameters)
 		progress = (HAL_GetTick() - start_time)/1000 - (abs(pH_filtered - last_ph_filtered)) ;
 		sprintf(sprintf_buff,"%d\n",pH_filtered);
 		MAX485_send_string(sprintf_buff,7,100);
-		if(abs(pH_filtered - last_ph_filtered) > 3)
+		if(abs(pH_filtered - last_ph_filtered) > 5)
 		{
 			start_time = HAL_GetTick()-40;
 			MAX485_send_string("reset\n",6,100);
@@ -482,9 +485,9 @@ void temp_calibration_thread(void * pvParameters)
 		sprintf(sprintf_buff,"%d\n",temp_filtered);
 		MAX485_send_string(sprintf_buff,7,100);
 		progress = (HAL_GetTick() - start_time)/1000 - (abs(temp_filtered - last_temp_filtered)) ;
-		if(abs(temp_filtered - last_temp_filtered) > 3)
+		if(abs(temp_filtered - last_temp_filtered) > 5)
 		{
-			start_time = HAL_GetTick();
+			start_time = HAL_GetTick()-40;
 			MAX485_send_string("reset\n",10,100);
 		}
 		if(progress > 100 )
@@ -502,6 +505,19 @@ void temp_calibration_thread(void * pvParameters)
 	}
 }
 
+void light_thread(void* pvParameters)
+{
+	osDelay(3000);
+	while(1)
+	{
+		osDelay(100);
+		if(GLCD_ReadStatus(0) == 0x20 || GLCD_ReadStatus(1) == 0x20) // lcd is reseted
+		{
+			for(int i = 0; i < 2; i++)
+			GLCD_WriteCommand((DISPLAY_ON_CMD | ON), i);
+		}
+	}
+}
 
 
 

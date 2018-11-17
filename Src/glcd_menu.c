@@ -72,7 +72,7 @@ void init_menu(void)
 	strcpy(menu_list[1].menu_strings[0],  " Calibration ");
 	strcpy(menu_list[1].menu_strings[1] , " Controller ");
 	strcpy(menu_list[1].menu_strings[2] , " Time ");
-	strcpy(menu_list[1].menu_strings[3] , " Self Cleaning ");
+	strcpy(menu_list[1].menu_strings[3] , " Self revival ");
 	strcpy(menu_list[1].menu_strings[4] , " Temp Compensation ");
 	menu_list[1].menu_id=1;
 	menu_list[1].menu_item_count = 5;
@@ -375,7 +375,7 @@ void init_menu(void)
 	menu_list[18].fun_ptr = &manual_wash_exit;
 	menu_list[18].run_on_exit=1;
 	
-	strcpy(menu_list[19].menu_name , "Self Cleaning");
+	strcpy(menu_list[19].menu_name , "Self Revival");
 	strcpy(menu_list[19].menu_strings[0], " Relay Functions ");
 	strcpy(menu_list[19].menu_strings[1], " Auto Wash ");
 	strcpy(menu_list[19].menu_strings[2], " Manual Wash ");
@@ -395,10 +395,10 @@ void init_menu(void)
 	menu_list[19].run_on_exit=0;
 	
 	strcpy(menu_list[20].menu_name , "Auto Wash");
-	strcpy(menu_list[20].menu_strings[0], " Drain: %d ");
-	strcpy(menu_list[20].menu_strings[1], " Wash: %d");
-	strcpy(menu_list[20].menu_strings[2], " Drain 2: %d");
-	strcpy(menu_list[20].menu_strings[3], " KCL: %d");
+	strcpy(menu_list[20].menu_strings[0], " Supply: %d ");
+	strcpy(menu_list[20].menu_strings[1], " KCL: %d");
+	strcpy(menu_list[20].menu_strings[2], " Revival: %d");
+	strcpy(menu_list[20].menu_strings[3], " wash: %d");
 	strcpy(menu_list[20].menu_strings[4], " OK ");
 	menu_list[20].next_menu_id[0]=20;
 	menu_list[20].next_menu_id[1]=20;
@@ -407,15 +407,15 @@ void init_menu(void)
 	menu_list[20].next_menu_id[4]=21;
 	menu_list[20].values[0]=5;
 	menu_list[20].values[1]=5;
-	menu_list[20].values[2]=5;
+	menu_list[20].values[2]=360;
 	menu_list[20].values[3]=5;
-	menu_list[20].value_resolution[0]= 5;
-	menu_list[20].value_resolution[1]= 5;
-	menu_list[20].value_resolution[2]= 5;
-	menu_list[20].value_resolution[3]= 5;
+	menu_list[20].value_resolution[0]= 1;
+	menu_list[20].value_resolution[1]= 1;
+	menu_list[20].value_resolution[2]= 30;
+	menu_list[20].value_resolution[3]= 1;
 	menu_list[20].value_max[0]=60;
 	menu_list[20].value_max[1]=60;
-	menu_list[20].value_max[2]=60;
+	menu_list[20].value_max[2]=600;
 	menu_list[20].value_max[3]=60;
 	menu_list[20].menu_id=20;
 	menu_list[20].menu_item_count = 5;
