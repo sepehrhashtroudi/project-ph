@@ -28,6 +28,6 @@ unsigned char GLCD_ReadStatus(unsigned char controller);
 unsigned char GLCD_ReadByteFromROMMemory(char *);
 unsigned char GLCD_ReadData(void);
 void GLCD_Bitmap(char *, unsigned char, unsigned char, unsigned char, unsigned char);
-
+void GLCD_Clearline(int j);
 
 

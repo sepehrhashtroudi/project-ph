@@ -1,3 +1,4 @@
+
 #define bufferLength 10
 #define filterWindowLength 100// moving average buffer length
 #define MENU_STRING_LENGTH 50
@@ -20,6 +21,7 @@
 #define REL_FUNC_2_EEPROM_ADD (uint32_t)15
 #define REL_FUNC_3_EEPROM_ADD (uint32_t)16
 #define REL_FUNC_4_EEPROM_ADD (uint32_t)17
+#define STABILIZATION_TIME_EEPROM_ADD (uint32_t)18
 
 #define float_to_int_factor  100000.0f
 
@@ -71,3 +73,5 @@
 #define DATE 											menu_list[11].values[2]
 #define MONTH 										menu_list[11].values[3]
 #define YEAR 											menu_list[11].values[4]
+
+#define STABILIZATION_TIME 				menu_list[7].values[2]

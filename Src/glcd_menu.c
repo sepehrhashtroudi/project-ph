@@ -168,10 +168,16 @@ void init_menu(void)
 	strcpy(menu_list[7].menu_name , " Select Sensor");
 	strcpy(menu_list[7].menu_strings[0],  " pH ");
 	strcpy(menu_list[7].menu_strings[1] , " Temp ");
+	strcpy(menu_list[7].menu_strings[2] , "Stabilize time: %d s");
 	menu_list[7].next_menu_id[0]=2;
 	menu_list[7].next_menu_id[1]=12;
+	menu_list[7].next_menu_id[2]=7;
+	menu_list[7].values[2]=10;
+	menu_list[7].value_resolution[2] = 5;
+	menu_list[7].value_max[2] = 30;
+	menu_list[7].value_min[2] = 5;
 	menu_list[7].menu_id=7;
-	menu_list[7].menu_item_count = 2;
+	menu_list[7].menu_item_count = 3;
 	menu_list[7].menu_pointer=0;
 	menu_list[7].run_on_exit=0;
 	
@@ -527,8 +533,7 @@ void update_menu_from_variables(int active_menu)
 		Change_Menu_Items(3, 1, NULL, -1, pH_filtered * 0.00413 - 1.454, -1); // calculate ph with ideal coeff
 		Change_Menu_Items(5, 1, NULL, -1, pH_filtered * 0.00413 - 1.454, -1);
 	}
-	Change_Menu_Items(3, 2, NULL, -1, temp, -1);
-	Change_Menu_Items(5, 2, NULL, -1, temp, -1);
+	
 	Change_Menu_Items(13, 0, NULL, -1, temp_filtered, -1);
 	Change_Menu_Items(13, 1, NULL, -1, temp, -1);
 	Change_Menu_Items(15, 0, NULL, -1, temp_filtered, -1);
@@ -570,10 +575,23 @@ void update_menu_from_variables(int active_menu)
 		Change_Menu_Items(0,5," ",-1,-1,-1);
 	}
 	
+	if( temp_filtered < 10)
+	{
+		Change_Menu_Items(0,2,"NC `C",-1,-1,-1);
+		Change_Menu_Items(3, 2,"NC `C", -1, temp, -1);
+		Change_Menu_Items(5, 2,"NC `C", -1, temp, -1);
+	}
+	else
+	{
+		Change_Menu_Items(0, 2,"%.1f `C", -1, temp,-1);
+		Change_Menu_Items(3, 2,"%.1f `C", -1, temp, -1);
+		Change_Menu_Items(5, 2,"%.1f `C", -1, temp, -1);
+	}
+	
 		
 	menu_list[0].values[5] = output_mA; 
 	menu_list[0].values[0] = pH;
-	menu_list[0].values[2] = temp;
+
 	if(pH < 10)
 	{
 		menu_list[0].x_position[1]=95;
@@ -590,6 +608,8 @@ void print_main_page(int active_menu)
 {
 		int text_width=0;
 		GLCD_ClearScreen();
+		char menu_strings_buff[MENU_STRING_LENGTH];
+		char Final_menu_strings[MENU_STRING_LENGTH];
 		for(int i=0 ; i < menu_list[active_menu].menu_item_count ; i++)
 		{
 			
@@ -601,10 +621,6 @@ void print_main_page(int active_menu)
 			{
 					glcd_set_font_with_num(0);
 			}	
-			char Menu_strings_buff[MENU_STRING_LENGTH];
-			char *menu_strings_buff = Menu_strings_buff;
-			char Final_menu_strings[MENU_STRING_LENGTH];
-			char *final_menu_strings = Final_menu_strings;
 			strcpy(menu_strings_buff , menu_list[active_menu].menu_strings[i]);
 			if (strstr(menu_strings_buff, "%d") != 0)
 			{
@@ -619,11 +635,11 @@ void print_main_page(int active_menu)
 				
 				if(count == 1)
 				{
-					sprintf(final_menu_strings, menu_strings_buff , (int)(menu_list[active_menu].values[i]));
+					sprintf(Final_menu_strings, menu_strings_buff , (int)(menu_list[active_menu].values[i]));
 				}
 				if(count == 2)
 				{
-					sprintf(final_menu_strings, menu_strings_buff , (int)(menu_list[active_menu].values[i]),(int)(menu_list[active_menu].values[i+1]));
+					sprintf(Final_menu_strings, menu_strings_buff , (int)(menu_list[active_menu].values[i]),(int)(menu_list[active_menu].values[i+1]));
 					i++;
 				}
 			}
@@ -640,36 +656,39 @@ void print_main_page(int active_menu)
 				
 				if(count == 1)
 				{
-					sprintf(final_menu_strings, menu_strings_buff , (int)(menu_list[active_menu].values[i]));
+					sprintf(Final_menu_strings, menu_strings_buff , (int)(menu_list[active_menu].values[i]));
 				}
 				if(count == 2)
 				{
-					sprintf(final_menu_strings, menu_strings_buff , (int)(menu_list[active_menu].values[i]),(int)(menu_list[active_menu].values[i+1]));
+					sprintf(Final_menu_strings, menu_strings_buff , (int)(menu_list[active_menu].values[i]),(int)(menu_list[active_menu].values[i+1]));
 					i++;
 				}
 			}
 			else if (strstr(menu_strings_buff, "%.1f") != 0)
 			{
-				sprintf(final_menu_strings, menu_strings_buff , (menu_list[active_menu].values[i]));
+				sprintf(Final_menu_strings, menu_strings_buff , (menu_list[active_menu].values[i]));
 			}
 			else if (strstr(menu_strings_buff, "%.2f") != 0)
 			{
-				sprintf(final_menu_strings, menu_strings_buff , (menu_list[active_menu].values[i]));
+				sprintf(Final_menu_strings, menu_strings_buff , (menu_list[active_menu].values[i]));
 			}
 			else if(strstr(menu_strings_buff, ",") != 0)
-			{			
-				final_menu_strings = strtok(menu_strings_buff , ",");
+			{	
+				char dummy[MENU_STRING_LENGTH];
+				char *final_buff = dummy;
+				final_buff = strtok(menu_strings_buff , ",");
 				for(int j=0 ; j<(int)(menu_list[active_menu].values[i]) ; j++)
 				{
-					final_menu_strings = strtok(NULL , ",");
+					final_buff = strtok(NULL , ",");
 				}
+				strcpy(Final_menu_strings , final_buff);
 			}
 			else
 			{
-				strcpy(final_menu_strings , menu_list[active_menu].menu_strings[i]);
+				strcpy(Final_menu_strings , menu_list[active_menu].menu_strings[i]);
 			}
-			text_width = CalcTextWidthEN(final_menu_strings);
-			glcd_draw_string_xy(menu_list[active_menu].x_position[i] - (text_width/2),menu_list[active_menu].y_position[i],final_menu_strings,0,0,0);
+			text_width = CalcTextWidthEN(Final_menu_strings);
+			glcd_draw_string_xy(menu_list[active_menu].x_position[i] - (text_width/2),menu_list[active_menu].y_position[i],Final_menu_strings,0,0,0);
 		}
 }
 
@@ -677,33 +696,24 @@ void print_menu(int active_menu)
 {
 
 		int print_offset=0;
-		GLCD_ClearScreen();
-		glcd_set_font_with_num(0);
-		
-		print_offset = (128 - CalcTextWidthEN( menu_list[active_menu].menu_name))/2;
-		glcd_draw_string_xy(print_offset,0,menu_list[active_menu].menu_name,0,0,0);
-		GLCD_Line(10,10,117,10);
+		char menu_strings_buff[10][MENU_STRING_LENGTH];
+		char final_menu_strings[10][MENU_STRING_LENGTH];
 		for(int i=0 ; i < menu_list[active_menu].menu_item_count ; i++)
 		{
-			char Menu_strings_buff[MENU_STRING_LENGTH];
-			char *menu_strings_buff = Menu_strings_buff;
-			char Final_menu_strings[MENU_STRING_LENGTH];
-			char *final_menu_strings = Final_menu_strings;
-			
-			strcpy(menu_strings_buff , menu_list[active_menu].menu_strings[i]);
-			if (strstr(menu_strings_buff, "%d") != 0)
+			strcpy(menu_strings_buff[i] , menu_list[active_menu].menu_strings[i]);
+			if (strstr(menu_strings_buff[i], "%d") != 0)
 			{
-				sprintf(final_menu_strings, menu_strings_buff , (int)(menu_list[active_menu].values[i]));
+				sprintf(final_menu_strings[i], menu_strings_buff[i] , (int)(menu_list[active_menu].values[i]));
 			}
-			else if (strstr(menu_strings_buff, "%.1f") != 0)
+			else if (strstr(menu_strings_buff[i], "%.1f") != 0)
 			{
-				sprintf(final_menu_strings, menu_strings_buff , (menu_list[active_menu].values[i]));
+				sprintf(final_menu_strings[i], menu_strings_buff[i] , (menu_list[active_menu].values[i]));
 			}
-			else if (strstr(menu_strings_buff, "%.2f") != 0)
+			else if (strstr(menu_strings_buff[i], "%.2f") != 0)
 			{
-				sprintf(final_menu_strings, menu_strings_buff , (menu_list[active_menu].values[i]));
+				sprintf(final_menu_strings[i], menu_strings_buff[i] , (menu_list[active_menu].values[i]));
 			}
-			else if(strstr(menu_strings_buff, "|") != 0)
+			else if(strstr(menu_strings_buff[i], "|") != 0)
 			{			
 				
 				char chank1[MENU_STRING_LENGTH];
@@ -712,43 +722,51 @@ void print_menu(int active_menu)
 				char* Chank2 = chank2;
 				char chank3[MENU_STRING_LENGTH];
 				char* Chank3 = chank3;
-				Chank1 = strtok(menu_strings_buff , "|");
+				Chank1 = strtok(menu_strings_buff[i] , "|");
 				Chank2 = strtok(NULL , "|");
-				
-				
 				Chank3 = strtok(Chank2 , ",");
 				
 				for(int j=0 ; j<(int)(menu_list[active_menu].values[i]) ; j++)
 				{
 					Chank3 = strtok(NULL , ",");
 				}
-				sprintf(final_menu_strings, "%s%s",Chank1, Chank3);
+				sprintf(final_menu_strings[i], "%s%s",Chank1, Chank3);
 			}
-			else if(strstr(menu_strings_buff, ",") != 0)
+			else if(strstr(menu_strings_buff[i], ",") != 0)
 			{			
-				final_menu_strings = strtok(menu_strings_buff , ",");
+				char dummy[MENU_STRING_LENGTH];
+				char *final_buff = dummy;
+				final_buff = strtok(menu_strings_buff[i] , ",");
 				for(int j=0 ; j<(int)(menu_list[active_menu].values[i]) ; j++)
 				{
-					final_menu_strings = strtok(NULL , ",");
+					final_buff = strtok(NULL , ",");
 				}
+				strcpy(final_menu_strings[i] , final_buff);
 			}
 			else
 			{
-				strcpy(final_menu_strings , menu_list[active_menu].menu_strings[i]);
+				strcpy(final_menu_strings[i] , menu_list[active_menu].menu_strings[i]);
 			}
-
-
-			print_offset = (128 - CalcTextWidthEN( final_menu_strings))/2;
+		}
+		
+	glcd_set_font_with_num(0);
+	GLCD_ClearScreen();
+	print_offset = (128 - CalcTextWidthEN( menu_list[active_menu].menu_name))/2;
+	glcd_draw_string_xy(print_offset,0,menu_list[active_menu].menu_name,0,0,0);
+	GLCD_Line(10,10,117,10);
+	for(int i=0 ; i < menu_list[active_menu].menu_item_count ; i++)
+			{
+			print_offset = (128 - CalcTextWidthEN( final_menu_strings[i]))/2;
 			if(i == menu_list[active_menu].menu_pointer)
 			{
-				glcd_draw_string_xy(print_offset,i*9+14,final_menu_strings,0,1,0);
+				
+				glcd_draw_string_xy(print_offset,i*9+14,final_menu_strings[i],0,1,0);
 			}
 			else
 			{ 
-				glcd_draw_string_xy(print_offset,i*9+14,final_menu_strings,0,0,0);
+				glcd_draw_string_xy(print_offset,i*9+14,final_menu_strings[i],0,0,0);
 			}
 		}
-	
 }
 
 void get_user_input(uint8_t *input,int *active_menu)
@@ -815,12 +833,12 @@ void get_user_input(uint8_t *input,int *active_menu)
 		}
 		else if(menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] != 0)
 		{
-			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] = 0;
+			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] = menu_list[*active_menu].value_min[menu_list[*active_menu].menu_pointer];
 		}
 	}
 	if(input[0] == 'a')
 	{
-		if(menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] > 0.1f)
+		if(menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] > menu_list[*active_menu].value_min[menu_list[*active_menu].menu_pointer])
 		{
 			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] -= menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] ;
 		}

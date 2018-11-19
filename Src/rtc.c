@@ -59,8 +59,8 @@ RTC_HandleTypeDef hrtc;
 /* RTC init function */
 void MX_RTC_Init(void)
 {
-  RTC_TimeTypeDef sTime;
-  RTC_DateTypeDef sDate;
+  //RTC_TimeTypeDef sTime;
+  //RTC_DateTypeDef sDate;
 
     /**Initialize RTC Only 
     */

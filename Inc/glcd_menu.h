@@ -20,6 +20,7 @@
 		float values[8];
 		float value_resolution[8];
 		float value_max[8];
+		float value_min[8];
 		int x_position[8];
 		int y_position[8];
 		int font[8];

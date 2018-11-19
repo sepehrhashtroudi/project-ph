@@ -142,6 +142,10 @@ int auto_wash_state = 0;
 int back_light_state=0;
 // PID sample time in ms
 uint32_t sample_time = 10;
+const float NIST_4[19] = {4.003, 3.999, 3.998, 3.999, 4.002, 4.008, 4.015, 4.024, 4.030, 4.035, 4.047, 4.060, 4.075, 4.091, 4.126, 4.164, 4.205, 4.227};
+const float NIST_7[19] = {6.984, 6.951, 6.923, 6.900, 6.881, 6.865, 6.853, 6.844, 6.840, 6.838, 6.834, 6.833, 6.834, 6.836, 6.845, 6.859, 6.877, 6.886};
+const float NIST_9[19] = {9.464, 9.395, 9.332, 9.276, 9.225, 9.180, 9.139, 9.102, 9.081, 9.068, 9.038, 9.011, 8.985, 8.962, 8.921, 8.885, 8.850, 8.833};
+const float NIST_TEMP[19] = {0, 5, 10, 15, 20, 25, 30, 35, 38, 40, 45, 50, 55, 60, 70, 80, 90, 95};
 extern const unsigned char Times_New_Roman25x26[] ;
 
 
@@ -210,8 +214,8 @@ int main(void)
 
 	lcd_semaphore = xSemaphoreCreateCounting(5,1);
 	xTaskCreate(lcd_print,"lcd_print",1024,( void * )1,2,&lcd_demo_handle);
-	xTaskCreate(main_thread,"main_thread",1024,( void * )1,1,&main_thread_handle);
-	xTaskCreate(light_thread,"back_light",1024,( void * )1,3,&back_light_state_thread_handle);
+	xTaskCreate(main_thread,"main_thread",1024,( void * )1,2,&main_thread_handle);
+	xTaskCreate(light_thread,"back_light",1024,( void * )1,1,&back_light_state_thread_handle);
 	//xTaskCreate(ph_calibration_thread,"calibration_thread",128,( void * )1,3,&ph_calibration_thread_handle);
 	
   /* USER CODE END 2 */
@@ -348,6 +352,7 @@ void main_thread(void * pvParameters)
 	}
 	HAL_GPIO_WritePin(Power_led_GPIO_Port,Power_led_Pin,GPIO_PIN_SET);
 	HAL_UART_Receive_IT(&huart3,uart_buff,1);
+	
 	while(1)
 	{
 		if( xSemaphoreTake( lcd_semaphore, 1000 ) == pdTRUE )
@@ -409,6 +414,7 @@ void main_thread(void * pvParameters)
 				last_progress = 0;
 			}
 		}
+		osDelay(5);
 	}
 }
 
@@ -420,7 +426,9 @@ void lcd_print(void * pvParameters)
 		update_menu_from_variables(active_menu);
 		if(active_menu == 0 )
 		{
-			if( menu_list[0].values[0] != last_menu_list[0].values[0] || menu_list[0].values[2] != last_menu_list[0].values[2] || menu_list[0].values[3] != last_menu_list[0].values[3] || menu_list[0].values[4] != last_menu_list[0].values[4] || menu_list[0].values[5] != last_menu_list[0].values[5])
+			if(  menu_list[0].values[0] != last_menu_list[0].values[0] || menu_list[0].values[2] != last_menu_list[0].values[2] 
+				|| menu_list[0].values[3] != last_menu_list[0].values[3] || menu_list[0].values[4] != last_menu_list[0].values[4] 
+				|| menu_list[0].values[5] != last_menu_list[0].values[5] )
 			{
 				xSemaphoreGive( lcd_semaphore );
 				last_menu_list[0] = menu_list[0];
@@ -428,23 +436,26 @@ void lcd_print(void * pvParameters)
 		}
 		if( active_menu == 3 || active_menu == 5 || active_menu == 13 || active_menu == 15 )
 		{ 
-			if( progress >= 100)
+			if( progress >= 100 || menu_list[3].values[2] != last_menu_list[3].values[2] || menu_list[5].values[2] != last_menu_list[5].values[2])
 			{
 				xSemaphoreGive( lcd_semaphore );
+				last_menu_list[3] = menu_list[3];
+				last_menu_list[5] = menu_list[5];
 			}
+			
 		}
 	}
 }
 void ph_calibration_thread(void * pvParameters)
 {
 	char sprintf_buff[20];
-	uint16_t last_ph_filtered = pH_filtered;
+	uint16_t last_ph_filtered = pH_filtered ;
 	HAL_TIM_Base_Start(&htim5);
 	uint32_t start_time = get_timer_time();
 	back_light_state = 1;
 	while(1)
 	{
-		if(abs(pH_filtered - last_ph_filtered) >= 5)
+		if(abs(pH_filtered - last_ph_filtered) >= 6 )
 		{
 			xSemaphoreGive( lcd_semaphore );
 			last_ph_filtered = pH_filtered;
@@ -452,7 +463,7 @@ void ph_calibration_thread(void * pvParameters)
 			MAX485_send_string("reset\n",6,100);
 			back_light_state = 1;
 		}
-		progress = (get_timer_time() - start_time)/100 ;
+		progress = (100/STABILIZATION_TIME)*(get_timer_time() - start_time)/1000 ;
 		if(progress > 100 )
 		{
 			progress = 100;
@@ -477,7 +488,7 @@ void temp_calibration_thread(void * pvParameters)
 	back_light_state = 1;
 	while(1)
 	{
-		if(abs(temp_filtered - last_temp_filtered) >= 5)
+		if(abs(temp_filtered - last_temp_filtered) >= 6)
 		{
 			xSemaphoreGive( lcd_semaphore );
 			last_temp_filtered = temp_filtered;
@@ -485,7 +496,7 @@ void temp_calibration_thread(void * pvParameters)
 			MAX485_send_string("reset\n",10,100);
 			back_light_state = 1;
 		}
-		progress = (get_timer_time() - start_time)/100  ;
+		progress = (100/STABILIZATION_TIME)*(get_timer_time() - start_time)/1000  ;
 		if(progress > 100 )
 		{
 			progress = 100;
@@ -527,12 +538,13 @@ void light_thread(void* pvParameters)
 			osDelay(3000);
 			
 		}
+		
+		if(GLCD_ReadStatus(0) == 0x20 || GLCD_ReadStatus(1) == 0x20) // lcd is reseted
+		{
+			//GLCD_WriteCommand((DISPLAY_ON_CMD | ON), i);
+			xSemaphoreGive( lcd_semaphore );
+		}
 		osDelay(100);
-//		if(GLCD_ReadStatus(0) == 0x20 || GLCD_ReadStatus(1) == 0x20) // lcd is reseted
-//		{
-//			for(int i = 0; i < 2; i++)
-//			GLCD_WriteCommand((DISPLAY_ON_CMD | ON), i);
-//		}
 	}
 }
 
@@ -592,6 +604,8 @@ void read_setting_from_eeprom(void)
 	relay3_func = eeprom_buff ;
 	eeprom_read_data(REL_FUNC_4_EEPROM_ADD,&eeprom_buff,1);
 	relay4_func = eeprom_buff ;
+	eeprom_read_data(STABILIZATION_TIME_EEPROM_ADD,&eeprom_buff,1);
+	STABILIZATION_TIME = eeprom_buff ;
 	slope = 1000 / (p1_p * 4095);
 	zero = 1000 * (p2_p + 1.454f)/ (p1_p * 4095);
 	slope_percent = 100 * slope / 59.16f;
@@ -652,14 +666,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	temp_filtered = best_moving_average(temp_averaged, temp_history, &temp_sum, &temp_window_pointer);
 	temp = p1_t * temp_filtered + p2_t;
 	temp = roundf(temp * 10.0f) / 10.0f; 
-	if( temp_filtered < 10)
-	{
-		Change_Menu_Items(0,2,"NC `C",-1,-1,-1);
-	}
-	else
-	{
-		Change_Menu_Items(0,2,"%.1f `C",-1,-1,-1);
-	}
+	
 	
 	ph_averaged = average(pH_buffer, bufferLength);
 	pH_filtered = best_moving_average(ph_averaged, ph_history, &ph_sum, &ph_window_pointer);

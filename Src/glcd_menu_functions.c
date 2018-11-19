@@ -56,12 +56,15 @@ void ph_calculate_calibration_coefficients(void)
 	eeprom_write_data(p1_p_eeprom_add,&EEprom_buff,1);
 	EEprom_buff = p2_p*float_to_int_factor;
 	eeprom_write_data(p2_p_eeprom_add,&EEprom_buff,1);
+	
 }
 
 void ph_calibration_step1(void)
 {
 	MAX485_send_string("calibration1\n",13,100);
 	create_ph_calibration_task_flag = 1;
+	EEprom_buff = STABILIZATION_TIME;
+	eeprom_write_data(STABILIZATION_TIME_EEPROM_ADD,&EEprom_buff,1);
 }
 void ph_calibration_step2(void)
 {
