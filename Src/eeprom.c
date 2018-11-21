@@ -9,9 +9,10 @@
   */
 #include "stm32f4xx_hal.h"
 #include "eeprom.h"
+#include "cmsis_os.h"
 //#include "max485.h"
-
-
+extern SemaphoreHandle_t lcd_semaphore;
+extern int please_wait_flag;
 
 void eeprom_erase(void)
 {
@@ -72,6 +73,9 @@ void eeprom_write_data(uint32_t VirtAddress, int32_t *Data,uint32_t length)
 		Address = VirtAddress + i;
 		if(back_up[Address] != Data[i])
 		{
+			please_wait_flag = 1;
+			xSemaphoreGive( lcd_semaphore );
+			osDelay(100);
 			back_up[Address] = Data[i];
 			erase_flag = 1;
 		}

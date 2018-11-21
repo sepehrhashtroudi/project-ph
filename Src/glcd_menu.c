@@ -81,7 +81,7 @@ void init_menu(void)
 	strcpy(menu_list[1].menu_strings[0],  " Calibration ");
 	strcpy(menu_list[1].menu_strings[1] , " Controller ");
 	strcpy(menu_list[1].menu_strings[2] , " Measurement ");
-	strcpy(menu_list[1].menu_strings[3] , " Self Cleaning ");
+	strcpy(menu_list[1].menu_strings[3] , " Easy Clean ");
 	strcpy(menu_list[1].menu_strings[4] , " Time ");
 	menu_list[1].menu_id=1;
 	menu_list[1].menu_item_count = 5;
@@ -391,7 +391,7 @@ void init_menu(void)
 	menu_list[17].run_on_exit=1;
 	
 	
-	strcpy(menu_list[18].menu_name , "Manual Wash");
+	strcpy(menu_list[18].menu_name , "Manual Clean");
 	strcpy(menu_list[18].menu_strings[0], " Supply:| <OFF>,<ON>");
 	strcpy(menu_list[18].menu_strings[1], " Drain:| <OFF>,<ON>");
 	strcpy(menu_list[18].menu_strings[2], " Wash:| <OFF>,<ON>");
@@ -418,10 +418,10 @@ void init_menu(void)
 	menu_list[18].fun_ptr = &manual_wash_exit;
 	menu_list[18].run_on_exit=1;
 	
-	strcpy(menu_list[19].menu_name , "Self Cleaning");
+	strcpy(menu_list[19].menu_name , "Easy Clean");
 	strcpy(menu_list[19].menu_strings[0], " Relay Functions ");
-	strcpy(menu_list[19].menu_strings[1], " Auto Wash ");
-	strcpy(menu_list[19].menu_strings[2], " Manual Wash ");
+	strcpy(menu_list[19].menu_strings[1], " Auto Clean ");
+	strcpy(menu_list[19].menu_strings[2], " Manual Clean ");
 	menu_list[19].next_menu_id[0]=17;
 	menu_list[19].next_menu_id[1]=20;
 	menu_list[19].next_menu_id[2]=18;
@@ -437,11 +437,11 @@ void init_menu(void)
 	menu_list[19].fun_ptr = NULL;
 	menu_list[19].run_on_exit=0;
 	
-	strcpy(menu_list[20].menu_name , "Auto Wash");
-	strcpy(menu_list[20].menu_strings[0], " Drain 1: %d ");
-	strcpy(menu_list[20].menu_strings[1], " Wash: %d");
-	strcpy(menu_list[20].menu_strings[2], " Drain 2: %d");
-	strcpy(menu_list[20].menu_strings[3], " KCL: %d");
+	strcpy(menu_list[20].menu_name , "Auto Clean");
+	strcpy(menu_list[20].menu_strings[0], " Supply: %d s");
+	strcpy(menu_list[20].menu_strings[1], " KCL: %d s");
+	strcpy(menu_list[20].menu_strings[2], " Revival: %d s");
+	strcpy(menu_list[20].menu_strings[3], " Wash: %d s");
 	strcpy(menu_list[20].menu_strings[4], " OK ");
 	menu_list[20].next_menu_id[0]=20;
 	menu_list[20].next_menu_id[1]=20;
@@ -449,16 +449,16 @@ void init_menu(void)
 	menu_list[20].next_menu_id[3]=20;
 	menu_list[20].next_menu_id[4]=21;
 	menu_list[20].values[0]=5;
-	menu_list[20].values[1]=5;
-	menu_list[20].values[2]=5;
+	menu_list[20].values[1]=3;
+	menu_list[20].values[2]=360;
 	menu_list[20].values[3]=5;
-	menu_list[20].value_resolution[0]= 5;
-	menu_list[20].value_resolution[1]= 5;
-	menu_list[20].value_resolution[2]= 5;
-	menu_list[20].value_resolution[3]= 5;
+	menu_list[20].value_resolution[0]= 1;
+	menu_list[20].value_resolution[1]= 1;
+	menu_list[20].value_resolution[2]= 30;
+	menu_list[20].value_resolution[3]= 1;
 	menu_list[20].value_max[0]=60;
 	menu_list[20].value_max[1]=60;
-	menu_list[20].value_max[2]=60;
+	menu_list[20].value_max[2]=600;
 	menu_list[20].value_max[3]=60;
 	menu_list[20].menu_id=20;
 	menu_list[20].menu_item_count = 5;
@@ -466,7 +466,7 @@ void init_menu(void)
 	menu_list[20].fun_ptr = &run_auto_wash;
 	menu_list[20].run_on_exit=0;
 	
-	strcpy(menu_list[21].menu_name , "Auto Wash State");
+	strcpy(menu_list[21].menu_name , "Auto Clean State");
 	strcpy(menu_list[21].menu_strings[0], " Supply:| <ON>,<OFF>");
 	strcpy(menu_list[21].menu_strings[1], " Drain:| <OFF>,<ON>");
 	strcpy(menu_list[21].menu_strings[2], " Wash:| <OFF>,<ON>");
@@ -788,11 +788,17 @@ void get_user_input(uint8_t *input,int *active_menu)
 	}
 	if(input[0] == 'e')
 	{
-		back_button_flag = 1;
 		delete_ph_calibration_task_flag = 1;   //kill calibration thread
 		delete_temp_calibration_task_flag = 1; //kill calibration thread
-		auto_wash_state = 0;
-		auto_wash_handler(&auto_wash_state);		//cancel auto wash
+		if(auto_wash_state != 0)
+		{
+			auto_wash_state = 5;
+			auto_wash_handler(&auto_wash_state);		//cancel auto wash
+		}
+		else
+		{
+			back_button_flag = 1;
+		}
 	}
 	if(input[0] == 'w')
 	{

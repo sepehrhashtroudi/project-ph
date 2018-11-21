@@ -3,7 +3,7 @@
 <title>Static Call Graph - [pH_meter_ver_2\pH_meter_ver_2.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image pH_meter_ver_2\pH_meter_ver_2.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Wed Nov 21 16:19:12 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Wed Nov 21 18:14:01 2018
 <BR><P>
 <H3>Maximum Stack Usage =        376 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -443,7 +443,7 @@ Global Symbols
 <LI><a href="#[157]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_main_page
 </UL>
 
-<P><STRONG><a name="[13e]"></a>strlen</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, strlen.o(.text))
+<P><STRONG><a name="[13f]"></a>strlen</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, strlen.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[d0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_user_input
 <LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ph_calibration_thread
 </UL>
@@ -451,7 +451,7 @@ Global Symbols
 <P><STRONG><a name="[97]"></a>strcpy</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, strcpy.o(.text))
 <BR><BR>[Called By]<UL><LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_menu
 <LI><a href="#[157]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_main_page
-<LI><a href="#[145]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;init_menu
+<LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;init_menu
 <LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Change_Menu_Items
 </UL>
 
@@ -798,8 +798,8 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_WriteCommand
 </UL>
-<BR>[Called By]<UL><LI><a href="#[140]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_char_xy_with_ram
-<LI><a href="#[13f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_char_xy
+<BR>[Called By]<UL><LI><a href="#[141]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_char_xy_with_ram
+<LI><a href="#[140]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_char_xy
 <LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_Write_Ram
 <LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_ClearScreen
 <LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_SetPixel
@@ -861,13 +861,13 @@ Global Symbols
 <LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_ReadData
 <LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_GoTo
 </UL>
-<BR>[Called By]<UL><LI><a href="#[13f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_char_xy
+<BR>[Called By]<UL><LI><a href="#[140]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_char_xy
 </UL>
 
 <P><STRONG><a name="[a7]"></a>GLCD_SetPixel_with_ram</STRONG> (Thumb, 34 bytes, Stack size 8 bytes, ks0108.o(i.GLCD_SetPixel_with_ram))
 <BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = GLCD_SetPixel_with_ram
 </UL>
-<BR>[Called By]<UL><LI><a href="#[140]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_char_xy_with_ram
+<BR>[Called By]<UL><LI><a href="#[141]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_char_xy_with_ram
 <LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_Line
 </UL>
 
@@ -898,8 +898,8 @@ Global Symbols
 <LI><a href="#[a3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_WriteCommand
 <LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin
 </UL>
-<BR>[Called By]<UL><LI><a href="#[140]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_char_xy_with_ram
-<LI><a href="#[13f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_char_xy
+<BR>[Called By]<UL><LI><a href="#[141]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_char_xy_with_ram
+<LI><a href="#[140]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_char_xy
 <LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_Write_Ram
 <LI><a href="#[9d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_ClearScreen
 <LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_SetPixel
@@ -1739,7 +1739,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[73]"></a>Measurement_exit</STRONG> (Thumb, 28 bytes, Stack size 0 bytes, glcd_menu_functions.o(i.Measurement_exit))
-<BR><BR>[Stack]<UL><LI>Max Depth = 208<LI>Call Chain = Measurement_exit &rArr; eeprom_write_data &rArr; eeprom_erase &rArr; HAL_FLASHEx_Erase &rArr; FLASH_WaitForLastOperation
+<BR><BR>[Stack]<UL><LI>Max Depth = 280<LI>Call Chain = Measurement_exit &rArr; eeprom_write_data &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;eeprom_write_data
 </UL>
@@ -1791,8 +1791,8 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 72 + In Cycle
 <LI>Call Chain = StartDefaultTask &rArr;  StartDefaultTask (Cycle)
 </UL>
-<BR>[Calls]<UL><LI><a href="#[7c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;StartDefaultTask
-<LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<BR>[Calls]<UL><LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<LI><a href="#[7c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;StartDefaultTask
 </UL>
 <BR>[Called By]<UL><LI><a href="#[7c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;StartDefaultTask
 </UL>
@@ -1901,7 +1901,7 @@ Global Symbols
 
 <P><STRONG><a name="[1a2]"></a>__1sprintf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0sprintf), UNUSED)
 
-<P><STRONG><a name="[13d]"></a>__2sprintf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0sprintf))
+<P><STRONG><a name="[13e]"></a>__2sprintf</STRONG> (Thumb, 0 bytes, Stack size 24 bytes, printfa.o(i.__0sprintf))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = __2sprintf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;temp_calculate_calibration_coefficients
@@ -1931,7 +1931,7 @@ Global Symbols
 
 <P><STRONG><a name="[1a7]"></a>__scatterload_zeroinit</STRONG> (Thumb, 14 bytes, Stack size unknown bytes, handlers.o(i.__scatterload_zeroinit), UNUSED)
 
-<P><STRONG><a name="[100]"></a>auto_wash_handler</STRONG> (Thumb, 836 bytes, Stack size 48 bytes, glcd_menu_functions.o(i.auto_wash_handler))
+<P><STRONG><a name="[100]"></a>auto_wash_handler</STRONG> (Thumb, 880 bytes, Stack size 48 bytes, glcd_menu_functions.o(i.auto_wash_handler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = auto_wash_handler &rArr; xQueueGiveFromISR &rArr; xTaskRemoveFromEventList
 </UL>
 <BR>[Calls]<UL><LI><a href="#[117]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGiveFromISR
@@ -1981,10 +1981,12 @@ Global Symbols
 <LI><a href="#[14c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;read_setting_from_eeprom
 </UL>
 
-<P><STRONG><a name="[12a]"></a>eeprom_write_data</STRONG> (Thumb, 104 bytes, Stack size 144 bytes, eeprom.o(i.eeprom_write_data))
-<BR><BR>[Stack]<UL><LI>Max Depth = 208<LI>Call Chain = eeprom_write_data &rArr; eeprom_erase &rArr; HAL_FLASHEx_Erase &rArr; FLASH_WaitForLastOperation
+<P><STRONG><a name="[12a]"></a>eeprom_write_data</STRONG> (Thumb, 146 bytes, Stack size 168 bytes, eeprom.o(i.eeprom_write_data))
+<BR><BR>[Stack]<UL><LI>Max Depth = 280<LI>Call Chain = eeprom_write_data &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
-<BR>[Calls]<UL><LI><a href="#[13c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;eeprom_read_data
+<BR>[Calls]<UL><LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<LI><a href="#[13c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;eeprom_read_data
 <LI><a href="#[138]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;eeprom_erase
 <LI><a href="#[139]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_FLASH_Unlock
 <LI><a href="#[ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_FLASH_Program
@@ -2005,84 +2007,84 @@ Global Symbols
 <LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ph_calibration_thread
 </UL>
 
-<P><STRONG><a name="[d0]"></a>get_user_input</STRONG> (Thumb, 126 bytes, Stack size 40 bytes, glcd_menu.o(i.get_user_input))
+<P><STRONG><a name="[d0]"></a>get_user_input</STRONG> (Thumb, 130 bytes, Stack size 40 bytes, glcd_menu.o(i.get_user_input))
 <BR><BR>[Stack]<UL><LI>Max Depth = 128<LI>Call Chain = get_user_input &rArr; auto_wash_handler &rArr; xQueueGiveFromISR &rArr; xTaskRemoveFromEventList
 </UL>
 <BR>[Calls]<UL><LI><a href="#[100]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;auto_wash_handler
 <LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MAX485_send_string
-<LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
-<LI><a href="#[13e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strlen
+<LI><a href="#[13e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
+<LI><a href="#[13f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strlen
 </UL>
 <BR>[Called By]<UL><LI><a href="#[115]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_RxCpltCallback
 <LI><a href="#[cf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_EXTI_Callback
 </UL>
 
-<P><STRONG><a name="[13f]"></a>glcd_draw_char_xy</STRONG> (Thumb, 248 bytes, Stack size 56 bytes, ks0108.o(i.glcd_draw_char_xy))
+<P><STRONG><a name="[140]"></a>glcd_draw_char_xy</STRONG> (Thumb, 248 bytes, Stack size 56 bytes, ks0108.o(i.glcd_draw_char_xy))
 <BR><BR>[Stack]<UL><LI>Max Depth = 200<LI>Call Chain = glcd_draw_char_xy &rArr; GLCD_SetPixel &rArr; GLCD_WriteData &rArr; GLCD_WriteCommand &rArr; GLCD_ReadStatus &rArr; Port_in_out_mode &rArr; HAL_GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_WriteData
 <LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_GoTo
 <LI><a href="#[ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_SetPixel
 </UL>
-<BR>[Called By]<UL><LI><a href="#[141]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_string_xy
+<BR>[Called By]<UL><LI><a href="#[142]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_string_xy
 </UL>
 
-<P><STRONG><a name="[140]"></a>glcd_draw_char_xy_with_ram</STRONG> (Thumb, 252 bytes, Stack size 56 bytes, ks0108.o(i.glcd_draw_char_xy_with_ram))
+<P><STRONG><a name="[141]"></a>glcd_draw_char_xy_with_ram</STRONG> (Thumb, 252 bytes, Stack size 56 bytes, ks0108.o(i.glcd_draw_char_xy_with_ram))
 <BR><BR>[Stack]<UL><LI>Max Depth = 176<LI>Call Chain = glcd_draw_char_xy_with_ram &rArr; GLCD_WriteData &rArr; GLCD_WriteCommand &rArr; GLCD_ReadStatus &rArr; Port_in_out_mode &rArr; HAL_GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[9f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_WriteData
 <LI><a href="#[9e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_GoTo
 <LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_SetPixel_with_ram
 </UL>
-<BR>[Called By]<UL><LI><a href="#[142]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_string_xy_with_ram
+<BR>[Called By]<UL><LI><a href="#[143]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_string_xy_with_ram
 </UL>
 
-<P><STRONG><a name="[141]"></a>glcd_draw_string_xy</STRONG> (Thumb, 60 bytes, Stack size 40 bytes, ks0108.o(i.glcd_draw_string_xy))
+<P><STRONG><a name="[142]"></a>glcd_draw_string_xy</STRONG> (Thumb, 60 bytes, Stack size 40 bytes, ks0108.o(i.glcd_draw_string_xy))
 <BR><BR>[Stack]<UL><LI>Max Depth = 240<LI>Call Chain = glcd_draw_string_xy &rArr; glcd_draw_char_xy &rArr; GLCD_SetPixel &rArr; GLCD_WriteData &rArr; GLCD_WriteCommand &rArr; GLCD_ReadStatus &rArr; Port_in_out_mode &rArr; HAL_GPIO_Init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[13f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_char_xy
+<BR>[Calls]<UL><LI><a href="#[140]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_char_xy
 </UL>
 <BR>[Called By]<UL><LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main_thread
 </UL>
 
-<P><STRONG><a name="[142]"></a>glcd_draw_string_xy_with_ram</STRONG> (Thumb, 60 bytes, Stack size 40 bytes, ks0108.o(i.glcd_draw_string_xy_with_ram))
+<P><STRONG><a name="[143]"></a>glcd_draw_string_xy_with_ram</STRONG> (Thumb, 60 bytes, Stack size 40 bytes, ks0108.o(i.glcd_draw_string_xy_with_ram))
 <BR><BR>[Stack]<UL><LI>Max Depth = 216<LI>Call Chain = glcd_draw_string_xy_with_ram &rArr; glcd_draw_char_xy_with_ram &rArr; GLCD_WriteData &rArr; GLCD_WriteCommand &rArr; GLCD_ReadStatus &rArr; Port_in_out_mode &rArr; HAL_GPIO_Init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[140]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_char_xy_with_ram
+<BR>[Calls]<UL><LI><a href="#[141]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_char_xy_with_ram
 </UL>
 <BR>[Called By]<UL><LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_menu
 <LI><a href="#[157]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_main_page
 <LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main_thread
 </UL>
 
-<P><STRONG><a name="[144]"></a>glcd_set_font</STRONG> (Thumb, 44 bytes, Stack size 12 bytes, ks0108.o(i.glcd_set_font))
+<P><STRONG><a name="[145]"></a>glcd_set_font</STRONG> (Thumb, 44 bytes, Stack size 12 bytes, ks0108.o(i.glcd_set_font))
 <BR><BR>[Stack]<UL><LI>Max Depth = 12<LI>Call Chain = glcd_set_font
 </UL>
-<BR>[Called By]<UL><LI><a href="#[143]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_set_font_with_num
+<BR>[Called By]<UL><LI><a href="#[144]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_set_font_with_num
 </UL>
 
-<P><STRONG><a name="[143]"></a>glcd_set_font_with_num</STRONG> (Thumb, 38 bytes, Stack size 8 bytes, ks0108.o(i.glcd_set_font_with_num))
+<P><STRONG><a name="[144]"></a>glcd_set_font_with_num</STRONG> (Thumb, 38 bytes, Stack size 8 bytes, ks0108.o(i.glcd_set_font_with_num))
 <BR><BR>[Stack]<UL><LI>Max Depth = 20<LI>Call Chain = glcd_set_font_with_num &rArr; glcd_set_font
 </UL>
-<BR>[Calls]<UL><LI><a href="#[144]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_set_font
+<BR>[Calls]<UL><LI><a href="#[145]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_set_font
 </UL>
 <BR>[Called By]<UL><LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_menu
 <LI><a href="#[157]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_main_page
 <LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main_thread
 </UL>
 
-<P><STRONG><a name="[145]"></a>init_menu</STRONG> (Thumb, 3810 bytes, Stack size 48 bytes, glcd_menu.o(i.init_menu))
-<BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = init_menu
+<P><STRONG><a name="[146]"></a>init_menu</STRONG> (Thumb, 3814 bytes, Stack size 56 bytes, glcd_menu.o(i.init_menu))
+<BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = init_menu
 </UL>
 <BR>[Calls]<UL><LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strcpy
 </UL>
 <BR>[Called By]<UL><LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main_thread
 </UL>
 
-<P><STRONG><a name="[77]"></a>input_button_thread</STRONG> (Thumb, 874 bytes, Stack size 0 bytes, main.o(i.input_button_thread))
+<P><STRONG><a name="[77]"></a>input_button_thread</STRONG> (Thumb, 792 bytes, Stack size 0 bytes, main.o(i.input_button_thread))
 <BR><BR>[Stack]<UL><LI>Max Depth = 112<LI>Call Chain = input_button_thread &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
-<BR>[Calls]<UL><LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<BR>[Calls]<UL><LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
 <LI><a href="#[ac]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_ReadPin
 </UL>
@@ -2091,9 +2093,9 @@ Global Symbols
 <P><STRONG><a name="[74]"></a>lcd_print</STRONG> (Thumb, 288 bytes, Stack size 0 bytes, main.o(i.lcd_print))
 <BR><BR>[Stack]<UL><LI>Max Depth = 152<LI>Call Chain = lcd_print &rArr; update_menu_from_variables &rArr; __aeabi_dsub &rArr; __aeabi_dadd &rArr; _double_epilogue &rArr; _double_round
 </UL>
-<BR>[Calls]<UL><LI><a href="#[147]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_menu_from_variables
-<LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<BR>[Calls]<UL><LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<LI><a href="#[147]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_menu_from_variables
 <LI><a href="#[121]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy4
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(i.main)
@@ -2101,9 +2103,9 @@ Global Symbols
 <P><STRONG><a name="[76]"></a>light_thread</STRONG> (Thumb, 122 bytes, Stack size 0 bytes, main.o(i.light_thread))
 <BR><BR>[Stack]<UL><LI>Max Depth = 112<LI>Call Chain = light_thread &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
-<BR>[Calls]<UL><LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_ReadStatus
-<LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<BR>[Calls]<UL><LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<LI><a href="#[a9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_ReadStatus
 <LI><a href="#[148]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_TogglePin
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(i.main)
@@ -2139,6 +2141,7 @@ Global Symbols
 <LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_Start_IT
 <LI><a href="#[e2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_GetTime
 <LI><a href="#[e0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RTC_GetDate
+<LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
 <LI><a href="#[150]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pid_sample
 <LI><a href="#[14e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pid_limits
 <LI><a href="#[151]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pid_direction
@@ -2148,10 +2151,10 @@ Global Symbols
 <LI><a href="#[147]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;update_menu_from_variables
 <LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_menu
 <LI><a href="#[157]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;print_main_page
-<LI><a href="#[145]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;init_menu
-<LI><a href="#[143]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_set_font_with_num
-<LI><a href="#[142]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_string_xy_with_ram
-<LI><a href="#[141]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_string_xy
+<LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;init_menu
+<LI><a href="#[144]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_set_font_with_num
+<LI><a href="#[143]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_string_xy_with_ram
+<LI><a href="#[142]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_string_xy
 <LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_Write_Ram
 <LI><a href="#[a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_Initalize
 <LI><a href="#[156]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_Clear_Ram
@@ -2159,7 +2162,6 @@ Global Symbols
 <LI><a href="#[14a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskCreate
 <LI><a href="#[154]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 <LI><a href="#[158]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelete
-<LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
 <LI><a href="#[14c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;read_setting_from_eeprom
 <LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_WritePin
 <LI><a href="#[116]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_IT
@@ -2175,7 +2177,8 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[15a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
 </UL>
-<BR>[Called By]<UL><LI><a href="#[7c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;StartDefaultTask
+<BR>[Called By]<UL><LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;eeprom_write_data
+<LI><a href="#[7c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;StartDefaultTask
 <LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;temp_calibration_thread
 <LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ph_calibration_thread
 <LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main_thread
@@ -2211,7 +2214,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[66]"></a>ph_calculate_calibration_coefficients</STRONG> (Thumb, 194 bytes, Stack size 32 bytes, glcd_menu_functions.o(i.ph_calculate_calibration_coefficients))
-<BR><BR>[Stack]<UL><LI>Max Depth = 240<LI>Call Chain = ph_calculate_calibration_coefficients &rArr; eeprom_write_data &rArr; eeprom_erase &rArr; HAL_FLASHEx_Erase &rArr; FLASH_WaitForLastOperation
+<BR><BR>[Stack]<UL><LI>Max Depth = 312<LI>Call Chain = ph_calculate_calibration_coefficients &rArr; eeprom_write_data &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;eeprom_write_data
 <LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Change_Menu_Items
@@ -2219,7 +2222,7 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> glcd_menu.o(i.init_menu)
 </UL>
 <P><STRONG><a name="[63]"></a>ph_calibration_step1</STRONG> (Thumb, 82 bytes, Stack size 16 bytes, glcd_menu_functions.o(i.ph_calibration_step1))
-<BR><BR>[Stack]<UL><LI>Max Depth = 224<LI>Call Chain = ph_calibration_step1 &rArr; eeprom_write_data &rArr; eeprom_erase &rArr; HAL_FLASHEx_Erase &rArr; FLASH_WaitForLastOperation
+<BR><BR>[Stack]<UL><LI>Max Depth = 296<LI>Call Chain = ph_calibration_step1 &rArr; eeprom_write_data &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;eeprom_write_data
 <LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MAX485_send_string
@@ -2230,16 +2233,16 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 160<LI>Call Chain = ph_calibration_thread &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[15f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_Start
+<LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
 <LI><a href="#[8b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2d
 <LI><a href="#[161]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
 <LI><a href="#[89]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dmul
 <LI><a href="#[134]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_cdrcmple
 <LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MAX485_send_string
-<LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
-<LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
 <LI><a href="#[160]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_timer_time
-<LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
-<LI><a href="#[13e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strlen
+<LI><a href="#[13e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
+<LI><a href="#[13f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strlen
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(i.main_thread)
 </UL>
@@ -2252,7 +2255,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[161]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
 <LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MAX485_send_string
 <LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Change_Menu_Items
-<LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
+<LI><a href="#[13e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> glcd_menu.o(i.init_menu)
 </UL>
@@ -2301,12 +2304,12 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 352<LI>Call Chain = print_main_page &rArr; glcd_draw_string_xy_with_ram &rArr; glcd_draw_char_xy_with_ram &rArr; GLCD_WriteData &rArr; GLCD_WriteCommand &rArr; GLCD_ReadStatus &rArr; Port_in_out_mode &rArr; HAL_GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[161]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
-<LI><a href="#[143]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_set_font_with_num
-<LI><a href="#[142]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_string_xy_with_ram
+<LI><a href="#[144]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_set_font_with_num
+<LI><a href="#[143]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_string_xy_with_ram
 <LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_Write_Ram
 <LI><a href="#[156]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_Clear_Ram
 <LI><a href="#[165]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CalcTextWidthEN
-<LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
+<LI><a href="#[13e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
 <LI><a href="#[164]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strtok
 <LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strcpy
 <LI><a href="#[163]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strstr
@@ -2318,13 +2321,13 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 360<LI>Call Chain = print_menu &rArr; glcd_draw_string_xy_with_ram &rArr; glcd_draw_char_xy_with_ram &rArr; GLCD_WriteData &rArr; GLCD_WriteCommand &rArr; GLCD_ReadStatus &rArr; Port_in_out_mode &rArr; HAL_GPIO_Init
 </UL>
 <BR>[Calls]<UL><LI><a href="#[161]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
-<LI><a href="#[143]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_set_font_with_num
-<LI><a href="#[142]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_string_xy_with_ram
+<LI><a href="#[144]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_set_font_with_num
+<LI><a href="#[143]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;glcd_draw_string_xy_with_ram
 <LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_Write_Ram
 <LI><a href="#[156]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_Clear_Ram
 <LI><a href="#[165]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;CalcTextWidthEN
 <LI><a href="#[a6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GLCD_Line
-<LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
+<LI><a href="#[13e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
 <LI><a href="#[164]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strtok
 <LI><a href="#[97]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strcpy
 <LI><a href="#[163]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strstr
@@ -2377,7 +2380,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[70]"></a>relay_func_exit</STRONG> (Thumb, 146 bytes, Stack size 16 bytes, glcd_menu_functions.o(i.relay_func_exit))
-<BR><BR>[Stack]<UL><LI>Max Depth = 224<LI>Call Chain = relay_func_exit &rArr; eeprom_write_data &rArr; eeprom_erase &rArr; HAL_FLASHEx_Erase &rArr; FLASH_WaitForLastOperation
+<BR><BR>[Stack]<UL><LI>Max Depth = 296<LI>Call Chain = relay_func_exit &rArr; eeprom_write_data &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;eeprom_write_data
 <LI><a href="#[b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;relay_on_off
@@ -2416,7 +2419,7 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[67]"></a>set_controller_set_point</STRONG> (Thumb, 90 bytes, Stack size 16 bytes, glcd_menu_functions.o(i.set_controller_set_point))
-<BR><BR>[Stack]<UL><LI>Max Depth = 224<LI>Call Chain = set_controller_set_point &rArr; eeprom_write_data &rArr; eeprom_erase &rArr; HAL_FLASHEx_Erase &rArr; FLASH_WaitForLastOperation
+<BR><BR>[Stack]<UL><LI>Max Depth = 296<LI>Call Chain = set_controller_set_point &rArr; eeprom_write_data &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;eeprom_write_data
 </UL>
@@ -2431,7 +2434,7 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> glcd_menu.o(i.init_menu)
 </UL>
 <P><STRONG><a name="[69]"></a>set_pid_coefficients</STRONG> (Thumb, 262 bytes, Stack size 24 bytes, main.o(i.set_pid_coefficients))
-<BR><BR>[Stack]<UL><LI>Max Depth = 232<LI>Call Chain = set_pid_coefficients &rArr; eeprom_write_data &rArr; eeprom_erase &rArr; HAL_FLASHEx_Erase &rArr; FLASH_WaitForLastOperation
+<BR><BR>[Stack]<UL><LI>Max Depth = 304<LI>Call Chain = set_pid_coefficients &rArr; eeprom_write_data &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;eeprom_write_data
 <LI><a href="#[150]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pid_sample
@@ -2443,19 +2446,19 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> glcd_menu.o(i.init_menu)
 </UL>
 <P><STRONG><a name="[68]"></a>set_relay_Hysteresis</STRONG> (Thumb, 130 bytes, Stack size 24 bytes, glcd_menu_functions.o(i.set_relay_Hysteresis))
-<BR><BR>[Stack]<UL><LI>Max Depth = 232<LI>Call Chain = set_relay_Hysteresis &rArr; eeprom_write_data &rArr; eeprom_erase &rArr; HAL_FLASHEx_Erase &rArr; FLASH_WaitForLastOperation
+<BR><BR>[Stack]<UL><LI>Max Depth = 304<LI>Call Chain = set_relay_Hysteresis &rArr; eeprom_write_data &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;eeprom_write_data
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> glcd_menu.o(i.init_menu)
 </UL>
 <P><STRONG><a name="[6f]"></a>temp_calculate_calibration_coefficients</STRONG> (Thumb, 196 bytes, Stack size 56 bytes, glcd_menu_functions.o(i.temp_calculate_calibration_coefficients))
-<BR><BR>[Stack]<UL><LI>Max Depth = 264<LI>Call Chain = temp_calculate_calibration_coefficients &rArr; eeprom_write_data &rArr; eeprom_erase &rArr; HAL_FLASHEx_Erase &rArr; FLASH_WaitForLastOperation
+<BR><BR>[Stack]<UL><LI>Max Depth = 336<LI>Call Chain = temp_calculate_calibration_coefficients &rArr; eeprom_write_data &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;eeprom_write_data
 <LI><a href="#[161]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
 <LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MAX485_send_string
-<LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
+<LI><a href="#[13e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> glcd_menu.o(i.init_menu)
 </UL>
@@ -2477,11 +2480,11 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 136<LI>Call Chain = temp_calibration_thread &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[15f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_Start
-<LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MAX485_send_string
-<LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
+<LI><a href="#[11a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MAX485_send_string
 <LI><a href="#[160]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;get_timer_time
-<LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
+<LI><a href="#[13e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2sprintf
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> main.o(i.main_thread)
 </UL>
@@ -2548,27 +2551,27 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[16b]"></a>vPortEnterCritical</STRONG> (Thumb, 54 bytes, Stack size 0 bytes, port.o(i.vPortEnterCritical))
-<BR><BR>[Called By]<UL><LI><a href="#[16e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvCheckTasksWaitingTermination
+<BR><BR>[Called By]<UL><LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<LI><a href="#[16e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvCheckTasksWaitingTermination
 <LI><a href="#[16a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvAddNewTaskToReadyList
 <LI><a href="#[190]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskCheckForTimeOut
 <LI><a href="#[18d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReset
 <LI><a href="#[17b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvUnlockQueue
 <LI><a href="#[17a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvIsQueueEmpty
 <LI><a href="#[170]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskResumeAll
-<LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[154]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 <LI><a href="#[158]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelete
 </UL>
 
 <P><STRONG><a name="[16d]"></a>vPortExitCritical</STRONG> (Thumb, 34 bytes, Stack size 0 bytes, port.o(i.vPortExitCritical))
-<BR><BR>[Called By]<UL><LI><a href="#[16e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvCheckTasksWaitingTermination
+<BR><BR>[Called By]<UL><LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<LI><a href="#[16e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvCheckTasksWaitingTermination
 <LI><a href="#[16a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvAddNewTaskToReadyList
 <LI><a href="#[190]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskCheckForTimeOut
 <LI><a href="#[18d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReset
 <LI><a href="#[17b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvUnlockQueue
 <LI><a href="#[17a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvIsQueueEmpty
 <LI><a href="#[170]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskResumeAll
-<LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[154]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 <LI><a href="#[158]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelete
 </UL>
@@ -2629,7 +2632,7 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[166]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvAddCurrentTaskToDelayedList
 <LI><a href="#[169]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vListInsert
 </UL>
-<BR>[Called By]<UL><LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<BR>[Called By]<UL><LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[154]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 </UL>
 
@@ -2643,8 +2646,8 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[18f]"></a>vTaskSetTimeOutState</STRONG> (Thumb, 30 bytes, Stack size 0 bytes, tasks.o(i.vTaskSetTimeOutState))
-<BR><BR>[Called By]<UL><LI><a href="#[190]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskCheckForTimeOut
-<LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<BR><BR>[Called By]<UL><LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<LI><a href="#[190]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskCheckForTimeOut
 <LI><a href="#[154]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 </UL>
 
@@ -2658,11 +2661,11 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[16f]"></a>vTaskSuspendAll</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, tasks.o(i.vTaskSuspendAll))
-<BR><BR>[Called By]<UL><LI><a href="#[15a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
+<BR><BR>[Called By]<UL><LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<LI><a href="#[15a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
 <LI><a href="#[16e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvCheckTasksWaitingTermination
 <LI><a href="#[176]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortFree
 <LI><a href="#[17e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pvPortMalloc
-<LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[154]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 </UL>
 
@@ -2737,7 +2740,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[18c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericCreate
 </UL>
 
-<P><STRONG><a name="[146]"></a>xQueueGenericSend</STRONG> (Thumb, 346 bytes, Stack size 56 bytes, queue.o(i.xQueueGenericSend))
+<P><STRONG><a name="[13d]"></a>xQueueGenericSend</STRONG> (Thumb, 346 bytes, Stack size 56 bytes, queue.o(i.xQueueGenericSend))
 <BR><BR>[Stack]<UL><LI>Max Depth = 112<LI>Call Chain = xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[17c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskRemoveFromEventList
@@ -2752,7 +2755,8 @@ Global Symbols
 <LI><a href="#[170]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskResumeAll
 <LI><a href="#[16f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskSuspendAll
 </UL>
-<BR>[Called By]<UL><LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;temp_calibration_thread
+<BR>[Called By]<UL><LI><a href="#[12a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;eeprom_write_data
+<LI><a href="#[79]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;temp_calibration_thread
 <LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ph_calibration_thread
 <LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;light_thread
 <LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lcd_print
@@ -2776,7 +2780,7 @@ Global Symbols
 <LI><a href="#[16d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortExitCritical
 <LI><a href="#[16b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortEnterCritical
 </UL>
-<BR>[Called By]<UL><LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<BR>[Called By]<UL><LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[154]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 </UL>
 
@@ -2795,8 +2799,8 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[15c]"></a>xTaskGetSchedulerState</STRONG> (Thumb, 22 bytes, Stack size 0 bytes, tasks.o(i.xTaskGetSchedulerState))
-<BR><BR>[Called By]<UL><LI><a href="#[12c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osSystickHandler
-<LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<BR><BR>[Called By]<UL><LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<LI><a href="#[12c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osSystickHandler
 <LI><a href="#[154]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 </UL>
 
@@ -2826,10 +2830,10 @@ Global Symbols
 <BR>[Calls]<UL><LI><a href="#[168]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vListInsertEnd
 <LI><a href="#[167]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;uxListRemove
 </UL>
-<BR>[Called By]<UL><LI><a href="#[117]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGiveFromISR
+<BR>[Called By]<UL><LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<LI><a href="#[117]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGiveFromISR
 <LI><a href="#[18d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReset
 <LI><a href="#[17b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvUnlockQueue
-<LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[154]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 </UL>
 
@@ -2843,11 +2847,11 @@ Global Symbols
 <LI><a href="#[16d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortExitCritical
 <LI><a href="#[16b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortEnterCritical
 </UL>
-<BR>[Called By]<UL><LI><a href="#[15a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
+<BR>[Called By]<UL><LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<LI><a href="#[15a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vTaskDelay
 <LI><a href="#[16e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;prvCheckTasksWaitingTermination
 <LI><a href="#[176]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortFree
 <LI><a href="#[17e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pvPortMalloc
-<LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[154]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 </UL>
 <P>
@@ -3043,7 +3047,7 @@ Local Symbols
 <BR>[Calls]<UL><LI><a href="#[175]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xTaskPriorityDisinherit
 <LI><a href="#[173]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_memcpy
 </UL>
-<BR>[Called By]<UL><LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<BR>[Called By]<UL><LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 </UL>
 
 <P><STRONG><a name="[17a]"></a>prvIsQueueEmpty</STRONG> (Thumb, 28 bytes, Stack size 8 bytes, queue.o(i.prvIsQueueEmpty))
@@ -3063,7 +3067,7 @@ Local Symbols
 <LI><a href="#[16d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortExitCritical
 <LI><a href="#[16b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;vPortEnterCritical
 </UL>
-<BR>[Called By]<UL><LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
+<BR>[Called By]<UL><LI><a href="#[13d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericSend
 <LI><a href="#[154]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;xQueueGenericReceive
 </UL>
 

@@ -485,9 +485,9 @@ void input_button_thread(void * pvParameters)//other input buttons are handeled 
 			{
 				if(menu_list[m_num].menu_strings[menu_list[m_num].menu_pointer][1] == 'O' && menu_list[m_num].menu_strings[menu_list[m_num].menu_pointer][2] == 'K')
 				{
-					please_wait_flag =1;
-					xSemaphoreGive( lcd_semaphore);
-					osDelay(300);
+//				please_wait_flag =1;
+//				xSemaphoreGive( lcd_semaphore);
+//        osDelay(300);
 					menu_list[m_num].fun_ptr();
 				}
 				if(m_num != menu_list[m_num].next_menu_id[menu_list[m_num].menu_pointer]) // if we should go to another menu
@@ -512,9 +512,9 @@ void input_button_thread(void * pvParameters)//other input buttons are handeled 
 			}
 			if(menu_list[m_num].run_on_exit == 1)
 			{
-				please_wait_flag =1;
-				xSemaphoreGive( lcd_semaphore);
-				osDelay(300);
+//				please_wait_flag =1;
+//				xSemaphoreGive( lcd_semaphore);
+//				osDelay(300);
 				menu_list[m_num].fun_ptr();
 			}
 			if(cnt < 15) //short press
@@ -1043,6 +1043,7 @@ void _Error_Handler(char *file, int line)
 }
 
 #ifdef  USE_FULL_ASSERT
+
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.

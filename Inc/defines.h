@@ -48,10 +48,10 @@
 #define Auto_Wash_Menu 20
 #define AUTO_WASH_STATE_MENU 21
 
-#define drain1_func_time 					menu_list[20].values[0] 
-#define wash_func_time  					menu_list[20].values[1] 
-#define drain2_func_time					menu_list[20].values[2] 
-#define kcl_func_time 						menu_list[20].values[3]
+#define supply_func_time 					menu_list[20].values[0] 
+#define kcl_func_time	  					menu_list[20].values[1] 
+#define revival_func_time					menu_list[20].values[2] 
+#define wash_func_time 						menu_list[20].values[3]
 
 #define ATC 											menu_list[22].values[0]
 
