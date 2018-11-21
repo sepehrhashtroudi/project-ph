@@ -28,7 +28,7 @@ unsigned char 						bytes_high;
 unsigned int 							bytes_per_char;
 #define DISPLAY_WIDTH 128
 #define DISPLAY_HEIGHT 64
-
+unsigned char lcd_ram[128][8];
 //-------------------------------------------------------------------------------------------------
 //
 //-------------------------------------------------------------------------------------------------
@@ -73,6 +73,19 @@ for(j = 0; j < KS0108_SCREEN_HEIGHT/8; j++)
 		{
 		//GLCD_GoTo(i,j);
     GLCD_WriteData(0x00);
+		lcd_ram[i][j] = 0x00;
+		}
+  }
+}
+
+void GLCD_Clear_Ram(void)
+{
+unsigned char i, j;
+for(j = 0; j < KS0108_SCREEN_HEIGHT/8; j++)
+  {
+  for(i = 0; i < KS0108_SCREEN_WIDTH; i++)
+		{
+		lcd_ram[i][j] = 0x00;
 		}
   }
 }
@@ -86,7 +99,18 @@ unsigned char i;
 		//GLCD_GoTo(i,j);
     GLCD_WriteData(0x00);
 		}
-  
+}
+void GLCD_Write_Ram(void)
+{
+unsigned char i, j;
+for(j = 0; j < KS0108_SCREEN_HEIGHT/8; j++)
+  {
+  for(i = 0; i < KS0108_SCREEN_WIDTH; i++)
+		{
+			GLCD_GoTo(i,j);
+			GLCD_WriteData(lcd_ram[i][j]);
+		}
+  }
 }
 //-------------------------------------------------------------------------------------------------
 //
@@ -237,7 +261,104 @@ int glcd_draw_char_xy(unsigned char x, unsigned char y, char c,int fast,int inve
 	
 	} 
 
-	void glcd_draw_string_xy(unsigned char x, unsigned char y, char *c,int fast,int invert,int overwrite)
+int glcd_draw_char_xy_with_ram(unsigned char x, unsigned char y, char c,int fast,int invert,int overwrite) 
+{
+	if (c < firstchar || c > lastchar) 
+		{
+		c = '.';
+		}
+	
+
+		/* Font table in MikroElecktronica format
+		   - multi row fonts allowed (more than 8 pixels high)
+		   - variable width fonts allowed
+		   a complete column is written before moving to the next */
+		
+		unsigned char i;
+		unsigned char var_width;
+		unsigned int p;
+
+
+		/* The first byte per character is always the width of the character */
+
+		var_width = FontPointer[ (c - firstchar) * bytes_per_char];
+		p=(c - firstchar) * bytes_per_char;
+		p++; /* Step over the variable width field */
+
+		/*
+		if (x+var_width >= GLCD_LCD_WIDTH || y+font_current.height >= GLCD_LCD_HEIGHT) {
+			return;
+		}
+		*/
+		
+			for ( i = 0; i < var_width; i++ ) {
+			unsigned char j;
+			for ( j = 0; j < bytes_high; j++ ) {
+
+				unsigned char	dat = FontPointer[ p + i*bytes_high + j ];
+				if(fast == 1)
+				{
+					if(invert == 1)
+					{
+						GLCD_GoTo(x+i,y+j);
+						GLCD_WriteData(~dat);
+					}
+					else 
+					{
+						GLCD_GoTo(x+i,y+j);
+						GLCD_WriteData(dat);
+					}
+				}
+				else
+				{
+					unsigned char bit;
+					for (bit = 0; bit < 8; bit++) 
+					{						
+						if (x+i >= DISPLAY_WIDTH || y+j*8+bit >= DISPLAY_HEIGHT) 
+						{
+							/* Don't write past the dimensions of the LCD, skip the entire char */
+							return 0;
+						}	
+						/* We should not write if the y bit exceeds font height */
+						if ((j*8 + bit) >= FontHeight) 
+						{
+							/* Skip the bit */
+							continue;
+						}
+						if(invert == 1)
+						{
+							if (dat & (1<<bit))
+							{
+								if(overwrite == 1)
+								{
+									GLCD_SetPixel_with_ram(x+i,y+j*8+bit,0,lcd_ram);
+								}
+							}
+							else 
+							{
+								GLCD_SetPixel_with_ram(x+i,y+j*8+bit,1,lcd_ram);
+							}
+						}
+						else 
+						{
+							if (dat & (1<<bit))
+							{
+								GLCD_SetPixel_with_ram(x+i,y+j*8+bit,1,lcd_ram);
+							}
+							else if(overwrite == 1)
+							{
+								GLCD_SetPixel_with_ram(x+i,y+j*8+bit,0,lcd_ram);
+							}
+						}
+					}
+				}									
+			}				
+		}
+		return var_width;	
+	
+	} 
+
+void glcd_draw_string_xy(unsigned char x, unsigned char y, char *c,int fast,int invert,int overwrite)
 {
 	unsigned char  width;
 
@@ -261,6 +382,76 @@ int glcd_draw_char_xy(unsigned char x, unsigned char y, char c,int fast,int inve
 //				GLCD_SetPixel(j, i, 0);
 //			}
 //		}
+}
+
+void glcd_draw_string_xy_with_ram(unsigned char x, unsigned char y, char *c,int fast,int invert,int overwrite)
+{
+	unsigned char  width;
+
+	if (y > (DISPLAY_HEIGHT - FontHeight - 1)) {
+		/* Character won't fit */
+		return;
+	}
+
+	while (*c) {
+		width = glcd_draw_char_xy_with_ram(x,y,*c,fast,invert,overwrite);
+		x += (width );
+		
+		//x++;
+		c++;
+	}
+	
+	//clear to end of line
+//	for(int j=x;j<DISPLAY_WIDTH-3;j++)
+//		{
+//			for(int i=y;i<y+FontHeight;i++)
+//			{
+//				GLCD_SetPixel(j, i, 0);
+//			}
+//		}
+}
+
+
+
+void GLCD_SetPixel(unsigned char x, unsigned char y, unsigned char color)
+{
+
+unsigned char tmp;
+
+GLCD_GoTo(x, (y / 8));
+tmp = GLCD_ReadData();
+tmp = GLCD_ReadData();
+GLCD_GoTo(x, (y / 8));
+
+	if(color == 0)
+	{
+		tmp &= ~(1 << (y % 8));
+	}
+	else
+	{
+		tmp |= (1 << (y % 8));
+	}
+GLCD_WriteData(tmp);
+}
+void GLCD_SetPixel_with_ram(unsigned char x, unsigned char y, unsigned char color,unsigned char lcd_ram[128][8])
+{
+
+unsigned char tmp;
+
+tmp = lcd_ram[x][(y / 8)];
+//GLCD_GoTo(x, (y / 8));
+
+	if(color == 0)
+	{
+		tmp &= ~(1 << (y % 8));
+	}
+	else
+	{
+		tmp |= (1 << (y % 8));
+	}
+//GLCD_WriteData(tmp);
+lcd_ram[x][(y / 8)] = tmp;
+
 }
 
 unsigned int CalcTextWidthEN(char *str)
@@ -298,29 +489,6 @@ unsigned int CalcTextWidthEN(char *str)
 	
 	return(strSize);
 }	//*CalcTextWidthEN
-
-void GLCD_SetPixel(unsigned char x, unsigned char y, unsigned char color)
-{
-
-unsigned char tmp;
-
-GLCD_GoTo(x, (y / 8));
-tmp = GLCD_ReadData();
-tmp = GLCD_ReadData();
-GLCD_GoTo(x, (y / 8));
-
-	if(color == 0)
-	{
-		tmp &= ~(1 << (y % 8));
-	}
-	else
-	{
-		tmp |= (1 << (y % 8));
-	}
-GLCD_WriteData(tmp);
-
-
-}
 //-------------------------------------------------------------------------------------------------
 //
 //-------------------------------------------------------------------------------------------------

@@ -1,32 +1,36 @@
 
-#define bufferLength 10
-#define filterWindowLength 100// moving average buffer length
-#define MENU_STRING_LENGTH 50
+#define bufferLength 				10
+#define filterWindowLength 	100	// moving average buffer length
+#define MENU_STRING_LENGTH 	50
+#define menu_list_length   	30	//number of all pages of menu
+#define MENU_DEPTH					30	// maximum menu number that you can go inside(for active menu stack)
+#define eeprom_length 			30	//number of addresses in the eeprom (each is int32_t variable)
 
-#define p1_p_eeprom_add  (uint32_t)0
-#define p2_p_eeprom_add  (uint32_t)1
-#define p1_t_eeprom_add  (uint32_t)2
-#define p2_t_eeprom_add  (uint32_t)3
-#define pid_p_eeprom_add  (uint32_t)4
-#define pid_i_eeprom_add  (uint32_t)5
-#define pid_d_eeprom_add  (uint32_t)6
-#define relay_max_eeprom_add  (uint32_t)7
-#define relay_min_eeprom_add  (uint32_t)8
-#define controller_on_off_eeprom_add  (uint32_t)9
-#define controller_type_eeprom_add  (uint32_t)10
+#define p1_p_eeprom_add  				(uint32_t)0
+#define p2_p_eeprom_add  				(uint32_t)1
+#define p1_t_eeprom_add  				(uint32_t)2
+#define p2_t_eeprom_add  				(uint32_t)3
+#define pid_p_eeprom_add  			(uint32_t)4
+#define pid_i_eeprom_add  			(uint32_t)5
+#define pid_d_eeprom_add 			 	(uint32_t)6
+#define relay_max_eeprom_add  	(uint32_t)7
+#define relay_min_eeprom_add  	(uint32_t)8
+#define controller_on_off_eeprom_add  	(uint32_t)9
+#define controller_type_eeprom_add  		(uint32_t)10
 #define controller_setpoint_eeprom_add  (uint32_t)11
-#define ph_calibration_temp_add  (uint32_t)12
-#define ATC_eeprom_add (uint32_t)13
-#define REL_FUNC_1_EEPROM_ADD (uint32_t)14
-#define REL_FUNC_2_EEPROM_ADD (uint32_t)15
-#define REL_FUNC_3_EEPROM_ADD (uint32_t)16
-#define REL_FUNC_4_EEPROM_ADD (uint32_t)17
-#define STABILIZATION_TIME_EEPROM_ADD (uint32_t)18
+#define ph_calibration_temp_add  				(uint32_t)12
+#define ATC_eeprom_add 									(uint32_t)13
+#define REL_FUNC_1_EEPROM_ADD 					(uint32_t)14
+#define REL_FUNC_2_EEPROM_ADD 					(uint32_t)15
+#define REL_FUNC_3_EEPROM_ADD 					(uint32_t)16
+#define REL_FUNC_4_EEPROM_ADD 					(uint32_t)17
+#define STABILIZATION_TIME_EEPROM_ADD 	(uint32_t)18
+#define STABILIZATION_RANGE_EEPROM_ADD 	(uint32_t)19
 
 #define float_to_int_factor  100000.0f
 
 
-#define menu_list_length   30
+
 #define relay1_func  menu_list[17].values[0]
 #define relay2_func  menu_list[17].values[1]
 #define relay3_func  menu_list[17].values[2]
@@ -74,4 +78,6 @@
 #define MONTH 										menu_list[11].values[3]
 #define YEAR 											menu_list[11].values[4]
 
-#define STABILIZATION_TIME 				menu_list[7].values[2]
+#define STABILIZATION_TIME 				menu_list[2].values[1]
+#define STABILIZATION_RANGE 			menu_list[2].values[2]
+

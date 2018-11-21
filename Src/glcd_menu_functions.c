@@ -42,7 +42,9 @@ extern uint16_t pH_filtered;
 extern uint16_t temp_filtered;
 extern float temp;
 extern int auto_wash_state;
-extern int active_menu;
+extern int active_menu[MENU_DEPTH];
+extern int active_menu_sp;
+extern int back_button_flag;
 void ph_calculate_calibration_coefficients(void)
 {
 	p1_p = p1_p_new;
@@ -65,6 +67,8 @@ void ph_calibration_step1(void)
 	create_ph_calibration_task_flag = 1;
 	EEprom_buff = STABILIZATION_TIME;
 	eeprom_write_data(STABILIZATION_TIME_EEPROM_ADD,&EEprom_buff,1);
+	EEprom_buff = STABILIZATION_RANGE*float_to_int_factor;
+	eeprom_write_data(STABILIZATION_RANGE_EEPROM_ADD,&EEprom_buff,1);
 }
 void ph_calibration_step2(void)
 {
@@ -207,9 +211,10 @@ void auto_wash_handler(int *auto_wash_state)
 			Change_Menu_Items(AUTO_WASH_STATE_MENU,1,NULL,-1,0,0);
 			Change_Menu_Items(AUTO_WASH_STATE_MENU,2,NULL,-1,0,0);
 			Change_Menu_Items(AUTO_WASH_STATE_MENU,3,NULL,-1,0,0); 
-			xSemaphoreGiveFromISR ( lcd_semaphore,NULL );
-			active_menu = Auto_Wash_Menu;
-			xSemaphoreGiveFromISR ( lcd_semaphore,NULL );
+			if(active_menu[active_menu_sp] == AUTO_WASH_STATE_MENU)
+			{
+				back_button_flag = 1;
+			}
 			HAL_TIM_OC_Stop_IT(&htim5, TIM_CHANNEL_1);  
 			__HAL_TIM_SET_COUNTER(&htim5, 0);
 		}	

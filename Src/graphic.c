@@ -1,5 +1,5 @@
-extern void GLCD_SetPixel(unsigned char x, unsigned char y, unsigned char color);
-
+#include "KS0108.h"
+extern unsigned char lcd_ram[128][8];
 const unsigned char color = 1;
 
 void GLCD_Rectangle(unsigned char x, unsigned char y, unsigned char b, unsigned char a)
@@ -81,7 +81,7 @@ if (Dy < 0) // jeœli sk³adowa pionowa jest ujemna
   TwoDy = -TwoDy; // jak równiez podwojonej sk³adowej
   }
 
-GLCD_SetPixel(X1,Y1, color); // stawiamy pierwszy krok (zapalamy pierwszy piksel)
+GLCD_SetPixel_with_ram(X1,Y1, color,lcd_ram); // stawiamy pierwszy krok (zapalamy pierwszy piksel)
 
 if ((Dx != 0) || (Dy != 0)) // sprawdzamy czy linia sk³ada siê z wiêcej ni¿ jednego punktu ;)
   {
@@ -98,7 +98,7 @@ if ((Dx != 0) || (Dy != 0)) // sprawdzamy czy linia sk³ada siê z wiêcej ni¿ jedn
         CurrentY += Yinc; // zwiêkszamy aktualn¹ pozycjê w pionie
         TwoDxAccumulatedError -= TwoDx; // i odejmujemy TwoDx
         }
-       GLCD_SetPixel(CurrentX,CurrentY, color);// stawiamy nastêpny krok (zapalamy piksel)
+       GLCD_SetPixel_with_ram(CurrentX,CurrentY, color, lcd_ram);// stawiamy nastêpny krok (zapalamy piksel)
        }while (CurrentX != X2); // idziemy tak d³ugo, a¿ osi¹gniemy punkt docelowy
      }
    else // w przeciwnym razie idziemy "po igrekach" 
@@ -113,7 +113,7 @@ if ((Dx != 0) || (Dy != 0)) // sprawdzamy czy linia sk³ada siê z wiêcej ni¿ jedn
           CurrentX += Xinc;
           TwoDyAccumulatedError -= TwoDy;
           }
-         GLCD_SetPixel(CurrentX,CurrentY, color); 
+         GLCD_SetPixel_with_ram(CurrentX,CurrentY, color, lcd_ram); 
          }while (CurrentY != Y2);
     }
   }

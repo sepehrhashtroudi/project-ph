@@ -82,6 +82,7 @@ TaskHandle_t main_thread_handle = NULL;
 TaskHandle_t ph_calibration_thread_handle = NULL;
 TaskHandle_t temp_calibration_thread_handle = NULL;
 TaskHandle_t back_light_state_thread_handle = NULL;
+TaskHandle_t input_button_thread_handle = NULL;
 SemaphoreHandle_t lcd_semaphore;
 int create_ph_calibration_task_flag = 0;
 int delete_ph_calibration_task_flag = 0;
@@ -90,7 +91,8 @@ int delete_temp_calibration_task_flag = 0;
 Menu menu_list[menu_list_length];
 Menu last_menu_list[menu_list_length];
 uint8_t uart_buff[20];
-int active_menu=0;
+int active_menu[MENU_DEPTH]={0};
+int active_menu_sp = 0;
 uint32_t adc_value[2*bufferLength]={0};
 uint16_t pH_buffer[bufferLength];
 uint16_t temp_buffer[bufferLength];
@@ -140,6 +142,14 @@ float *ki = &menu_list[10].values[1];
 float *kd = &menu_list[10].values[2];
 int auto_wash_state = 0;
 int back_light_state=0;
+int back_button_flag=0;
+int ok_button_flag=0;
+int up_button_flag =0;
+int down_button_flag =0;
+int left_button_flag =0;
+int right_button_flag =0;
+int please_wait_flag =0;
+int m_num=0;
 // PID sample time in ms
 uint32_t sample_time = 10;
 const float NIST_4[19] = {4.003, 3.999, 3.998, 3.999, 4.002, 4.008, 4.015, 4.024, 4.030, 4.035, 4.047, 4.060, 4.075, 4.091, 4.126, 4.164, 4.205, 4.227};
@@ -165,6 +175,7 @@ void temp_calibration_thread(void * pvParameters);
 void pump_set_stroke(uint16_t stroke);
 void read_setting_from_eeprom(void);
 void light_thread(void* pvParameters);
+void input_button_thread(void * pvParameters);
 uint32_t get_timer_time(void);
 
 /* USER CODE END PFP */
@@ -213,9 +224,10 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
 	lcd_semaphore = xSemaphoreCreateCounting(5,1);
-	xTaskCreate(lcd_print,"lcd_print",1024,( void * )1,2,&lcd_demo_handle);
-	xTaskCreate(main_thread,"main_thread",1024,( void * )1,2,&main_thread_handle);
-	xTaskCreate(light_thread,"back_light",1024,( void * )1,1,&back_light_state_thread_handle);
+	xTaskCreate(lcd_print,"lcd_print",128,( void * )1,3,&lcd_demo_handle);
+	xTaskCreate(main_thread,"main_thread",512,( void * )1,2,&main_thread_handle);
+	xTaskCreate(light_thread,"back_light",128,( void * )1,1,&back_light_state_thread_handle);
+	xTaskCreate(input_button_thread,"input_button_thread",128,( void * )1,3,&input_button_thread_handle);
 	//xTaskCreate(ph_calibration_thread,"calibration_thread",128,( void * )1,3,&ph_calibration_thread_handle);
 	
   /* USER CODE END 2 */
@@ -361,16 +373,24 @@ void main_thread(void * pvParameters)
 			HAL_RTC_GetDate(&hrtc,&rtc_date,FORMAT_BIN);
 			*rtc_minute_p = rtc_time.Minutes;
 			*rtc_hour_p = rtc_time.Hours;
-			update_menu_from_variables(active_menu);
-			if(active_menu == 0 )
+			update_menu_from_variables(active_menu[active_menu_sp]);
+			if(please_wait_flag ==1)
 			{
-				print_main_page(active_menu);
+				please_wait_flag =0;
+				GLCD_Clear_Ram();
+				glcd_set_font_with_num(0);
+				glcd_draw_string_xy_with_ram(35,28,"Please Wait",0,0,0);
+				GLCD_Write_Ram();
+			}
+			else if(active_menu[active_menu_sp] == 0 )
+			{
+				print_main_page(active_menu[active_menu_sp]);
 				HAL_GPIO_WritePin(Status_led_GPIO_Port,Status_led_Pin,GPIO_PIN_SET);
 				back_light_state =0; // set backlight to 100%
 			}
 			else 
 			{
-				print_menu(active_menu);
+				print_menu(active_menu[active_menu_sp]);
 			}
 		}
 		
@@ -422,9 +442,9 @@ void lcd_print(void * pvParameters)
 {
 	while(1)
 	{
-		osDelay(2000);
-		update_menu_from_variables(active_menu);
-		if(active_menu == 0 )
+		osDelay(1000);
+		update_menu_from_variables(active_menu[active_menu_sp]);
+		if(active_menu[active_menu_sp] == 0 )
 		{
 			if(  menu_list[0].values[0] != last_menu_list[0].values[0] || menu_list[0].values[2] != last_menu_list[0].values[2] 
 				|| menu_list[0].values[3] != last_menu_list[0].values[3] || menu_list[0].values[4] != last_menu_list[0].values[4] 
@@ -434,7 +454,7 @@ void lcd_print(void * pvParameters)
 				last_menu_list[0] = menu_list[0];
 			}
 		}
-		if( active_menu == 3 || active_menu == 5 || active_menu == 13 || active_menu == 15 )
+		if( active_menu[active_menu_sp] == 3 || active_menu[active_menu_sp] == 5 || active_menu[active_menu_sp] == 13 || active_menu[active_menu_sp] == 15 )
 		{ 
 			if( progress >= 100 || menu_list[3].values[2] != last_menu_list[3].values[2] || menu_list[5].values[2] != last_menu_list[5].values[2])
 			{
@@ -446,6 +466,172 @@ void lcd_print(void * pvParameters)
 		}
 	}
 }
+
+void input_button_thread(void * pvParameters)//other input buttons are handeled in glcd_menu get_user_input
+{
+	while(1)
+	{
+		m_num = active_menu[active_menu_sp]; //active menu number
+		
+		if( ok_button_flag == 1)
+		{
+			ok_button_flag = 0;
+			if(m_num == 0)
+			{
+				active_menu_sp++;
+				active_menu[active_menu_sp] = 1;
+			}
+			else
+			{
+				if(menu_list[m_num].menu_strings[menu_list[m_num].menu_pointer][1] == 'O' && menu_list[m_num].menu_strings[menu_list[m_num].menu_pointer][2] == 'K')
+				{
+					please_wait_flag =1;
+					xSemaphoreGive( lcd_semaphore);
+					osDelay(300);
+					menu_list[m_num].fun_ptr();
+				}
+				if(m_num != menu_list[m_num].next_menu_id[menu_list[m_num].menu_pointer]) // if we should go to another menu
+				{
+					active_menu_sp++;
+					active_menu[active_menu_sp] = menu_list[m_num].next_menu_id[menu_list[m_num].menu_pointer];
+				}
+			}
+			xSemaphoreGive( lcd_semaphore);
+		}
+		
+		
+		
+		if(back_button_flag == 1 )
+		{
+			back_button_flag = 0;
+			int cnt =0;
+			while(HAL_GPIO_ReadPin(Esc_GPIO_Port,Esc_Pin) == 0 && cnt < 15)
+			{
+				cnt++;
+				osDelay(50);
+			}
+			if(menu_list[m_num].run_on_exit == 1)
+			{
+				please_wait_flag =1;
+				xSemaphoreGive( lcd_semaphore);
+				osDelay(300);
+				menu_list[m_num].fun_ptr();
+			}
+			if(cnt < 15) //short press
+			{
+				if(active_menu_sp > 0)
+				{
+					active_menu_sp--;
+				}
+			}
+			else//long press
+			{
+				active_menu_sp = 0;
+			}
+			xSemaphoreGive( lcd_semaphore);
+		}
+		
+		
+		if(right_button_flag == 1)
+		{
+			right_button_flag = 0;
+			if(menu_list[m_num].values[menu_list[m_num].menu_pointer] < menu_list[m_num].value_max[menu_list[m_num].menu_pointer])
+			{
+				menu_list[m_num].values[menu_list[m_num].menu_pointer] += menu_list[m_num].value_resolution[menu_list[m_num].menu_pointer] ;
+			}
+			else if(menu_list[m_num].value_resolution[menu_list[m_num].menu_pointer] != 0)
+			{
+				menu_list[m_num].values[menu_list[m_num].menu_pointer] = menu_list[m_num].value_min[menu_list[m_num].menu_pointer];
+			}
+			xSemaphoreGive( lcd_semaphore);
+			
+			for(int i=0;HAL_GPIO_ReadPin(Right_GPIO_Port,Right_Pin) == 0 && i<100 ; i++)
+			{
+				osDelay(5);
+			}
+			osDelay(5);
+			while(HAL_GPIO_ReadPin(Right_GPIO_Port,Right_Pin) == 0)
+			{
+				if(menu_list[m_num].values[menu_list[m_num].menu_pointer] < menu_list[m_num].value_max[menu_list[m_num].menu_pointer])
+				{
+					menu_list[m_num].values[menu_list[m_num].menu_pointer] += menu_list[m_num].value_resolution[menu_list[m_num].menu_pointer] ;
+				}
+				else if(menu_list[m_num].value_resolution[menu_list[m_num].menu_pointer] != 0)
+				{
+					menu_list[m_num].values[menu_list[m_num].menu_pointer] = menu_list[m_num].value_min[menu_list[m_num].menu_pointer];
+				}
+				xSemaphoreGive( lcd_semaphore);
+				osDelay(50);
+			}
+		}
+		
+		
+		
+		if(left_button_flag ==1)
+		{
+			left_button_flag = 0;
+			if(menu_list[m_num].values[menu_list[m_num].menu_pointer] > menu_list[m_num].value_min[menu_list[m_num].menu_pointer])
+			{
+				menu_list[m_num].values[menu_list[m_num].menu_pointer] -= menu_list[m_num].value_resolution[menu_list[m_num].menu_pointer] ;
+			}
+			else if(menu_list[m_num].value_resolution[menu_list[m_num].menu_pointer] != 0)
+			{
+				menu_list[m_num].values[menu_list[m_num].menu_pointer] = menu_list[m_num].value_max[menu_list[m_num].menu_pointer];
+			}
+			xSemaphoreGive( lcd_semaphore);
+			 
+			for(int i=0;HAL_GPIO_ReadPin(Left_GPIO_Port,Left_Pin) == 0 && i<100 ; i++)
+			{
+				osDelay(5);
+			}
+			osDelay(5);
+			while(HAL_GPIO_ReadPin(Left_GPIO_Port,Left_Pin) == 0)
+			{
+				if(menu_list[m_num].values[menu_list[m_num].menu_pointer] > menu_list[m_num].value_min[menu_list[m_num].menu_pointer])
+				{
+					menu_list[m_num].values[menu_list[m_num].menu_pointer] -= menu_list[m_num].value_resolution[menu_list[m_num].menu_pointer] ;
+				}
+				else if(menu_list[m_num].value_resolution[menu_list[m_num].menu_pointer] != 0)
+				{
+					menu_list[m_num].values[menu_list[m_num].menu_pointer] = menu_list[m_num].value_max[menu_list[m_num].menu_pointer];
+				}
+				xSemaphoreGive( lcd_semaphore);
+				osDelay(50);
+			}
+		}
+		
+		if( up_button_flag == 1)
+		{
+			up_button_flag = 0 ;
+			if(menu_list[m_num].menu_pointer > 0)
+			{
+			menu_list[m_num].menu_pointer--;
+			}
+			else
+			{
+				menu_list[m_num].menu_pointer = menu_list[m_num].menu_item_count-1;
+			}
+			xSemaphoreGive( lcd_semaphore);
+		}
+		
+		
+		if(down_button_flag ==1)
+		{
+			down_button_flag =0;
+			if(menu_list[m_num].menu_pointer < menu_list[m_num].menu_item_count-1)
+			{
+			menu_list[m_num].menu_pointer++;
+			}
+			else
+			{
+				menu_list[m_num].menu_pointer = 0;
+			}
+			xSemaphoreGive( lcd_semaphore);
+		}
+
+		osDelay(100);
+	}
+}
 void ph_calibration_thread(void * pvParameters)
 {
 	char sprintf_buff[20];
@@ -455,12 +641,15 @@ void ph_calibration_thread(void * pvParameters)
 	back_light_state = 1;
 	while(1)
 	{
-		if(abs(pH_filtered - last_ph_filtered) >= 6 )
+		if(abs(pH_filtered - last_ph_filtered) * 0.00413  >= STABILIZATION_RANGE ) // 0.00413 convert mv to pH
 		{
 			xSemaphoreGive( lcd_semaphore );
+			sprintf(sprintf_buff,"%.5f\n",abs(pH_filtered - last_ph_filtered) * 0.00413);
+			MAX485_send_string(sprintf_buff,strlen(sprintf_buff),100);
+			MAX485_send_string("reset\n",6,100);
 			last_ph_filtered = pH_filtered;
 			start_time = get_timer_time();
-			MAX485_send_string("reset\n",6,100);
+			
 			back_light_state = 1;
 		}
 		progress = (100/STABILIZATION_TIME)*(get_timer_time() - start_time)/1000 ;
@@ -474,7 +663,7 @@ void ph_calibration_thread(void * pvParameters)
 		}	
 		MAX485_send_string("ph calibration\n",15,100);
 		sprintf(sprintf_buff,"%d\n",progress);
-		MAX485_send_string(sprintf_buff,10,100);
+		MAX485_send_string(sprintf_buff,strlen(sprintf_buff),100);
 		osDelay(1000);
 	}
 }
@@ -606,6 +795,8 @@ void read_setting_from_eeprom(void)
 	relay4_func = eeprom_buff ;
 	eeprom_read_data(STABILIZATION_TIME_EEPROM_ADD,&eeprom_buff,1);
 	STABILIZATION_TIME = eeprom_buff ;
+	eeprom_read_data(STABILIZATION_RANGE_EEPROM_ADD,&eeprom_buff,1);
+	STABILIZATION_RANGE= eeprom_buff/float_to_int_factor ;
 	slope = 1000 / (p1_p * 4095);
 	zero = 1000 * (p2_p + 1.454f)/ (p1_p * 4095);
 	slope_percent = 100 * slope / 59.16f;
@@ -727,7 +918,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 }
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-	get_user_input(uart_buff,&active_menu);
+	get_user_input(uart_buff,active_menu);
 	//MAX485_send_string(uart_buff,1,100);
 	HAL_UART_Receive_IT(&huart3,uart_buff,1);
 	xSemaphoreGiveFromISR( lcd_semaphore, NULL );
@@ -755,8 +946,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		{
 		//HAL_UART_Transmit(&huart2,"ESC\n",4,100);
 			uart_buff[0]='e';
-			get_user_input(uart_buff,&active_menu);
-			xSemaphoreGiveFromISR( lcd_semaphore, NULL );
+			get_user_input(uart_buff,active_menu);
 		}
 	}
 	
@@ -766,8 +956,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		{
 		//HAL_UART_Transmit(&huart2,"ESC\n",4,100);
 			uart_buff[0]='\n';
-			get_user_input(uart_buff,&active_menu);
-			xSemaphoreGiveFromISR( lcd_semaphore, NULL );
+			get_user_input(uart_buff,active_menu);
 		}
 	}
 	if(GPIO_Pin==Up_Pin)
@@ -776,8 +965,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		{
 		//HAL_UART_Transmit(&huart2,"ESC\n",4,100);
 			uart_buff[0]='w';
-			get_user_input(uart_buff,&active_menu);
-			xSemaphoreGiveFromISR( lcd_semaphore, NULL );
+			get_user_input(uart_buff,active_menu);
 		}
 	}
 	if(GPIO_Pin==Down_Pin)
@@ -786,8 +974,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		{
 		//HAL_UART_Transmit(&huart2,"ESC\n",4,100);
 			uart_buff[0]='s';
-			get_user_input(uart_buff,&active_menu);
-			xSemaphoreGiveFromISR( lcd_semaphore, NULL );
+			get_user_input(uart_buff,active_menu);
 		}
 	}
 	if(GPIO_Pin==Right_Pin)
@@ -796,8 +983,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		{
 		//HAL_UART_Transmit(&huart2,"ESC\n",4,100);
 			uart_buff[0]='d';
-			get_user_input(uart_buff,&active_menu);
-			xSemaphoreGiveFromISR( lcd_semaphore, NULL );
+			get_user_input(uart_buff,active_menu);
 		}
 	}
 	if(GPIO_Pin==Left_Pin)
@@ -806,8 +992,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 		{
 		//HAL_UART_Transmit(&huart2,"ESC\n",4,100);
 			uart_buff[0]='a';
-			get_user_input(uart_buff,&active_menu);
-			xSemaphoreGiveFromISR( lcd_semaphore, NULL );
+			get_user_input(uart_buff,active_menu);
 		}
 	}
 	

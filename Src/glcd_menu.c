@@ -33,8 +33,15 @@ extern int delete_temp_calibration_task_flag;
 extern int back_light_state;
 extern float pH;
 extern float temp;
-
-
+extern int active_menu_sp;
+extern int auto_wash_state;
+extern int back_button_flag;
+extern int ok_button_flag;
+extern int up_button_flag;
+extern int down_button_flag; 
+extern int left_button_flag;
+extern int right_button_flag;
+extern int please_wait_flag;
 
 void init_menu(void)
 {
@@ -88,21 +95,33 @@ void init_menu(void)
 	
 	strcpy(menu_list[2].menu_name , " Step 1 ");
 	strcpy(menu_list[2].menu_strings[0] , "< Buffer pH: %.1f >");
-	strcpy(menu_list[2].menu_strings[1] , " OK ");
+	strcpy(menu_list[2].menu_strings[1] , "< Stab Time: %d s >");
+	strcpy(menu_list[2].menu_strings[2] , "< Stab Range: %.2f pH >");
+	strcpy(menu_list[2].menu_strings[3] , " OK ");
 	menu_list[2].next_menu_id[0]=2;
-	menu_list[2].next_menu_id[1]=3;
-	menu_list[2].values[0]=4.000;
-	menu_list[2].value_resolution[0]=0.1000;
-	menu_list[2].value_max[0]=14;
+	menu_list[2].next_menu_id[1]=2;
+	menu_list[2].next_menu_id[2]=2;
+	menu_list[2].next_menu_id[3]=3;
+	menu_list[2].values[0]= 4.000;
+	menu_list[2].values[1]= 10;
+	menu_list[2].values[2]= 0.03;
+	menu_list[2].value_resolution[0] = 0.1000;
+	menu_list[2].value_resolution[1] = 5;
+	menu_list[2].value_resolution[2] = 0.01;
+	menu_list[2].value_max[0] = 14;
+	menu_list[2].value_max[1] = 30;
+	menu_list[2].value_min[1] = 5;
+	menu_list[2].value_max[2] = 0.2;
+	menu_list[2].value_min[2] = 0.02;
 	menu_list[2].menu_id=2;
-	menu_list[2].menu_item_count = 2;
+	menu_list[2].menu_item_count = 4;
 	menu_list[2].menu_pointer=0;
 	menu_list[2].fun_ptr = &ph_calibration_step1;
 	menu_list[2].run_on_exit=0;
 	
 	strcpy(menu_list[3].menu_name , " Step 1 ");
 	strcpy(menu_list[3].menu_strings[0],  " %d mV ");
-	strcpy(menu_list[3].menu_strings[1] , " %.1f pH ");
+	strcpy(menu_list[3].menu_strings[1] , " %.2f pH ");
 	strcpy(menu_list[3].menu_strings[2] , " %.1f `C ");
 	strcpy(menu_list[3].menu_strings[3] , " Please Wait ");
 	menu_list[3].next_menu_id[0]=3;
@@ -134,7 +153,7 @@ void init_menu(void)
 	
 	strcpy(menu_list[5].menu_name , " Step 2 ");
 	strcpy(menu_list[5].menu_strings[0],  " %d mV ");
-	strcpy(menu_list[5].menu_strings[1] , " %.1f pH ");
+	strcpy(menu_list[5].menu_strings[1] , " %.2f pH ");
 	strcpy(menu_list[5].menu_strings[2] , " %.1f `C ");
 	strcpy(menu_list[5].menu_strings[3] , " Please Wait ");
 	menu_list[5].next_menu_id[0]=5;
@@ -168,16 +187,10 @@ void init_menu(void)
 	strcpy(menu_list[7].menu_name , " Select Sensor");
 	strcpy(menu_list[7].menu_strings[0],  " pH ");
 	strcpy(menu_list[7].menu_strings[1] , " Temp ");
-	strcpy(menu_list[7].menu_strings[2] , "Stabilize time: %d s");
 	menu_list[7].next_menu_id[0]=2;
 	menu_list[7].next_menu_id[1]=12;
-	menu_list[7].next_menu_id[2]=7;
-	menu_list[7].values[2]=10;
-	menu_list[7].value_resolution[2] = 5;
-	menu_list[7].value_max[2] = 30;
-	menu_list[7].value_min[2] = 5;
 	menu_list[7].menu_id=7;
-	menu_list[7].menu_item_count = 3;
+	menu_list[7].menu_item_count = 2;
 	menu_list[7].menu_pointer=0;
 	menu_list[7].run_on_exit=0;
 	
@@ -254,16 +267,16 @@ void init_menu(void)
 	strcpy(menu_list[11].menu_name , "Time");
 	strcpy(menu_list[11].menu_strings[0], "< Hour: %d >");
 	strcpy(menu_list[11].menu_strings[1], "< Minute: %d >");
-	strcpy(menu_list[11].menu_strings[2], "< Day: %d >");
-	strcpy(menu_list[11].menu_strings[3], "< Month: %d >");
-	strcpy(menu_list[11].menu_strings[4], "< Year: %d >");
-	strcpy(menu_list[11].menu_strings[5], " OK ");
+//	strcpy(menu_list[11].menu_strings[2], "< Day: %d >");
+//	strcpy(menu_list[11].menu_strings[3], "< Month: %d >");
+//	strcpy(menu_list[11].menu_strings[4], "< Year: %d >");
+	strcpy(menu_list[11].menu_strings[2], " OK ");
 	menu_list[11].next_menu_id[0]=11;
 	menu_list[11].next_menu_id[1]=11;
-	menu_list[11].next_menu_id[2]=11;
-	menu_list[11].next_menu_id[3]=11;
-	menu_list[11].next_menu_id[4]=11;
-	menu_list[11].next_menu_id[5]=1;
+	menu_list[11].next_menu_id[2]=1;
+//	menu_list[11].next_menu_id[3]=11;
+//	menu_list[11].next_menu_id[4]=11;
+//	menu_list[11].next_menu_id[5]=1;
 	menu_list[11].values[0]=12;
 	menu_list[11].values[1]=30;
 	menu_list[11].values[2]=15;
@@ -280,7 +293,7 @@ void init_menu(void)
 	menu_list[11].value_max[1]=12;
 	menu_list[11].value_max[1]=3000;
 	menu_list[11].menu_id=11;
-	menu_list[11].menu_item_count = 6;
+	menu_list[11].menu_item_count = 3;
 	menu_list[11].menu_pointer=0;
 	menu_list[11].fun_ptr = &set_date_time;
 	menu_list[11].run_on_exit=0;
@@ -607,7 +620,7 @@ void update_menu_from_variables(int active_menu)
 void print_main_page(int active_menu)
 {
 		int text_width=0;
-		GLCD_ClearScreen();
+		GLCD_Clear_Ram();
 		char menu_strings_buff[MENU_STRING_LENGTH];
 		char Final_menu_strings[MENU_STRING_LENGTH];
 		for(int i=0 ; i < menu_list[active_menu].menu_item_count ; i++)
@@ -688,32 +701,37 @@ void print_main_page(int active_menu)
 				strcpy(Final_menu_strings , menu_list[active_menu].menu_strings[i]);
 			}
 			text_width = CalcTextWidthEN(Final_menu_strings);
-			glcd_draw_string_xy(menu_list[active_menu].x_position[i] - (text_width/2),menu_list[active_menu].y_position[i],Final_menu_strings,0,0,0);
+			glcd_draw_string_xy_with_ram(menu_list[active_menu].x_position[i] - (text_width/2),menu_list[active_menu].y_position[i],Final_menu_strings,0,0,0);
 		}
+		GLCD_Write_Ram();
 }
 
 void print_menu(int active_menu)
 {
-
 		int print_offset=0;
-		char menu_strings_buff[10][MENU_STRING_LENGTH];
-		char final_menu_strings[10][MENU_STRING_LENGTH];
+		char menu_strings_buff[MENU_STRING_LENGTH];
+		char final_menu_strings[MENU_STRING_LENGTH];
+		glcd_set_font_with_num(0);
+		GLCD_Clear_Ram();
+		print_offset = (128 - CalcTextWidthEN( menu_list[active_menu].menu_name))/2;
+		glcd_draw_string_xy_with_ram(print_offset,0,menu_list[active_menu].menu_name,0,0,0);
+		GLCD_Line(10,10,117,10);
 		for(int i=0 ; i < menu_list[active_menu].menu_item_count ; i++)
 		{
-			strcpy(menu_strings_buff[i] , menu_list[active_menu].menu_strings[i]);
-			if (strstr(menu_strings_buff[i], "%d") != 0)
+			strcpy(menu_strings_buff , menu_list[active_menu].menu_strings[i]);
+			if (strstr(menu_strings_buff, "%d") != 0)
 			{
-				sprintf(final_menu_strings[i], menu_strings_buff[i] , (int)(menu_list[active_menu].values[i]));
+				sprintf(final_menu_strings, menu_strings_buff , (int)(menu_list[active_menu].values[i]));
 			}
-			else if (strstr(menu_strings_buff[i], "%.1f") != 0)
+			else if (strstr(menu_strings_buff, "%.1f") != 0)
 			{
-				sprintf(final_menu_strings[i], menu_strings_buff[i] , (menu_list[active_menu].values[i]));
+				sprintf(final_menu_strings, menu_strings_buff , (menu_list[active_menu].values[i]));
 			}
-			else if (strstr(menu_strings_buff[i], "%.2f") != 0)
+			else if (strstr(menu_strings_buff, "%.2f") != 0)
 			{
-				sprintf(final_menu_strings[i], menu_strings_buff[i] , (menu_list[active_menu].values[i]));
+				sprintf(final_menu_strings, menu_strings_buff , (menu_list[active_menu].values[i]));
 			}
-			else if(strstr(menu_strings_buff[i], "|") != 0)
+			else if(strstr(menu_strings_buff, "|") != 0)
 			{			
 				
 				char chank1[MENU_STRING_LENGTH];
@@ -722,7 +740,7 @@ void print_menu(int active_menu)
 				char* Chank2 = chank2;
 				char chank3[MENU_STRING_LENGTH];
 				char* Chank3 = chank3;
-				Chank1 = strtok(menu_strings_buff[i] , "|");
+				Chank1 = strtok(menu_strings_buff, "|");
 				Chank2 = strtok(NULL , "|");
 				Chank3 = strtok(Chank2 , ",");
 				
@@ -730,123 +748,72 @@ void print_menu(int active_menu)
 				{
 					Chank3 = strtok(NULL , ",");
 				}
-				sprintf(final_menu_strings[i], "%s%s",Chank1, Chank3);
+				sprintf(final_menu_strings, "%s%s",Chank1, Chank3);
 			}
-			else if(strstr(menu_strings_buff[i], ",") != 0)
+			else if(strstr(menu_strings_buff, ",") != 0)
 			{			
 				char dummy[MENU_STRING_LENGTH];
 				char *final_buff = dummy;
-				final_buff = strtok(menu_strings_buff[i] , ",");
+				final_buff = strtok(menu_strings_buff , ",");
 				for(int j=0 ; j<(int)(menu_list[active_menu].values[i]) ; j++)
 				{
 					final_buff = strtok(NULL , ",");
 				}
-				strcpy(final_menu_strings[i] , final_buff);
+				strcpy(final_menu_strings , final_buff);
 			}
 			else
 			{
-				strcpy(final_menu_strings[i] , menu_list[active_menu].menu_strings[i]);
+				strcpy(final_menu_strings , menu_list[active_menu].menu_strings[i]);
 			}
-		}
-		
-	glcd_set_font_with_num(0);
-	GLCD_ClearScreen();
-	print_offset = (128 - CalcTextWidthEN( menu_list[active_menu].menu_name))/2;
-	glcd_draw_string_xy(print_offset,0,menu_list[active_menu].menu_name,0,0,0);
-	GLCD_Line(10,10,117,10);
-	for(int i=0 ; i < menu_list[active_menu].menu_item_count ; i++)
-			{
-			print_offset = (128 - CalcTextWidthEN( final_menu_strings[i]))/2;
+			print_offset = (128 - CalcTextWidthEN( final_menu_strings))/2;
 			if(i == menu_list[active_menu].menu_pointer)
 			{
 				
-				glcd_draw_string_xy(print_offset,i*9+14,final_menu_strings[i],0,1,0);
+				glcd_draw_string_xy_with_ram(print_offset,i*9+14,final_menu_strings,0,1,0);
 			}
 			else
 			{ 
-				glcd_draw_string_xy(print_offset,i*9+14,final_menu_strings[i],0,0,0);
+				glcd_draw_string_xy_with_ram(print_offset,i*9+14,final_menu_strings,0,0,0);
 			}
 		}
+	GLCD_Write_Ram();
 }
 
 void get_user_input(uint8_t *input,int *active_menu)
 {
+	
 	if(input[0]=='\n')
 	{
-		if(*active_menu == 0)
-		{
-			*active_menu = 1;
-		}
-		else
-		{
-			if(menu_list[*active_menu].menu_strings[menu_list[*active_menu].menu_pointer][1] == 'O' && menu_list[*active_menu].menu_strings[menu_list[*active_menu].menu_pointer][2] == 'K')
-			{
-				GLCD_ClearScreen();
-				glcd_set_font_with_num(0);
-				glcd_draw_string_xy(35,28,"Please Wait",0,0,0);
-				menu_list[*active_menu].fun_ptr();
-			}
-			*active_menu = menu_list[*active_menu].next_menu_id[menu_list[*active_menu].menu_pointer];
-			
-		}
+		ok_button_flag =1;
 	}
 	if(input[0] == 'e')
 	{
-		if(menu_list[*active_menu].run_on_exit == 1)
-		{
-			GLCD_ClearScreen();
-			glcd_set_font_with_num(0);
-			glcd_draw_string_xy(35,28,"Please Wait",0,0,0);
-			menu_list[*active_menu].fun_ptr();
-		}
-		*active_menu = 0;
-		delete_ph_calibration_task_flag = 1;
-		delete_temp_calibration_task_flag = 1;
+		back_button_flag = 1;
+		delete_ph_calibration_task_flag = 1;   //kill calibration thread
+		delete_temp_calibration_task_flag = 1; //kill calibration thread
+		auto_wash_state = 0;
+		auto_wash_handler(&auto_wash_state);		//cancel auto wash
 	}
 	if(input[0] == 'w')
 	{
-		if(menu_list[*active_menu].menu_pointer > 0)
-		{
-		menu_list[*active_menu].menu_pointer--;
-		}
-		else
-		{
-			menu_list[*active_menu].menu_pointer = menu_list[*active_menu].menu_item_count-1;
-		}
+		up_button_flag =1;
 	}
 	if(input[0] == 's')
 	{
-		if(menu_list[*active_menu].menu_pointer < menu_list[*active_menu].menu_item_count-1)
-		{
-		menu_list[*active_menu].menu_pointer++;
-		}
-		else
-		{
-			menu_list[*active_menu].menu_pointer = 0;
-		}
+		down_button_flag =1;
 	}
 	if(input[0] == 'd')
 	{
-		if(menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] < menu_list[*active_menu].value_max[menu_list[*active_menu].menu_pointer])
-		{
-			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] += menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] ;
-		}
-		else if(menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] != 0)
-		{
-			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] = menu_list[*active_menu].value_min[menu_list[*active_menu].menu_pointer];
-		}
+		right_button_flag =1;
 	}
 	if(input[0] == 'a')
 	{
-		if(menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] > menu_list[*active_menu].value_min[menu_list[*active_menu].menu_pointer])
-		{
-			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] -= menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] ;
-		}
-		else if(menu_list[*active_menu].value_resolution[menu_list[*active_menu].menu_pointer] != 0)
-		{
-			menu_list[*active_menu].values[menu_list[*active_menu].menu_pointer] = menu_list[*active_menu].value_max[menu_list[*active_menu].menu_pointer];
-		}
+		left_button_flag =1;
 	}	
+	
+			char sp_buff[20];
+			sprintf(sp_buff,"sp:%d,ac:%d \n",active_menu_sp,active_menu[active_menu_sp]);
+			MAX485_send_string(sp_buff,strlen(sp_buff),100);
 }
 void Change_Menu_Items(int Menu_num, int Menu_line, char* Menu_String, int Next_Menu_Id, float Value, int Menu_Active_Line)
 {
