@@ -52,7 +52,7 @@ Mkfile.old
 dkms.conf
 
 # Directories
-/MDK-ARM/pHmeter
+/MDK-ARM/pH_meter_ver_2
 /MDK-ARM/RTE
 /MDK-ARM/DebugConfig
 
@@ -62,11 +62,7 @@ dkms.conf
 *.TMP
 *.scvd
 
-# Document files
-*.pdf
-*.txt
-
-#CubeMx temps
+# CubeMx temps
 *.scratch
 *.mxproject
 *.ftl
