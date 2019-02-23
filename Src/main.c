@@ -107,7 +107,7 @@ float p1_t = -0.06613;
 float p2_t = 128.17461 ;
 float pH = 0;
 float temp = 0;
-float ph_calibration_temp ;
+float ph_calibration_temp = 25;
 float temp_compensation_coef = 0;
 int32_t eeprom_buff;
 
