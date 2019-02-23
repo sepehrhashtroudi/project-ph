@@ -64,7 +64,6 @@ dkms.conf
 
 # Document files
 *.pdf
-*.txt
 
 #CubeMx temps
 *.scratch
