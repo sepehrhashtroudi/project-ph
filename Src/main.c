@@ -325,6 +325,7 @@ void main_thread(void * pvParameters)
 	HAL_TIM_PWM_Start(&htim4,TIM_CHANNEL_4);
 	__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_4,0);
 	init_menu();
+	
 //	eeprom_buff = p1_p*float_to_int_factor;
 //	eeprom_write_data(p1_p_eeprom_add,&eeprom_buff,1);
 //	eeprom_buff = p2_p*float_to_int_factor;
@@ -335,6 +336,13 @@ void main_thread(void * pvParameters)
 //	eeprom_write_data(p2_t_eeprom_add,&eeprom_buff,1);
 //	eeprom_buff = ph_calibration_temp*float_to_int_factor;
 //	eeprom_write_data(ph_calibration_temp_add,&eeprom_buff,1);
+//	eeprom_buff = PID_P*float_to_int_factor;
+//	eeprom_write_data(pid_p_eeprom_add,&eeprom_buff,1);
+//	eeprom_buff = PID_I*float_to_int_factor;
+//	eeprom_write_data(pid_i_eeprom_add,&eeprom_buff,1);
+//	eeprom_buff = PID_D*float_to_int_factor;
+//	eeprom_write_data(pid_d_eeprom_add,&eeprom_buff,1);
+	
 	read_setting_from_eeprom();
 	// Prepare PID controller for operation
 	pid = pid_create(&ctrldata, &input, &output, setpoint, *kp, *ki, *kd);
@@ -757,16 +765,32 @@ void send_pH_4_20(uint16_t pH)
 
 void read_setting_from_eeprom(void)
 {
+	char sprintf_buff[40];
 	eeprom_read_data(p1_p_eeprom_add,&eeprom_buff,1);
 	p1_p = eeprom_buff / float_to_int_factor;
+	sprintf(sprintf_buff,"p1_p:%.5f \n",p1_p);
+	MAX485_send_string(sprintf_buff,20,100);
+	
 	eeprom_read_data(p2_p_eeprom_add,&eeprom_buff,1);
 	p2_p = eeprom_buff / float_to_int_factor;
+	sprintf(sprintf_buff,"p2_p:%.5f \n",p2_p);
+	MAX485_send_string(sprintf_buff,20,100);
+	
 	eeprom_read_data(ph_calibration_temp_add,&eeprom_buff,1);
 	ph_calibration_temp = eeprom_buff / float_to_int_factor;
+	sprintf(sprintf_buff,"cal_temp:%.5f \n",ph_calibration_temp);
+	MAX485_send_string(sprintf_buff,20,100);
+	
 	eeprom_read_data(p1_t_eeprom_add,&eeprom_buff,1);
 	p1_t = eeprom_buff / float_to_int_factor;
+	sprintf(sprintf_buff,"p1_t:%.5f \n",p1_t);
+	MAX485_send_string(sprintf_buff,20,100);
+	
 	eeprom_read_data(p2_t_eeprom_add,&eeprom_buff,1);
 	p2_t = eeprom_buff / float_to_int_factor;
+	sprintf(sprintf_buff,"p2_t:%.5f \n",p2_t);
+	MAX485_send_string(sprintf_buff,20,100);
+	
 	eeprom_read_data(pid_p_eeprom_add,&eeprom_buff,1);
 	PID_P = eeprom_buff / float_to_int_factor;
 	eeprom_read_data(pid_i_eeprom_add,&eeprom_buff,1);
@@ -863,8 +887,8 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 	pH_filtered = best_moving_average(ph_averaged, ph_history, &ph_sum, &ph_window_pointer);
 	if(ATC == 1)
 	{
-		temp_compensation_coef = (temp + 273.15f) / (ph_calibration_temp + 273.15f);
-		pH = temp_compensation_coef * p1_p * pH_filtered + p2_p;
+		temp_compensation_coef = (ph_calibration_temp + 273.15f) / (temp + 273.15f);
+		pH = (temp_compensation_coef * p1_p * pH_filtered + p2_p) + p1_p*(1-temp_compensation_coef)*2047;
 	}
 	else
 	{

@@ -52,6 +52,10 @@ void ph_calculate_calibration_coefficients(void)
 	Change_Menu_Items(22,1,NULL,-1,slope_percent,-1);
 	Change_Menu_Items(22,2,NULL,-1,zero,-1);
 	ph_calibration_temp = (ph_calibration_start_temp + ph_calibration_end_temp)/2.0f;
+	if (temp_filtered < 10)
+	{ // temp sensor is not available
+		ph_calibration_temp = 25;
+	}
 	EEprom_buff = ph_calibration_temp*float_to_int_factor;
 	eeprom_write_data(ph_calibration_temp_add,&EEprom_buff,1);
 	EEprom_buff = p1_p*float_to_int_factor;
