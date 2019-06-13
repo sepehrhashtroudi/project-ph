@@ -326,22 +326,48 @@ void main_thread(void * pvParameters)
 	__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_4,0);
 	init_menu();
 	
-//	eeprom_buff = p1_p*float_to_int_factor;
-//	eeprom_write_data(p1_p_eeprom_add,&eeprom_buff,1);
-//	eeprom_buff = p2_p*float_to_int_factor;
-//	eeprom_write_data(p2_p_eeprom_add,&eeprom_buff,1);
-//	eeprom_buff = p1_t*float_to_int_factor;
-//	eeprom_write_data(p1_t_eeprom_add,&eeprom_buff,1);
-//	eeprom_buff = p2_t*float_to_int_factor;
-//	eeprom_write_data(p2_t_eeprom_add,&eeprom_buff,1);
-//	eeprom_buff = ph_calibration_temp*float_to_int_factor;
-//	eeprom_write_data(ph_calibration_temp_add,&eeprom_buff,1);
-//	eeprom_buff = PID_P*float_to_int_factor;
-//	eeprom_write_data(pid_p_eeprom_add,&eeprom_buff,1);
-//	eeprom_buff = PID_I*float_to_int_factor;
-//	eeprom_write_data(pid_i_eeprom_add,&eeprom_buff,1);
-//	eeprom_buff = PID_D*float_to_int_factor;
-//	eeprom_write_data(pid_d_eeprom_add,&eeprom_buff,1);
+	#ifdef program_factory_config
+		eeprom_buff = p1_p*float_to_int_factor;
+		eeprom_write_data(p1_p_eeprom_add,&eeprom_buff,1);
+		eeprom_buff = p2_p*float_to_int_factor;
+		eeprom_write_data(p2_p_eeprom_add,&eeprom_buff,1);
+		eeprom_buff = p1_t*float_to_int_factor;
+		eeprom_write_data(p1_t_eeprom_add,&eeprom_buff,1);
+		eeprom_buff = p2_t*float_to_int_factor;
+		eeprom_write_data(p2_t_eeprom_add,&eeprom_buff,1);
+		eeprom_buff = ph_calibration_temp*float_to_int_factor;
+		eeprom_write_data(ph_calibration_temp_add,&eeprom_buff,1);
+		eeprom_buff = PID_P*float_to_int_factor;
+		eeprom_write_data(pid_p_eeprom_add,&eeprom_buff,1);
+		eeprom_buff = PID_I*float_to_int_factor;
+		eeprom_write_data(pid_i_eeprom_add,&eeprom_buff,1);
+		eeprom_buff = PID_D*float_to_int_factor;
+		eeprom_write_data(pid_d_eeprom_add,&eeprom_buff,1);
+		eeprom_buff = CONTROLLER_THRESHOLD_MAX*float_to_int_factor;
+		eeprom_write_data(relay_max_eeprom_add,&eeprom_buff,1);
+		eeprom_buff = CONTROLLER_THRESHOLD_MIN*float_to_int_factor;
+		eeprom_write_data(relay_min_eeprom_add,&eeprom_buff,1);
+		eeprom_buff = CONTROLLER_ON_OFF;
+		eeprom_write_data(controller_on_off_eeprom_add,&eeprom_buff,1);
+		eeprom_buff = CONTROLLER_TYPE;
+		eeprom_write_data(controller_type_eeprom_add,&eeprom_buff,1);
+		eeprom_buff = CONTROLLER_SETPOINT*float_to_int_factor;
+		eeprom_write_data(controller_setpoint_eeprom_add,&eeprom_buff,1);
+		eeprom_buff = ATC;
+		eeprom_write_data(ATC_eeprom_add,&eeprom_buff,1);
+		eeprom_buff = relay1_func;
+		eeprom_write_data(REL_FUNC_1_EEPROM_ADD,&eeprom_buff,1);
+		eeprom_buff = relay2_func;
+		eeprom_write_data(REL_FUNC_2_EEPROM_ADD,&eeprom_buff,1);
+		eeprom_buff = relay3_func;
+		eeprom_write_data(REL_FUNC_3_EEPROM_ADD,&eeprom_buff,1);
+		eeprom_buff = relay4_func;
+		eeprom_write_data(REL_FUNC_4_EEPROM_ADD,&eeprom_buff,1);
+		eeprom_buff = STABILIZATION_TIME;
+		eeprom_write_data(STABILIZATION_TIME_EEPROM_ADD,&eeprom_buff,1);
+		eeprom_buff = STABILIZATION_RANGE*float_to_int_factor;
+		eeprom_write_data(STABILIZATION_RANGE_EEPROM_ADD,&eeprom_buff,1);
+	#endif
 	
 	read_setting_from_eeprom();
 	// Prepare PID controller for operation

@@ -6,6 +6,11 @@
 #define MENU_DEPTH					30	// maximum menu number that you can go inside(for active menu stack)
 #define eeprom_length 			30	//number of addresses in the eeprom (each is int32_t variable)
 
+
+//#define program_factory_config
+
+
+
 #define p1_p_eeprom_add  				(uint32_t)0
 #define p2_p_eeprom_add  				(uint32_t)1
 #define p1_t_eeprom_add  				(uint32_t)2

@@ -372,10 +372,10 @@ void init_menu(void)
 	menu_list[17].next_menu_id[1]=17;
 	menu_list[17].next_menu_id[2]=17;
 	menu_list[17].next_menu_id[3]=17;
-	menu_list[17].values[0]=0;
-	menu_list[17].values[1]=1;
-	menu_list[17].values[2]=2;
-	menu_list[17].values[3]=3;
+	menu_list[17].values[0]=1;
+	menu_list[17].values[1]=2;
+	menu_list[17].values[2]=3;
+	menu_list[17].values[3]=4;
 	menu_list[17].value_resolution[0]=1;
 	menu_list[17].value_resolution[1]=1;
 	menu_list[17].value_resolution[2]=1;
