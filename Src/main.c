@@ -747,7 +747,7 @@ void light_thread(void* pvParameters)
 		
 		if(back_light_state == 1)
 		{
-			HAL_GPIO_TogglePin(Status_led_GPIO_Port,Status_led_Pin);
+			HAL_GPIO_TogglePin(Power_led_GPIO_Port,Power_led_Pin);
 			for(int i=100; i>20;i--)
 			{
 				__HAL_TIM_SET_COMPARE(&htim4,TIM_CHANNEL_4,i);
@@ -764,7 +764,7 @@ void light_thread(void* pvParameters)
 		
 		if(GLCD_ReadStatus(0) == 0x20 || GLCD_ReadStatus(1) == 0x20) // lcd is reseted
 		{
-			//GLCD_WriteCommand((DISPLAY_ON_CMD | ON), i);
+			//GLCD_WriteCommand((DISPLAY_ON_CMD | ON), i); done in GLCD_WriteData(unsigned char dataToWrite) 
 			xSemaphoreGive( lcd_semaphore );
 		}
 		osDelay(100);
@@ -783,9 +783,10 @@ void pump_set_stroke(uint16_t stroke)
 	uint16_t dac_value = (4095 * ((4 + stroke * 0.16) * 0.1) / 3.3);
 	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, dac_value);
 }
-void send_pH_4_20(uint16_t pH)
+void send_pH_4_20(float pH)
 {
-	uint16_t dac_value = (4095 * ((4 + pH * 16.0 / 14.0) * 0.1) / 3.3);
+	
+	uint16_t dac_value = (4095 * ((4.0f + pH * 16.0f / 14.0f) * 0.1f) / 3.3f);
 	HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, dac_value);
 }
 

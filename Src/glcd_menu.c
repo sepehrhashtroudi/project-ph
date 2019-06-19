@@ -273,7 +273,7 @@ void init_menu(void)
 	strcpy(menu_list[11].menu_strings[2], " OK ");
 	menu_list[11].next_menu_id[0]=11;
 	menu_list[11].next_menu_id[1]=11;
-	menu_list[11].next_menu_id[2]=1;
+	menu_list[11].next_menu_id[2]=0;
 //	menu_list[11].next_menu_id[3]=11;
 //	menu_list[11].next_menu_id[4]=11;
 //	menu_list[11].next_menu_id[5]=1;
@@ -289,9 +289,9 @@ void init_menu(void)
 	menu_list[11].value_resolution[4]=1.000;
 	menu_list[11].value_max[0]=23;
 	menu_list[11].value_max[1]=59;
-	menu_list[11].value_max[1]=31;
-	menu_list[11].value_max[1]=12;
-	menu_list[11].value_max[1]=3000;
+	menu_list[11].value_max[2]=31;
+	menu_list[11].value_max[3]=12;
+	menu_list[11].value_max[4]=3000;
 	menu_list[11].menu_id=11;
 	menu_list[11].menu_item_count = 3;
 	menu_list[11].menu_pointer=0;
